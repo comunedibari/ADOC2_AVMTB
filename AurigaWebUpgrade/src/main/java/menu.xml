@@ -1,0 +1,1175 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.0.xsd">
+
+	<bean id="MenuConfigurator" class="it.eng.utility.ui.config.MenuConfigurator">
+		<property name="vociMenu">
+			<util:list value-type="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+				<ref bean="protocollazione" />
+				<ref bean="altre_registrazioni_numerazioni" />
+				<ref bean="gestione_atti" />
+				<ref bean="controlloRegAmministrativa" />
+				<!--  ref bean="gestione_visure" / -->
+				<ref bean="gestione_proposte_organigramma" />
+				<ref bean="posta_elettronica" />
+				<ref bean="scrivania" />
+				<ref bean="gestione_delibere" />
+				<!--  ref bean="istanze_autotutela" / -->
+				<ref bean="archivio" />
+				<ref bean="richiesta_accesso_documento" />
+				<ref bean="stampa_registro" />
+				<ref bean="atti_autorizzazione_ann_reg" />
+				<ref bean="cambiopwd" />
+				<!--ref bean="gestione_procedimenti" / -->
+				<ref bean="anagrafiche" />
+				<!--  ref bean="configurazione_contesto_procedurale" / -->
+				<!--ref bean="registro_documenti" / -->
+				<!--ref bean="contratti" / -->
+				<ref bean="richieste_agib" />
+				<!--ref bean="invio_documentazione_via_pec" / -->
+				<ref bean="libro_firma" />
+				<!--  ref bean="carica_pratica_pregressa" / -->
+				<ref bean="report" />
+				<ref bean="chiusura_massiva_email" />
+				<ref bean="deleghe" />
+				<ref bean="pubblicazione_albo" />
+				<ref bean="info" />
+				<!--ref bean="wizard" / -->
+				<!--ref bean="elenchi_albi" / -->
+				<!--ref bean="attributi_dinamici" / -->
+			</util:list>
+		</property>
+	</bean>
+
+<!-- 
+	<bean id="carica_pratica_pregressa" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+		<property name="nomeEntita" value="carica_pratica_pregressa" />
+		<property name="title" value="Caricamento pratica" />
+		<property name="prompt" value="Caricamento pratica" />
+		<property name="icon" value="menu/carica_pratica_pregressa.png" />
+		<property name="privilegi">
+			<util:list value-type="java.lang.String">
+				<value>GRD/FLD/IPP</value>
+			</util:list>
+		</property>
+	</bean>
+	-->
+
+	<bean id="richieste_agib" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+		<property name="nomeEntita" value="richieste_agib" />
+		<property name="title" value="${richieste_agib.title}" />
+		<property name="prompt" value="${richieste_agib.prompt}" />
+		<property name="icon" value="${richieste_agib.icon}" />
+		<property name="privilegi">
+			<util:list value-type="java.lang.String">
+				<value>AGB/SB</value>
+			</util:list>
+		</property>
+	</bean>
+	
+	<!-- 
+	<bean id="configurazione_contesto_procedurale" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+		<property name="nomeEntita" value="configurazione_contesto_procedurale" />
+		<property name="title" value="${configurazione_contesto_procedurale.title}" />
+		<property name="prompt" value="${configurazione_contesto_procedurale.prompt}" />
+		<property name="icon" value="${configurazione_contesto_procedurale.icon}" />
+		<property name="submenu">
+			<util:list value-type="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+				<bean id="definizione_attivita_procedimenti" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+					<property name="nomeEntita" value="definizione_attivita_procedimenti" />
+					<property name="title" value="${definizione_attivita_procedimenti.title}" />
+					<property name="prompt" value="${definizione_attivita_procedimenti.prompt}" />
+					<property name="icon" value="${definizione_attivita_procedimenti.icon}" />
+					<property name="privilegi">
+						<util:list value-type="java.lang.String">
+							<value>DC/TEP;M</value>
+						</util:list>
+					</property>
+				</bean>
+				<bean id="anagrafe_procedimenti" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+					<property name="nomeEntita" value="anagrafe_procedimenti" />
+					<property name="title" value="${anagrafe_procedimenti.title}" />
+					<property name="prompt" value="${anagrafe_procedimenti.prompt}" />
+					<property name="icon" value="${anagrafe_procedimenti.icon}" />
+					<property name="privilegi">
+						<util:list value-type="java.lang.String">
+							<value>DC/TP;M</value>
+						</util:list>
+					</property>
+				</bean>
+				<bean id="configurazione_flussi_modellati" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+					<property name="nomeEntita" value="configurazione_flussi_modellati" />
+					<property name="title" value="${configurazione_flussi_modellati.title}" />
+					<property name="prompt" value="${configurazione_flussi_modellati.prompt}" />
+					<property name="icon" value="${configurazione_flussi_modellati.icon}" />
+					<property name="privilegi">
+						<util:list value-type="java.lang.String">
+							<value>DC/WF;M</value>
+						</util:list>
+					</property>
+				</bean>
+				<bean id="modellatore_processi" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+					<property name="nomeEntita" value="modellatore_processi" />
+					<property name="title" value="${modellatore_processi.title}" />
+					<property name="prompt" value="${modellatore_processi.prompt}" />
+					<property name="icon" value="${modellatore_processi.icon}" />
+					<property name="privilegi">
+						<util:list value-type="java.lang.String">
+							<value>DC/WF;M</value>
+						</util:list>
+					</property>
+
+				</bean>
+			</util:list>
+		</property>
+	</bean>
+
+-->
+
+	<bean id="protocollazione" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+		<property name="nomeEntita" value="protocollazione" />
+		<property name="title" value="${protocollazione.title}" />
+		<property name="prompt" value="${protocollazione.prompt}" />
+		<property name="icon" value="${protocollazione.icon}" />
+		<property name="submenu">
+			<util:list value-type="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+				<bean id="protocollazione_entrata" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+					<property name="nomeEntita" value="protocollazione_entrata" />
+					<property name="title" value="${protocollazione_entrata.title}" />
+					<property name="prompt" value="${protocollazione_entrata.prompt}" />
+					<property name="icon" value="${protocollazione_entrata.icon}" />
+					<property name="privilegi">
+						<util:list value-type="java.lang.String">
+							<value>PRT/E</value>
+						</util:list>
+					</property>
+				</bean>
+				<bean id="protocollazione_uscita" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+					<property name="nomeEntita" value="protocollazione_uscita" />
+					<property name="title" value="${protocollazione_uscita.title}" />
+					<property name="prompt" value="${protocollazione_uscita.prompt}" />
+					<property name="icon" value="${protocollazione_uscita.icon}" />
+					<property name="privilegi">
+						<util:list value-type="java.lang.String">
+							<value>PRT/U</value>
+						</util:list>
+					</property>
+				</bean>
+				<bean id="protocollazione_interna" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+					<property name="nomeEntita" value="protocollazione_interna" />
+					<property name="title" value="${protocollazione_interna.title}" />
+					<property name="prompt" value="${protocollazione_interna.prompt}" />
+					<property name="icon" value="${protocollazione_interna.icon}" />
+					<property name="privilegi">
+						<util:list value-type="java.lang.String">
+							<value>PRT/I</value>
+						</util:list>
+					</property>
+				</bean>
+			</util:list>
+		</property>
+	</bean>
+
+	<bean id="altre_registrazioni_numerazioni" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+		<property name="nomeEntita" value="altre_registrazioni_numerazioni" />
+		<property name="title" value="${altre_registrazioni_numerazioni.title}" />
+		<property name="prompt" value="${altre_registrazioni_numerazioni.prompt}" />
+		<property name="icon" value="${altre_registrazioni_numerazioni.icon}" />
+		<property name="submenu">
+			<util:list value-type="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+				<bean id="repertorio_entrata" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+					<property name="nomeEntita" value="repertorio_entrata" />
+					<property name="title" value="${repertorio_entrata.title}" />
+					<property name="prompt" value="${repertorio_entrata.prompt}" />
+					<property name="icon" value="${repertorio_entrata.icon}" />
+					<property name="privilegi">
+						<util:list value-type="java.lang.String">
+							<value>RPR</value>
+						</util:list>
+					</property>
+				</bean>
+				<bean id="repertorio_interno" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+					<property name="nomeEntita" value="repertorio_interno" />
+					<property name="title" value="${repertorio_interno.title}" />
+					<property name="prompt" value="${repertorio_interno.prompt}" />
+					<property name="icon" value="${repertorio_interno.icon}" />
+					<property name="privilegi">
+						<util:list value-type="java.lang.String">
+							<value>RPR</value>
+						</util:list>
+					</property>
+				</bean>
+				<bean id="repertorio_uscita" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+					<property name="nomeEntita" value="repertorio_uscita" />
+					<property name="title" value="${repertorio_uscita.title}" />
+					<property name="prompt" value="${repertorio_uscita.prompt}" />
+					<property name="icon" value="${repertorio_uscita.icon}" />
+					<property name="privilegi">
+						<util:list value-type="java.lang.String">
+							<value>RPR</value>
+						</util:list>
+					</property>
+				</bean>
+				
+				<!--  
+				<bean id="registro_fatture" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+					<property name="nomeEntita" value="registro_fatture" />
+					<property name="title" value="${registro_fatture.title}" />
+					<property name="prompt" value="${registro_fatture.prompt}" />
+					<property name="icon" value="${registro_fatture.icon}" />
+					<property name="privilegi">
+						<util:list value-type="java.lang.String">
+							<value>RGF</value>
+						</util:list>
+					</property>
+				</bean>
+				-->
+				
+				<bean id="numerazione_provvisoria" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+					<property name="nomeEntita" value="numerazione_provvisoria" />
+					<property name="title" value="${numerazione_provvisoria.title}" />
+					<property name="prompt" value="${numerazione_provvisoria.prompt}" />
+					<property name="icon" value="${numerazione_provvisoria.icon}" />
+					<property name="privilegi">
+						<util:list value-type="java.lang.String">
+							<value>GRD/UD/IUD</value>
+						</util:list>
+					</property>
+				</bean>
+				
+				<!--  
+				<bean id="carica_protocollo_pregresso" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+					<property name="nomeEntita" value="carica_protocollo_pregresso" />
+					<property name="title" value="Carica protocollo pregresso" />
+					<property name="prompt" value="Carica protocollo pregresso" />
+					<property name="icon" value="menu/carica_protocollo_pregresso.png" />
+					<property name="privilegi">
+						<util:list value-type="java.lang.String">
+							<value>GRD/UD/IPP</value>
+						</util:list>
+					</property>
+				</bean>
+				-->
+			</util:list>
+		</property>
+	</bean>
+
+	<bean id="scrivania" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+		<property name="nomeEntita" value="scrivania" />
+		<property name="title" value="${scrivania.title}" />
+		<property name="prompt" value="${scrivania.prompt}" />
+		<property name="icon" value="${scrivania.icon}" />
+	</bean>
+	
+	<bean id="gestione_delibere" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+		<property name="nomeEntita" value="gestione_delibere" />
+		<property name="title" value="${gestione_delibere.title}" />
+		<property name="prompt" value="${gestione_delibere.prompt}" />
+		<property name="icon" value="${gestione_delibere.icon}" />
+		<property name="submenu">
+			<util:list value-type="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+				<bean id="gestione_delibere_giunta" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+					<property name="nomeEntita" value="gestione_delibere_giunta" />
+					<property name="title" value="${gestione_delibere_giunta.title}" />
+					<property name="prompt" value="${gestione_delibere_giunta.prompt}" />
+					<property name="icon" value="${gestione_delibere_giunta.icon}" />
+					<property name="submenu">
+					<util:list value-type="it.eng.utility.ui.module.layout.shared.bean.MenuBean">				
+						<bean id="gestione_delibere_giunta_convocazioneseduta" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+							<property name="nomeEntita" value="gestione_delibere_giunta_convocazioneseduta" />
+							<property name="title" value="${gestione_delibere_giunta_convocazioneseduta.title}" />
+							<property name="prompt" value="${gestione_delibere_giunta_convocazioneseduta.prompt}" />
+							<property name="icon" value="${gestione_delibere_giunta_convocazioneseduta.icon}" />
+							<property name="privilegi">
+								<util:list value-type="java.lang.String">
+									<value>ORC/GNT/C</value>
+								</util:list>
+							</property>
+						</bean>
+						<bean id="gestione_delibere_giunta_discussione" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+							<property name="nomeEntita" value="gestione_delibere_giunta_discussione" />
+							<property name="title" value="${gestione_delibere_giunta_discussione.title}" />
+							<property name="prompt" value="${gestione_delibere_giunta_discussione.prompt}" />
+							<property name="icon" value="${gestione_delibere_giunta_discussione.icon}" />
+							<property name="privilegi">
+								<util:list value-type="java.lang.String">
+									<value>ORC/GNT/G</value>
+									<value>ORC/GNT/V</value>
+								</util:list>
+							</property>
+						</bean>
+						<bean id="gestione_delibere_giunta_storicosedute" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+							<property name="nomeEntita" value="gestione_delibere_giunta_storicosedute" />
+							<property name="title" value="${gestione_delibere_giunta_storicosedute.title}" />
+							<property name="prompt" value="${gestione_delibere_giunta_storicosedute.prompt}" />
+							<property name="icon" value="${gestione_delibere_giunta_storicosedute.icon}" />
+							<property name="privilegi">
+								<util:list value-type="java.lang.String">
+									<value>ORC/GNT/S</value>
+								</util:list>
+							</property>
+						</bean>
+					</util:list>
+					</property>
+			 	</bean>			
+			 	<bean id="gestione_delibere_consiglio" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+					<property name="nomeEntita" value="gestione_delibere_consiglio" />
+					<property name="title" value="${gestione_delibere_consiglio.title}" />
+					<property name="prompt" value="${gestione_delibere_consiglio.prompt}" />
+					<property name="icon" value="${gestione_delibere_consiglio.icon}" />
+					<property name="submenu">
+					<util:list value-type="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+						<bean id="gestione_delibere_consiglio_convocazioneseduta" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+							<property name="nomeEntita" value="gestione_delibere_consiglio_convocazioneseduta" />
+							<property name="title" value="${gestione_delibere_consiglio_convocazioneseduta.title}" />
+							<property name="prompt" value="${gestione_delibere_consiglio_convocazioneseduta.prompt}" />
+							<property name="icon" value="${gestione_delibere_consiglio_convocazioneseduta.icon}" />
+							<property name="privilegi">
+								<util:list value-type="java.lang.String">
+									<value>ORC/CNS/C</value>
+								</util:list>
+							</property>
+						</bean>
+						<bean id="gestione_delibere_consiglio_discussione" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+							<property name="nomeEntita" value="gestione_delibere_consiglio_discussione" />
+							<property name="title" value="${gestione_delibere_consiglio_discussione.title}" />
+							<property name="prompt" value="${gestione_delibere_consiglio_discussione.prompt}" />
+							<property name="icon" value="${gestione_delibere_consiglio_discussione.icon}" />
+							<property name="privilegi">
+								<util:list value-type="java.lang.String">
+									<value>ORC/CNS/G</value>
+									<value>ORC/CNS/V</value>
+								</util:list>
+							</property>
+						</bean>
+						<bean id="gestione_delibere_consiglio_storicosedute" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+							<property name="nomeEntita" value="gestione_delibere_consiglio_storicosedute" />
+							<property name="title" value="${gestione_delibere_consiglio_storicosedute.title}" />
+							<property name="prompt" value="${gestione_delibere_consiglio_storicosedute.prompt}" />
+							<property name="icon" value="${gestione_delibere_consiglio_storicosedute.icon}" />
+							<property name="privilegi">
+								<util:list value-type="java.lang.String">
+									<value>ORC/CNS/S</value>
+								</util:list>
+							</property>
+						</bean>				
+					</util:list>
+					</property>
+			 	</bean>				
+			    <bean id="gestione_delibere_commissioni" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+					<property name="nomeEntita" value="gestione_deliberecommissioni" />
+					<property name="title" value="${gestione_delibere_commissioni.title}" />
+					<property name="prompt" value="${gestione_delibere_commissioni.prompt}" />
+					<property name="icon" value="${gestione_delibere_commissioni.icon}" />
+					<property name="submenu">
+					<util:list value-type="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+						<bean id="gestione_delibere_commissioni_convocazioneseduta" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+							<property name="nomeEntita" value="gestione_delibere_commissioni_convocazioneseduta" />
+							<property name="title" value="${gestione_delibere_commissioni_convocazioneseduta.title}" />
+							<property name="prompt" value="${gestione_delibere_commissioni_convocazioneseduta.prompt}" />
+							<property name="icon" value="${gestione_delibere_commissioni_convocazioneseduta.icon}" />
+							<property name="privilegi">
+								<util:list value-type="java.lang.String">
+									<value>ORC/CMM/C</value>
+								</util:list>
+							</property>
+						</bean>
+						<bean id="gestione_delibere_commissioni_discussione" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+							<property name="nomeEntita" value="gestione_delibere_commissioni_discussione" />
+							<property name="title" value="${gestione_delibere_commissioni_discussione.title}" />
+							<property name="prompt" value="${gestione_delibere_commissioni_discussione.prompt}" />
+							<property name="icon" value="${gestione_delibere_commissioni_discussione.icon}" />
+							<property name="privilegi">
+								<util:list value-type="java.lang.String">
+									<value>ORC/CMM/G</value>
+									<value>ORC/CMM/V</value>
+								</util:list>
+							</property>
+						</bean>
+						<bean id="gestione_delibere_commissioni_storicosedute" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+							<property name="nomeEntita" value="gestione_delibere_commissioni_storicosedute" />
+							<property name="title" value="${gestione_delibere_commissioni_storicosedute.title}" />
+							<property name="prompt" value="${gestione_delibere_commissioni_storicosedute.prompt}" />
+							<property name="icon" value="${gestione_delibere_commissioni_storicosedute.icon}" />
+							<property name="privilegi">
+								<util:list value-type="java.lang.String">
+									<value>ORC/CMM/S</value>
+								</util:list>
+							</property>
+						</bean>
+					</util:list>
+					</property>
+				</bean>
+			</util:list>
+		</property>
+	</bean>
+
+	<bean id="atti_autorizzazione_ann_reg" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+		<property name="nomeEntita" value="atti_autorizzazione_ann_reg" />
+		<property name="title" value="${atti_autorizzazione_ann_reg.title}" />
+		<property name="prompt" value="${atti_autorizzazione_ann_reg.prompt}" />
+		<property name="icon" value="${atti_autorizzazione_ann_reg.icon}" />
+		<property name="privilegi">
+			<util:list value-type="java.lang.String">
+				<value>AAR</value>
+			</util:list>
+		</property>
+	</bean>
+
+
+	<bean id="stampa_registro" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+		<property name="nomeEntita" value="stampa_registro" />
+		<property name="title" value="${stampa_registro.title}" />
+		<property name="prompt" value="${stampa_registro.prompt}" />
+		<property name="icon" value="${stampa_registro.icon}" />
+		<property name="privilegi">
+			<util:list value-type="java.lang.String">
+				<value>SR/PRT/PG</value>
+				<value>SR/PRT/PI</value>
+				<value>SR/PRT/PP</value>
+			</util:list>
+		</property>
+		<property name="submenu">
+			<util:list value-type="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+				<bean id="stampa_reg_prot" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+					<property name="nomeEntita" value="stampa_reg_prot" />
+					<property name="title" value="${stampa_reg_prot.title}" />
+					<property name="prompt" value="${stampa_reg_prot.prompt}" />
+					<property name="icon" value="${stampa_reg_prot.icon}" />
+					<property name="privilegi">
+						<util:list value-type="java.lang.String">
+							<value>SR/PRT/PG</value>
+							<value>SR/PRT/PI</value>
+							<value>SR/PRT/PP</value>
+						</util:list>
+					</property>
+				</bean>
+				<bean id="stampa_reg_repertorio" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+					<property name="nomeEntita" value="stampa_reg_repertorio" />
+					<property name="title" value="${stampa_reg_repertorio.title}" />
+					<property name="prompt" value="${stampa_reg_repertorio.prompt}" />
+					<property name="icon" value="${stampa_reg_repertorio.icon}" />
+					<property name="privilegi">
+						<util:list value-type="java.lang.String">
+							<value>SR/REP</value>
+						</util:list>
+					</property>
+				</bean>
+				<bean id="stampa_reg_proposte_atti" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+					<property name="nomeEntita" value="stampa_reg_proposte_atti" />
+					<property name="title" value="${stampa_reg_proposte_atti.title}" />
+					<property name="prompt" value="${stampa_reg_proposte_atti.prompt}" />
+					<property name="icon" value="${stampa_reg_proposte_atti.icon}" />
+					<property name="privilegi">
+						<util:list value-type="java.lang.String">
+							<value>SR/REP</value>
+						</util:list>
+					</property>
+				</bean>
+			</util:list>
+		</property>
+	</bean>
+
+
+	<bean id="archivio" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+		<property name="nomeEntita" value="archivio" />
+		<property name="title" value="${archivio.title}" />
+		<property name="prompt" value="${archivio.prompt}" />
+		<property name="icon" value="${archivio.icon}" />
+	</bean>
+
+	<bean id="posta_elettronica" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+		<property name="nomeEntita" value="posta_elettronica" />
+		<property name="title" value="${posta_elettronica.title}" />
+		<property name="prompt" value="${posta_elettronica.prompt}" />
+		<property name="icon" value="${posta_elettronica.icon}" />
+		<property name="privilegi">
+			<util:list value-type="java.lang.String">
+				<value>EML/SV/IN</value>
+				<value>EML/SV/OUT</value>
+				<value>EML/INS</value>
+				<value>EML/LK/ASS</value>
+				<value>EML/LK</value>
+			</util:list>
+		</property>
+	</bean>
+
+	<bean id="anagrafiche" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+		<property name="nomeEntita" value="anagrafiche" />
+		<property name="title" value="${anagrafiche.title}" />
+		<property name="prompt" value="${anagrafiche.prompt}" />
+		<property name="icon" value="${anagrafiche.icon}" />
+		<property name="privilegi">
+			<util:list value-type="java.lang.String">
+				<value>MNU/UT</value>
+			</util:list>
+		</property>
+		<property name="submenu">
+			<util:list value-type="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+				<bean id="titolario" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+					<property name="nomeEntita" value="titolario" />
+					<property name="title" value="${titolario.title}" />
+					<property name="prompt" value="${titolario.prompt}" />
+					<property name="icon" value="${titolario.icon}" />
+				</bean>
+				<bean id="organigramma" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+					<property name="nomeEntita" value="organigramma" />
+					<property name="title" value="${organigramma.title}" />
+					<property name="prompt" value="${organigramma.prompt}" />
+					<property name="icon" value="${organigramma.icon}" />
+					<!--property name="privilegi"> <util:list value-type="java.lang.String"> 
+						<value>SIC/SO</value> </util:list> </property -->
+				</bean>
+				<bean id="vocabolario" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+					<property name="nomeEntita" value="vocabolario" />
+					<property name="title" value="${vocabolario.title}" />
+					<property name="prompt" value="${vocabolario.prompt}" />
+					<property name="icon" value="${vocabolario.icon}" />
+					<property name="privilegi">
+						<util:list value-type="java.lang.String">
+							<value>DC/DIZ;M</value>
+							<value>DC/DIZ/UO;M</value>
+						</util:list>
+					</property>
+				</bean>
+				<bean id="caselle_email" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+					<property name="nomeEntita" value="caselle_email" />
+					<property name="title" value="${caselle_email.title}" />
+					<property name="prompt" value="${caselle_email.prompt}" />
+					<property name="icon" value="${caselle_email.icon}" />
+					<property name="privilegi">
+						<util:list value-type="java.lang.String">
+							<value>SIC/EML</value>
+						</util:list>
+					</property>
+
+				</bean>
+				<bean id="anagrafiche_soggetti" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+					<property name="nomeEntita" value="anagrafiche_soggetti" />
+					<property name="title" value="${anagrafiche_soggetti.title}" />
+					<property name="prompt" value="${anagrafiche_soggetti.prompt}" />
+					<property name="icon" value="${anagrafiche_soggetti.icon}" />
+					<property name="privilegi">
+						<util:list value-type="java.lang.String">
+							<value>GRS/S/UO;M</value>
+							<value>GRS/S;M</value>
+						</util:list>
+					</property>
+
+				</bean>
+				<bean id="gruppi_soggetti" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+					<property name="nomeEntita" value="gruppi_soggetti" />
+					<property name="title" value="${gruppi_soggetti.title}" />
+					<property name="prompt" value="${gruppi_soggetti.prompt}" />
+					<property name="icon" value="${gruppi_soggetti.icon}" />
+					<property name="privilegi">
+						<util:list value-type="java.lang.String">
+							<value>GRS/G;M</value>
+						</util:list>
+					</property>
+				</bean>
+				<bean id="oggettario" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+					<property name="nomeEntita" value="oggettario" />
+					<property name="title" value="${oggettario.title}" />
+					<property name="prompt" value="${oggettario.prompt}" />
+					<property name="icon" value="${oggettario.icon}" />
+					<property name="isPopup" value="true" />
+					<property name="privilegi">
+						<util:list value-type="java.lang.String">
+							<value>UT/MO/UO;M</value>
+							<value>UT/MO/PR;M</value>
+							<value>UT/MO/PB;M</value>
+						</util:list>
+					</property>
+
+				</bean>
+				<bean id="attributi_custom" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+					<property name="nomeEntita" value="attributi_custom" />
+					<property name="title" value="${attributi_custom.title}" />
+					<property name="prompt" value="${attributi_custom.prompt}" />
+					<property name="icon" value="${attributi_custom.icon}" />
+					<property name="privilegi">
+						<util:list value-type="java.lang.String">
+							<value>DC/ATT;M</value>
+						</util:list>
+					</property>
+				</bean>
+				<bean id="gestioneutenti" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+					<property name="nomeEntita" value="gestioneutenti" />
+					<property name="title" value="${gestioneutenti.title}" />
+					<property name="prompt" value="${gestioneutenti.prompt}" />
+					<property name="icon" value="${gestioneutenti.icon}" />
+					<property name="privilegi">
+						<util:list value-type="java.lang.String">
+							<value>SIC/UT;M</value>
+						</util:list>
+					</property>
+				</bean>
+				<bean id="tipologiedocumentali" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+					<property name="nomeEntita" value="tipologiedocumentali" />
+					<property name="title" value="${tipologiedocumentali.title}" />
+					<property name="prompt" value="${tipologiedocumentali.prompt}" />
+					<property name="icon" value="${tipologiedocumentali.icon}" />
+					<property name="privilegi">
+						<util:list value-type="java.lang.String">
+							<value>DC/TD;M</value>
+						</util:list>
+					</property>
+				</bean>
+				<bean id="tipofascicoliaggr" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+					<property name="nomeEntita" value="tipofascicoliaggr" />
+					<property name="title" value="${tipofascicoliaggr.title}" />
+					<property name="prompt" value="${tipofascicoliaggr.prompt}" />
+					<property name="icon" value="${tipofascicoliaggr.icon}" />
+					<property name="privilegi">
+						<util:list value-type="java.lang.String">
+							<value>DC/TF;M</value>
+						</util:list>
+					</property>
+				</bean>
+				<!-- 
+				<bean id="lista_funzionalita" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean"> 
+					<property name="nomeEntita" value="lista_funzionalita" /> 
+					<property name="title" value="${lista_funzionalita.title}" /> 
+					<property name="prompt" value="${lista_funzionalita.prompt}" /> 
+					<property name="icon" value="${lista_funzionalita.icon}" /> 
+				</bean> 
+				-->
+				<bean id="anagrafiche_topografico" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+					<property name="nomeEntita" value="anagrafiche_topografico" />
+					<property name="title" value="${anagrafiche_topografico.title}" />
+					<property name="prompt" value="${anagrafiche_topografico.prompt}" />
+					<property name="icon" value="${anagrafiche_topografico.icon}" />
+					<property name="privilegi">
+						<util:list value-type="java.lang.String">
+							<value>UT/TOP;M</value>
+						</util:list>
+					</property>
+				</bean>
+				<bean id="anagrafiche_rubricaemail" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+					<property name="nomeEntita" value="anagrafiche_rubricaemail" />
+					<property name="title" value="${anagrafiche_rubricaemail.title}" />
+					<property name="prompt" value="${anagrafiche_rubricaemail.prompt}" />
+					<property name="icon" value="${anagrafiche_rubricaemail.icon}" />
+					<property name="privilegi">
+						<util:list value-type="java.lang.String">
+							<value>EML/RUB;M</value>
+						</util:list>
+					</property>
+				</bean>
+				<bean id="applicazioni_esterne" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+					<property name="nomeEntita" value="applicazioni_esterne" />
+					<property name="title" value="${applicazioni_esterne.title}" />
+					<property name="prompt" value="${applicazioni_esterne.prompt}" />
+					<property name="icon" value="${applicazioni_esterne.icon}" />
+					<property name="privilegi">
+						<util:list value-type="java.lang.String">
+							<value>SIC/AE;M</value>
+						</util:list>
+					</property>
+				</bean>
+				<bean id="registri_numerazione" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+					<property name="nomeEntita" value="registri_numerazione" />
+					<property name="title" value="${registri_numerazione.title}" />
+					<property name="prompt" value="${registri_numerazione.prompt}" />
+					<property name="icon" value="${registri_numerazione.icon}" />
+					<property name="privilegi">
+						<util:list value-type="java.lang.String">
+							<value>DC/TR;M</value>
+						</util:list>
+					</property>
+				</bean>
+				<bean id="monitoraggio_operazioni_batch" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+					<property name="nomeEntita" value="monitoraggio_operazioni_batch" />
+					<property name="title" value="${monitoraggio_operazioni_batch.title}" />
+					<property name="prompt" value="${monitoraggio_operazioni_batch.prompt}" />
+					<property name="icon" value="${monitoraggio_operazioni_batch.icon}" />
+					<property name="privilegi"> 
+						<util:list value-type="java.lang.String"> 
+							<value>ROM/V</value> 
+						</util:list>
+					</property>
+				</bean>
+				<bean id="log_operazioni" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+					<property name="nomeEntita" value="log_operazioni" />
+					<property name="title" value="${log_operazioni.title}" />
+					<property name="prompt" value="${log_operazioni.prompt}" />
+					<property name="icon" value="${log_operazioni.icon}" />
+					<property name="privilegi">
+						<util:list value-type="java.lang.String">
+							<value>LOG</value>
+						</util:list>
+					</property>					
+				</bean>
+				<bean id="sub_profili" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+					<property name="nomeEntita" value="sub_profili" />
+					<property name="title" value="${sub_profili.title}" />
+					<property name="prompt" value="${sub_profili.prompt}" />
+					<property name="icon" value="${sub_profili.icon}" />
+					<property name="privilegi">
+						<util:list value-type="java.lang.String">
+							<value>SIC/GP;M</value>
+						</util:list>
+					</property>
+				</bean>					
+				<bean id="foglio_importato" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+					<property name="nomeEntita" value="foglio_importato" />
+					<property name="title" value="${foglio_importato_excel.title}" />
+					<property name="prompt" value="${foglio_importato_excel.prompt}" />
+					<property name="icon" value="${foglio_importato_excel.icon}" />
+				</bean>
+				<bean id="contenuto_foglio_importato" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+					<property name="nomeEntita" value="contenuto_foglio_importato" />
+					<property name="title" value="${contenuto_foglio_importato_excel.title}" />
+					<property name="prompt" value="${contenuto_foglio_importato_excel.prompt}" />
+					<property name="icon" value="${contenuto_foglio_importato_excel.icon}" />
+				</bean>
+				
+			</util:list>
+		</property>
+	</bean>
+
+	<bean id="deleghe" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+		<property name="nomeEntita" value="deleghe" />
+		<property name="title" value="${deleghe.title}" />
+		<property name="prompt" value="${deleghe.prompt}" />
+		<property name="icon" value="${deleghe.icon}" />
+		<property name="submenu">
+			<util:list value-type="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+				<bean id="deleghe_attivadisattiva" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+					<property name="nomeEntita" value="deleghe_attivadisattiva" />
+					<property name="title" value="${deleghe_attivadisattiva.title}" />
+					<property name="prompt" value="${deleghe_attivadisattiva.prompt}" />
+					<property name="icon" value="${deleghe_attivadisattiva.icon}" />
+				</bean>
+				<bean id="deleghe_definizione" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+					<property name="nomeEntita" value="deleghe_definizione" />
+					<property name="title" value="${deleghe_definizione.title}" />
+					<property name="prompt" value="${deleghe_definizione.prompt}" />
+					<property name="icon" value="${deleghe_definizione.icon}" />
+					<property name="privilegi">
+						<util:list value-type="java.lang.String">
+							<value>DEL</value>
+							<value>SIC/UT;M</value>
+						</util:list>
+					</property>
+				</bean>
+			</util:list>
+		</property>
+	</bean>
+
+
+
+    <bean id="pubblicazione_albo" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+		<property name="nomeEntita" value="pubblicazione_albo" />
+		<property name="title" value="${pubblicazione_albo.title}" />
+		<property name="prompt" value="${pubblicazione_albo.prompt}" />
+		<property name="icon" value="${pubblicazione_albo.icon}" />
+		<property name="submenu">
+			<util:list value-type="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+				<bean id="pubblicazione_albo_nuova_richiesta" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+					<property name="nomeEntita" value="pubblicazione_albo_nuova_richiesta" />
+					<property name="title" value="${pubblicazione_albo_nuova_richiesta.title}" />
+					<property name="prompt" value="${pubblicazione_albo_nuova_richiesta.prompt}" />
+					<property name="icon" value="${pubblicazione_albo_nuova_richiesta.icon}" />
+					<property name="privilegi">
+						<util:list value-type="java.lang.String">
+							<value>PUB/RIC/INT;I</value>
+							<value>PUB/RIC/EST;I</value>
+						</util:list>
+					</property>
+				</bean>
+				<bean id="pubblicazione_albo_consultazione_richieste" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+					<property name="nomeEntita" value="pubblicazione_albo_consultazione_richieste" />
+					<property name="title" value="${pubblicazione_albo_consultazione_richieste.title}" />
+					<property name="prompt" value="${pubblicazione_albo_consultazione_richieste.prompt}" />
+					<property name="icon" value="${pubblicazione_albo_consultazione_richieste.icon}" />
+					<property name="privilegi">
+						<util:list value-type="java.lang.String">
+							<value>PUB/RIC/INT;M</value>
+							<value>PUB/RIC/EST;M</value>
+						</util:list>
+					</property>
+				</bean>
+				<bean id="pubblicazione_albo_ricerca_pubblicazioni" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+					<property name="nomeEntita" value="pubblicazione_albo_ricerca_pubblicazioni" />
+					<property name="title" value="${pubblicazione_albo_ricerca_pubblicazioni.title}" />
+					<property name="prompt" value="${pubblicazione_albo_ricerca_pubblicazioni.prompt}" />
+					<property name="icon" value="${pubblicazione_albo_ricerca_pubblicazioni.icon}" />
+					<property name="privilegi">
+						<util:list value-type="java.lang.String">
+							<value>PUB/RIC/INT;M</value>
+							<value>PUB/RIC/EST;M</value>
+						</util:list>
+					</property>
+				</bean>
+			</util:list>
+		</property>
+	</bean>
+	
+	<bean id="cambiopwd" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+		<property name="nomeEntita" value="cambiopwd" />
+		<property name="title" value="${cambiopwd.title}" />
+		<property name="prompt" value="${cambiopwd.prompt}" />
+		<property name="icon" value="${cambiopwd.icon}" />
+	</bean>
+
+	<bean id="elenchi_albi" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+		<property name="nomeEntita" value="elenchi_albi" />
+		<property name="title" value="${elenchi_albi.title}" />
+		<property name="prompt" value="${elenchi_albi.prompt}" />
+		<property name="icon" value="${elenchi_albi.icon}" />
+	</bean>
+
+	<bean id="attributi_dinamici" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+		<property name="nomeEntita" value="attributi_dinamici" />
+		<property name="title" value="${attributi_dinamici.title}" />
+		<property name="prompt" value="${attributi_dinamici.prompt}" />
+		<property name="icon" value="${attributi_dinamici.icon}" />
+	</bean>
+
+	<bean id="report" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+		<property name="nomeEntita" value="report" />
+		<property name="title" value="${report.title}" />
+		<property name="prompt" value="${report.prompt}" />
+		<property name="icon" value="${report.icon}" />
+		<property name="submenu">
+			<util:list value-type="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+				<bean id="statisticheProtocolli" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+					<property name="nomeEntita" value="statisticheProtocolli" />
+					<property name="title" value="${statisticheProtocolli.title}" />
+					<property name="prompt" value="${statisticheProtocolli.prompt}" />
+					<property name="icon" value="${statisticheProtocolli.icon}" />
+					<property name="privilegi">
+						<util:list value-type="java.lang.String">
+							<value>REP/ST1</value>
+						</util:list>
+					</property>		
+				</bean>
+				
+				<bean id="statisticheDocumenti" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+					<property name="nomeEntita" value="statisticheDocumenti" />
+					<property name="title" value="${statisticheDocumenti.title}" />
+					<property name="prompt" value="${statisticheDocumenti.prompt}" />
+					<property name="icon" value="${statisticheDocumenti.icon}" />
+					<property name="privilegi">
+						<util:list value-type="java.lang.String">
+							<value>REP/STD/UO</value>
+			</util:list>
+		</property>
+				</bean>
+				
+				<bean id="listaAccompagnatoriaProtocollazioni" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+					<property name="nomeEntita" value="listaAccompagnatoriaProtocollazioni" />
+					<property name="title" value="${listaAccompagnatoriaProtocollazioni.title}" />
+					<property name="prompt" value="${listaAccompagnatoriaProtocollazioni.prompt}" />
+					<property name="icon" value="${listaAccompagnatoriaProtocollazioni.icon}" />
+		<property name="privilegi">
+			<util:list value-type="java.lang.String">
+							<value>PRT</value>
+						</util:list>
+					</property>
+				</bean>
+				<bean id="stampa_etichetta_faldone" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+					<property name="nomeEntita" value="stampa_etichetta_faldone" />
+					<property name="title" value="${stampa_etichetta_faldone.title}" />
+					<property name="prompt" value="stampa_etichetta_faldone.prompt}" />
+					<property name="icon" value="${stampa_etichetta_faldone.icon}" />
+					<property name="privilegi">
+						<util:list value-type="java.lang.String">
+							<value>SEF</value>
+						</util:list>
+					</property>
+				</bean>
+			</util:list>
+		</property>
+		
+	</bean>
+
+	<!--<bean id="gestione_procedimenti" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+		<property name="nomeEntita" value="gestione_procedimenti" />
+		<property name="title" value="${gestione_procedimenti.title}" />
+		<property name="prompt" value="${gestione_procedimenti.prompt}" />
+		<property name="icon" value="${gestione_procedimenti.icon}" />
+		<property name="submenu">
+			<util:list value-type="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+				<bean id="avvio_procedimento" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+					<property name="nomeEntita" value="avvio_procedimento" />
+					<property name="title" value="${avvio_procedimento.title}" />
+					<property name="prompt" value="${avvio_procedimento.prompt}" />
+					<property name="icon" value="${avvio_procedimento.icon}" />
+					<property name="privilegi">
+						<util:list value-type="java.lang.String">
+							<value>GP/I</value>
+						</util:list>
+					</property>
+				</bean>
+				<bean id="procedimenti_in_lavorazione" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+					<property name="nomeEntita" value="procedimenti_in_lavorazione" />
+					<property name="title" value="${procedimenti_in_lavorazione.title}" />
+					<property name="prompt" value="${procedimenti_in_lavorazione.prompt}" />
+					<property name="icon" value="${procedimenti_in_lavorazione.icon}" />
+				</bean>
+			</util:list>
+		</property>
+	</bean>-->
+	<bean id="gestione_proposte_organigramma" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+		<property name="nomeEntita" value="gestione_proposte_organigramma" />
+		<property name="title" value="${gestione_proposte_organigramma.title}" />
+		<property name="prompt" value="${gestione_proposte_organigramma.prompt}" />
+		<property name="icon" value="${gestione_proposte_organigramma.icon}" />
+		<property name="submenu">
+			<util:list value-type="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+				<bean id="avvio_proposta_organigramma" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean"> 
+					<property name="nomeEntita" value="avvio_proposta_organigramma" />
+					<property name="title" value="${avvio_proposta_organigramma.title}" />
+					<property name="prompt" value="${avvio_proposta_organigramma.prompt}" />
+					<property name="icon" value="${avvio_proposta_organigramma.icon}" />					
+				</bean>
+				<bean id="proposte_organigramma_in_iter" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+					<property name="nomeEntita" value="proposte_organigramma_in_iter" />
+					<property name="title" value="${proposte_organigramma_in_iter.title}" />
+					<property name="prompt" value="${proposte_organigramma_in_iter.prompt}" />
+					<property name="icon" value="${proposte_organigramma_in_iter.icon}" />
+				</bean>
+
+				<bean id="proposte_organigramma_personali" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+					<property name="nomeEntita" value="proposte_organigramma_personali" />
+					<property name="title" value="${proposte_organigramma_personali.title}" />
+					<property name="prompt" value="${proposte_organigramma_personali.prompt}" />
+					<property name="icon" value="${proposte_organigramma_personali.icon}" />
+				</bean>
+			</util:list>
+		</property>
+	</bean>
+
+	<bean id="wizard" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+		<property name="nomeEntita" value="wizard" />
+		<property name="title" value="${wizard.title}" />
+		<property name="prompt" value="${wizard.prompt}" />
+		<property name="icon" value="${wizard.icon}" />
+	</bean>
+
+	<bean id="gestione_atti" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+		<property name="nomeEntita" value="gestione_atti" />
+		<property name="title" value="${gestione_atti.title}" />
+		<property name="prompt" value="${gestione_atti.prompt}" />
+		<property name="icon" value="${gestione_atti.icon}" />
+		<property name="submenu">
+			<util:list value-type="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+				<bean id="avvio_iter_atti" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+					<property name="nomeEntita" value="avvio_iter_atti" />
+					<property name="title" value="${avvio_iter_atti.title}" />
+					<property name="prompt" value="${avvio_iter_atti.prompt}" />
+					<property name="icon" value="${avvio_iter_atti.icon}" />
+					<property name="privilegi">
+						<util:list value-type="java.lang.String">
+							<value>GP/APA</value>
+						</util:list>
+					</property>
+				</bean>
+				<bean id="atti_in_lavorazione" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+					<property name="nomeEntita" value="atti_in_lavorazione" />
+					<property name="title" value="${atti_in_lavorazione.title}" />
+					<property name="prompt" value="${atti_in_lavorazione.prompt}" />
+					<property name="icon" value="${atti_in_lavorazione.icon}" />
+				</bean>
+				<bean id="atti_personali" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+					<property name="nomeEntita" value="atti_personali" />
+					<property name="title" value="${atti_personali.title}" />
+					<property name="prompt" value="${atti_personali.prompt}" />
+					<property name="icon" value="${atti_personali.icon}" />
+				</bean>
+			</util:list>
+		</property>
+	</bean>
+	
+	<bean id="controlloRegAmministrativa" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+		<property name="nomeEntita" value="controlloRegAmministrativa" />
+		<property name="title" value="${controlloRegAmministrativa.title}" />
+		<property name="prompt" value="${controlloRegAmministrativa.prompt}" />
+		<property name="icon" value="${controlloRegAmministrativa.icon}" />
+		<property name="privilegi">
+			<util:list value-type="java.lang.String">
+				<value>CRA/RC</value>
+				<value>CRA/CC</value>
+			</util:list>
+		</property>
+		<property name="submenu">
+			<util:list value-type="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+				<bean id="regoleCampionamentoAtti" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+					<property name="nomeEntita" value="regoleCampionamentoAtti" />
+					<property name="title" value="${regoleCampionamentoAtti.title}" />
+					<property name="prompt" value="${regoleCampionamentoAtti.prompt}" />
+					<property name="icon" value="${regoleCampionamentoAtti.icon}" />
+					<property name="privilegi">
+						<util:list value-type="java.lang.String">
+							<value>CRA/RC</value>
+						</util:list>
+					</property>
+				</bean>					
+				<bean id="richiesteCampioneAtti" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+					<property name="nomeEntita" value="richiesteCampioneAtti" />
+					<property name="title" value="${richiesteCampioneAtti.title}" />
+					<property name="prompt" value="${richiesteCampioneAtti.prompt}" />
+					<property name="icon" value="${richiesteCampioneAtti.icon}" />
+					<property name="privilegi">
+						<util:list value-type="java.lang.String">
+							<value>CRA/CC</value>
+						</util:list>
+					</property>
+				</bean>
+			</util:list>
+		</property>
+	</bean>
+	
+	<!-- 
+	<bean id="gestione_visure" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+		<property name="nomeEntita" value="gestione_visure" />
+		<property name="title" value="${gestione_visure.title}" />
+		<property name="prompt" value="${gestione_visure.prompt}" />
+		<property name="icon" value="${gestione_visure.icon}" />
+		<property name="submenu">
+			<util:list value-type="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+				<bean id="visure_in_iter" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+					<property name="nomeEntita" value="visure_in_iter" />
+					<property name="title" value="${visure_in_iter.title}" />
+					<property name="prompt" value="${visure_in_iter.prompt}" />
+					<property name="icon" value="${visure_in_iter.icon}" />
+				</bean>
+				<bean id="visure_personali" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+					<property name="nomeEntita" value="visure_personali" />
+					<property name="title" value="${visure_personali.title}" />
+					<property name="prompt" value="${visure_personali.prompt}" />
+					<property name="icon" value="${visure_personali.icon}" />
+				</bean>
+			</util:list>
+		</property>
+	</bean>
+    -->
+	<bean id="registro_documenti" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+		<property name="nomeEntita" value="registro_documenti" />
+		<property name="title" value="${registro_documenti.title}" />
+		<property name="prompt" value="${registro_documenti.prompt}" />
+		<property name="icon" value="${registro_documenti.icon}" />
+	</bean>
+
+	<bean id="contratti" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+		<property name="nomeEntita" value="contratti" />
+		<property name="title" value="${contratti.title}" />
+		<property name="prompt" value="${contratti.prompt}" />
+		<property name="icon" value="${contratti.icon}" />
+	</bean>
+
+	<bean id="libro_firma" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+		<property name="nomeEntita" value="libro_firma" />
+		<property name="title" value="${libro_firma.title}" />
+		<property name="prompt" value="${libro_firma.prompt}" />
+		<property name="icon" value="${libro_firma.icon}" />
+		<property name="privilegi">
+			<util:list value-type="java.lang.String">
+				<value>FIM</value>
+			</util:list>
+		</property>
+	</bean>	
+	
+	<bean id="info" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+		<property name="nomeEntita" value="info" />
+		<property name="title" value="${info.title}" />
+		<property name="prompt" value="${info.prompt}" />
+		<property name="icon" value="${info.icon}" />
+	</bean>
+
+	<bean id="invio_documentazione_via_pec" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+		<property name="nomeEntita" value="invio_documentazione_via_pec" />
+		<property name="title" value="${invio_documentazione_via_pec.title}" />
+		<property name="prompt" value="${invio_documentazione_via_pec.prompt}" />
+		<property name="icon" value="${invio_documentazione_via_pec.icon}" />
+		<property name="privilegi">
+			<util:list value-type="java.lang.String">
+				<value>MRE</value>
+			</util:list>
+		</property>
+	</bean>
+
+<!--  
+	<bean id="istanze_autotutela" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+		<property name="nomeEntita" value="istanze_autotutela" />
+		<property name="title" value="Autotutele / agevolazioni CED" />
+		<property name="prompt" value="Autotutele / agevolazioni CED" />
+		<property name="icon" value="${gestione_procedimenti.icon}" />
+		<property name="submenu">
+			<util:list value-type="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+				<bean id="istanze_portale_riscossione_da_istruire" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+					<property name="nomeEntita" value="istanze_portale_riscossione_da_istruire" />
+					<property name="title" value="Istanze da istruire" />
+					<property name="prompt" value="Istanze da istruire" />
+					<property name="icon" value="${istanze_portale_riscossione_da_istruire.icon}" />
+					<property name="privilegi">
+						<util:list value-type="java.lang.String">
+							<value>IAU</value>
+							<value>CED</value>
+						</util:list>
+					</property>
+				</bean>
+
+				<bean id="procedimenti_personali" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+					<property name="nomeEntita" value="procedimenti_personali" />
+					<property name="title" value="${procedimenti_personali.title}" />
+					<property name="prompt" value="${procedimenti_personali.prompt}" />
+					<property name="icon" value="${procedimenti_personali.icon}" />
+					<property name="privilegi">
+						<util:list value-type="java.lang.String">
+							<value>IAU</value>
+							<value>CED</value>
+						</util:list>
+					</property>
+				</bean>
+
+				<bean id="procedimenti_in_iter" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+					<property name="nomeEntita" value="procedimenti_in_iter" />
+					<property name="title" value="${procedimenti_in_iter.title}" />
+					<property name="prompt" value="${procedimenti_in_iter.prompt}" />
+					<property name="icon" value="${procedimenti_in_iter.icon}" />
+					<property name="privilegi">
+						<util:list value-type="java.lang.String">
+							<value>IAU</value>
+							<value>CED</value>
+						</util:list>
+					</property>
+				</bean>
+			</util:list>
+		</property>
+	</bean>
+	
+	-->
+	
+	<bean id="chiusura_massiva_email" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+		<property name="nomeEntita" value="chiusura_massiva_email" />
+		<property name="title" value="${chiusura_massiva_email.title}" />
+		<property name="prompt" value="${chiusura_massiva_email.prompt}" />
+		<property name="icon" value="${chiusura_massiva_email.icon}" />
+		<property name="privilegi">
+			<util:list value-type="java.lang.String">
+				<value>CME</value>
+			</util:list>
+		</property>
+	</bean>
+	
+	<bean id="richiesta_accesso_documento" class="it.eng.utility.ui.module.layout.shared.bean.MenuBean">
+		<property name="nomeEntita" value="richiesta_accesso_documento" />
+		<property name="title" value="${richiesta_accesso_documento.title}" />
+		<property name="prompt" value="${richiesta_accesso_documento.prompt}" />
+		<property name="icon" value="${richiesta_accesso_documento.icon}" />
+		<property name="privilegi">
+			<util:list value-type="java.lang.String">
+				<value>RAC</value>
+			</util:list>
+		</property>
+	</bean>
+
+</beans>	
+
+
