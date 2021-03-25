@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module rename-to='mail'>
+	
+	<inherits name="com.google.gwt.user.User"/>
+	<inherits name="com.google.gwt.user.History"/>
+	<inherits name="com.smartgwt.SmartGwt" />
+
+	<inherits name="com.smartgwt.SmartGwtPluginBridges" />
+  	<script src="../charts/fusioncharts/javascript/FusionCharts.js"></script>
+	
+	<inherits name="com.smartclient.theme.enterpriseblue.EnterpriseBlue"/>
+	
+	<!-- Aggiungo il modulo di core -->
+	<inherits name="it.eng.utility.emailui.core.core"/>
+	
+
+	<!-- Entry Point di Layout -->
+	<entry-point class="it.eng.utility.emailui.mail.client.MailUi"/>
+
+	<source path='client' />
+	<source path='shared' />	
+</module>
+

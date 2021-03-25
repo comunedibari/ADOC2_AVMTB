@@ -1,0 +1,38 @@
+<div style="padding: 0px 0px 0px 30px">
+	<div class="page-header" style="margin: 0">
+		<h1>
+			Stato dei messaggi
+		</h1>
+	</div>
+	<div style="padding-top: 15px; padding-bottom: 30px">
+	</div>
+	<div ng-controller="BeautifulTable">
+		<form class="form-horizontal" role="form" id="test"
+			ng-submit="reloadTable()">
+			<div class="form-group">
+				<label class="col-md-4 control-label" style="padding-top:0; width: 10%">Mailbox</label>
+				<div class="col-md-6">
+					<select ng-model="selectedMailboxItem"
+						ng-options="item as item.name for item in mailboxes" required
+						required-select></select>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-md-4 control-label" style="padding-top:0; width: 10%">Status</label>
+				<div class="col-md-5">
+					<select ng-model="selectedStatusItem" 
+						ng-options="item as item.status for item in status"></select>
+				</div>
+			</div>
+			
+			<div class="form-group">
+				<div  style="padding-left: 5%;">
+					<input type="submit" value="Cerca" class="btn btn-primary" style="padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0;" />
+				</div>
+			</div>
+		</form>
+		<div class="alert alert-danger" role="alert"
+			ng-show="showPrincipalError" class="ng-show">{{principalError}}</div>
+		<div class="gridStyle" ng-grid="gridOptions"></div>
+	</div>
+</div>

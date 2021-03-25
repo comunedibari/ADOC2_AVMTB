@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+	elementFormDefault="qualified" attributeFormDefault="unqualified" 
+	xmlns="it.eng.fileoperation.ws.timbro"
+	xmlns:bs="it.eng.fileoperation.ws.base"
+	targetNamespace="it.eng.fileoperation.ws.timbro">
+	<xs:import namespace="it.eng.fileoperation.ws.base" schemaLocation="base.xsd"/>
+	<xs:element name="timbroResponse" type="ResponseTimbroType"/>
+	<xs:element name="timbroRequest" type="InputTimbroType"/>
+	
+	<xs:complexType name="ResponseTimbroType">
+		<xs:annotation>
+			<xs:documentation>risposta per l'operazione di apposizione timbro</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="bs:AbstractResponseOperationType">
+
+			</xs:extension>
+		</xs:complexContent>	
+	</xs:complexType>
+	
+	<xs:complexType name="InputTimbroType">
+		<xs:annotation>
+			<xs:documentation>input per l'operazione di apposizione timbro</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="bs:AbstractInputOperationType">
+				<xs:sequence>
+					<xs:element name="codifica" type="codificaTimbro" minOccurs="0"/>
+					<xs:element name="testoTimbro" type="testoTimbro"/>
+					<xs:element name="rotazioneTimbro" type="tipoRotazione" minOccurs="0"/>
+					<xs:element name="intestazioneTimbro" type="testoTimbro" minOccurs="0"/>
+					<xs:element name="posizioneTimbro" type="posizioneTimbroNellaPagina" minOccurs="0"/>
+					<xs:element name="posizioneTestoInChiaro" type="posizioneRispettoAlTimbro" minOccurs="0"/>
+					<xs:element name="posizioneIntestazione" type="posizioneRispettoAlTimbro" minOccurs="0"/>
+					<xs:element name="timbroSingolo" type="xs:boolean" default="false"/>
+					<xs:element name="paginaTimbro" type="paginaTimbro" minOccurs="0"/>
+					<xs:element name="mappaParametri" type="mappaParametri" minOccurs="0"/>
+					<xs:element name="righeMultiple" type="xs:boolean" default="false"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<xs:simpleType name="codificaTimbro">
+		<xs:annotation>
+			<xs:documentation>tipo per i possibili valori della codifica del timbro</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="BarcodePDF417"/>
+			<xs:enumeration value="BarcodeDatamatrix"/>
+			<xs:enumeration value="BarcodeQRCode"/>
+		</xs:restriction>
+	</xs:simpleType>
+	
+	<xs:simpleType name="tipoRotazione">
+		<xs:annotation>
+			<xs:documentation>tipo per i possibili valori della rotazione del timbro nella pagina</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="orizzontale"/>
+			<xs:enumeration value="verticale"/>
+		</xs:restriction>
+	</xs:simpleType>
+	
+	<xs:complexType name="testoTimbro">
+		<xs:annotation>
+			<xs:documentation>tipo per le possibili scelte del testo utilizzato per generare il timbro</xs:documentation>
+		</xs:annotation>
+		<xs:choice>
+			<xs:element name="testo" type="xs:string"/>
+			<xs:element name="template" type="xs:string"/>
+		</xs:choice>
+	</xs:complexType>
+	
+	<xs:simpleType name="posizioneTimbroNellaPagina">
+		<xs:annotation>
+			<xs:documentation>tipo per i possibili valori della posizione del timbro nella pagina</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="altoDx"/>
+			<xs:enumeration value="altoSn"/>
+			<xs:enumeration value="bassoDx"/>
+			<xs:enumeration value="bassoSn"/>
+		</xs:restriction>
+	</xs:simpleType>
+	
+	<xs:simpleType name="posizioneRispettoAlTimbro">
+		<xs:annotation>
+			<xs:documentation>tipo per i possibili valori della posizione del testo rispetto al timbro</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="sopra"/>
+			<xs:enumeration value="sotto"/>
+			<xs:enumeration value="inlinea"/>
+		</xs:restriction>
+	</xs:simpleType>
+	
+	<xs:complexType name="paginaTimbro">
+		<xs:annotation>
+			<xs:documentation>tipo con i possibili valori della pagina da timbrare</xs:documentation>
+		</xs:annotation>
+		<xs:choice>
+			<xs:element name="pagine">
+				<xs:complexType>
+					<xs:annotation>
+						<xs:documentation>tipo per specificare i numeri o l'intervallo delle pagine da timbrare </xs:documentation>
+					</xs:annotation>
+					<xs:sequence>
+						<xs:element name="pagina" type="xs:int" minOccurs="0" maxOccurs="unbounded"/>
+						<xs:element name="paginaDa" type="xs:int" minOccurs="0"/>
+						<xs:element name="paginaA" type="xs:int" minOccurs="0"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>	
+			<xs:element name="tipoPagina" type="tipoPagina"/>
+		</xs:choice>
+	</xs:complexType>
+	
+	<xs:simpleType name="tipoPagina">
+		<xs:annotation>
+			<xs:documentation>tipo con i possibili valori del tipo di pagina da timbrare</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="prima"/>
+			<xs:enumeration value="ultima"/>
+			<xs:enumeration value="tutte"/>
+		</xs:restriction>
+	</xs:simpleType>
+ 
+	<xs:complexType name="mappaParametri">
+		<xs:annotation>
+			<xs:documentation>tipo per specificare i valori dei parametri utilizzati nei testi parametrici</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="parametro" minOccurs="1" maxOccurs="unbounded">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="chiave" type="xs:string"/>
+						<xs:element name="valore" type="xs:string"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>

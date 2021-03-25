@@ -1,0 +1,314 @@
+
+<!-- saved from url=(0068)http://ianwalter.github.io/ng-context-menu/public/template/home.html -->
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+</head>
+<body>
+	<div class="line-gutter-backdrop"></div>
+	<table>
+		<tbody>
+			<tr>
+				<td class="line-number" value="1"></td>
+				<td class="line-content"><span class="html-tag">&lt;h3&gt;</span>Demo:<span
+					class="html-tag">&lt;/h3&gt;</span>
+				</td>
+			</tr>
+			<tr>
+				<td class="line-number" value="2"></td>
+				<td class="line-content"><span class="html-tag">&lt;br&gt;</span>
+				</td>
+			</tr>
+			<tr>
+				<td class="line-number" value="3"></td>
+				<td class="line-content"><span class="html-tag">&lt;div
+						<span class="html-attribute-name">ng-repeat</span>="<span
+						class="html-attribute-value">panel in panels</span>"&gt;</span>
+				</td>
+			</tr>
+			<tr>
+				<td class="line-number" value="4"></td>
+				<td class="line-content"><span class="html-tag">&lt;div
+						<span class="html-attribute-name">context-menu</span>="<span
+						class="html-attribute-value">onRightClick(message)</span>"</span>
+				</td>
+			</tr>
+			<tr>
+				<td class="line-number" value="5"></td>
+				<td class="line-content"><span class="html-attribute-name">context-menu-close</span>="<span
+					class="html-attribute-value">onClose(closeMessage)</span>"</td>
+			</tr>
+			<tr>
+				<td class="line-number" value="6"></td>
+				<td class="line-content"><span class="html-attribute-name">id</span>="<span
+					class="html-attribute-value">panel-{{ $index }}</span>"</td>
+			</tr>
+			<tr>
+				<td class="line-number" value="7"></td>
+				<td class="line-content"><span class="html-attribute-name">class</span>="<span
+					class="html-attribute-value">panel panel-default</span>"</td>
+			</tr>
+			<tr>
+				<td class="line-number" value="8"></td>
+				<td class="line-content"><span class="html-attribute-name">data-target</span>="<span
+					class="html-attribute-value">menu-{{ $index }}</span>"</td>
+			</tr>
+			<tr>
+				<td class="line-number" value="9"></td>
+				<td class="line-content"><span class="html-attribute-name">ng-class</span>="<span
+					class="html-attribute-value">{ 'highlight': panel.highlight,
+						'expanded': panel.expanded }</span>"&gt;</td>
+			</tr>
+			<tr>
+				<td class="line-number" value="10"></td>
+				<td class="line-content"><span class="html-tag">&lt;div
+						<span class="html-attribute-name">class</span>="<span
+						class="html-attribute-value">panel-body</span>"&gt;</span>
+				</td>
+			</tr>
+			<tr>
+				<td class="line-number" value="11"></td>
+				<td class="line-content"><span class="html-tag">&lt;strong
+						<span class="html-attribute-name">ng-bind</span>="<span
+						class="html-attribute-value">panel.name</span>"&gt;</span><span
+					class="html-tag">&lt;/strong&gt;</span>
+				</td>
+			</tr>
+			<tr>
+				<td class="line-number" value="12"></td>
+				<td class="line-content">(Right-click anywhere within this
+					panel)</td>
+			</tr>
+			<tr>
+				<td class="line-number" value="13"></td>
+				<td class="line-content"><span class="html-tag">&lt;/div&gt;</span>
+				</td>
+			</tr>
+			<tr>
+				<td class="line-number" value="14"></td>
+				<td class="line-content"><span class="html-tag">&lt;/div&gt;</span>
+				</td>
+			</tr>
+			<tr>
+				<td class="line-number" value="15"></td>
+				<td class="line-content"><span class="html-tag">&lt;div
+						<span class="html-attribute-name">class</span>="<span
+						class="html-attribute-value">dropdown position-fixed</span>" <span
+						class="html-attribute-name">id</span>="<span
+						class="html-attribute-value">menu-{{ $index }}</span>"&gt;</span>
+				</td>
+			</tr>
+			<tr>
+				<td class="line-number" value="16"></td>
+				<td class="line-content"><span class="html-tag">&lt;ul <span
+						class="html-attribute-name">class</span>="<span
+						class="html-attribute-value">dropdown-menu</span>" <span
+						class="html-attribute-name">role</span>="<span
+						class="html-attribute-value">menu</span>"&gt;</span>
+				</td>
+			</tr>
+			<tr>
+				<td class="line-number" value="17"></td>
+				<td class="line-content"><span class="html-tag">&lt;li&gt;</span>
+				</td>
+			</tr>
+			<tr>
+				<td class="line-number" value="18"></td>
+				<td class="line-content"><span class="html-tag">&lt;a <span
+						class="html-attribute-name">class</span>="<span
+						class="html-attribute-value">pointer</span>" <span
+						class="html-attribute-name">role</span>="<span
+						class="html-attribute-value">menuitem</span>" <span
+						class="html-attribute-name">tabindex</span>="<span
+						class="html-attribute-value">1</span>"</span>
+				</td>
+			</tr>
+			<tr>
+				<td class="line-number" value="19"></td>
+				<td class="line-content"><span class="html-attribute-name">ng-click</span>="<span
+					class="html-attribute-value">panel.highlight = true</span>"&gt;Select
+					Panel {{ $index + 1 }}<span class="html-tag">&lt;/a&gt;</span>
+				</td>
+			</tr>
+			<tr>
+				<td class="line-number" value="20"></td>
+				<td class="line-content"><span class="html-tag">&lt;/li&gt;</span>
+				</td>
+			</tr>
+			<tr>
+				<td class="line-number" value="21"></td>
+				<td class="line-content"><span class="html-tag">&lt;li&gt;</span>
+				</td>
+			</tr>
+			<tr>
+				<td class="line-number" value="22"></td>
+				<td class="line-content"><span class="html-tag">&lt;a <span
+						class="html-attribute-name">class</span>="<span
+						class="html-attribute-value">pointer</span>" <span
+						class="html-attribute-name">role</span>="<span
+						class="html-attribute-value">menuitem</span>" <span
+						class="html-attribute-name">tabindex</span>="<span
+						class="html-attribute-value">2</span>"</span>
+				</td>
+			</tr>
+			<tr>
+				<td class="line-number" value="23"></td>
+				<td class="line-content"><span class="html-attribute-name">ng-click</span>="<span
+					class="html-attribute-value">panel.highlight = false</span>"&gt;</td>
+			</tr>
+			<tr>
+				<td class="line-number" value="24"></td>
+				<td class="line-content">Deselect Panel {{ $index + 1 }}</td>
+			</tr>
+			<tr>
+				<td class="line-number" value="25"></td>
+				<td class="line-content"><span class="html-tag">&lt;/a&gt;</span>
+				</td>
+			</tr>
+			<tr>
+				<td class="line-number" value="26"></td>
+				<td class="line-content"><span class="html-tag">&lt;/li&gt;</span>
+				</td>
+			</tr>
+			<tr>
+				<td class="line-number" value="27"></td>
+				<td class="line-content"><span class="html-tag">&lt;li&gt;</span>
+				</td>
+			</tr>
+			<tr>
+				<td class="line-number" value="28"></td>
+				<td class="line-content"><span class="html-tag">&lt;a <span
+						class="html-attribute-name">class</span>="<span
+						class="html-attribute-value">pointer</span>" <span
+						class="html-attribute-name">role</span>="<span
+						class="html-attribute-value">menuitem</span>" <span
+						class="html-attribute-name">tabindex</span>="<span
+						class="html-attribute-value">3</span>"</span>
+				</td>
+			</tr>
+			<tr>
+				<td class="line-number" value="29"></td>
+				<td class="line-content"><span class="html-attribute-name">ng-click</span>="<span
+					class="html-attribute-value">panel.expanded = true</span>"&gt;Expand
+					Panel {{ $index + 1 }}<span class="html-tag">&lt;/a&gt;</span>
+				</td>
+			</tr>
+			<tr>
+				<td class="line-number" value="30"></td>
+				<td class="line-content"><span class="html-tag">&lt;/li&gt;</span>
+				</td>
+			</tr>
+			<tr>
+				<td class="line-number" value="31"></td>
+				<td class="line-content"><span class="html-tag">&lt;li&gt;</span>
+				</td>
+			</tr>
+			<tr>
+				<td class="line-number" value="32"></td>
+				<td class="line-content"><span class="html-tag">&lt;a <span
+						class="html-attribute-name">class</span>="<span
+						class="html-attribute-value">pointer</span>" <span
+						class="html-attribute-name">role</span>="<span
+						class="html-attribute-value">menuitem</span>" <span
+						class="html-attribute-name">tabindex</span>="<span
+						class="html-attribute-value">4</span>"</span>
+				</td>
+			</tr>
+			<tr>
+				<td class="line-number" value="33"></td>
+				<td class="line-content"><span class="html-attribute-name">ng-click</span>="<span
+					class="html-attribute-value">panel.expanded = false</span>"&gt;</td>
+			</tr>
+			<tr>
+				<td class="line-number" value="34"></td>
+				<td class="line-content">Contract Panel {{ $index + 1 }}</td>
+			</tr>
+			<tr>
+				<td class="line-number" value="35"></td>
+				<td class="line-content"><span class="html-tag">&lt;/a&gt;</span>
+				</td>
+			</tr>
+			<tr>
+				<td class="line-number" value="36"></td>
+				<td class="line-content"><span class="html-tag">&lt;/li&gt;</span>
+				</td>
+			</tr>
+			<tr>
+				<td class="line-number" value="37"></td>
+				<td class="line-content"><span class="html-tag">&lt;li&gt;</span>
+				</td>
+			</tr>
+			<tr>
+				<td class="line-number" value="38"></td>
+				<td class="line-content"><span class="html-tag">&lt;a <span
+						class="html-attribute-name">class</span>="<span
+						class="html-attribute-value">pointer</span>" <span
+						class="html-attribute-name">role</span>="<span
+						class="html-attribute-value">menuitem</span>" <span
+						class="html-attribute-name">tabindex</span>="<span
+						class="html-attribute-value">5</span>"</span>
+				</td>
+			</tr>
+			<tr>
+				<td class="line-number" value="39"></td>
+				<td class="line-content"><span class="html-attribute-name">ng-click</span>="<span
+					class="html-attribute-value">addPanel()</span>"&gt;Add a panel<span
+					class="html-tag">&lt;/a&gt;</span>
+				</td>
+			</tr>
+			<tr>
+				<td class="line-number" value="40"></td>
+				<td class="line-content"><span class="html-tag">&lt;/li&gt;</span>
+				</td>
+			</tr>
+			<tr>
+				<td class="line-number" value="41"></td>
+				<td class="line-content"><span class="html-tag">&lt;li&gt;</span>
+				</td>
+			</tr>
+			<tr>
+				<td class="line-number" value="42"></td>
+				<td class="line-content"><span class="html-tag">&lt;a <span
+						class="html-attribute-name">href</span>="<a
+						class="html-attribute-value html-external-link" target="_blank"
+						href="https://github.com/ianwalter/ng-context-menu">https://github.com/ianwalter/ng-context-menu</a>"
+						<span class="html-attribute-name">role</span>="<span
+						class="html-attribute-value">menuitem</span>"</span>
+				</td>
+			</tr>
+			<tr>
+				<td class="line-number" value="43"></td>
+				<td class="line-content"><span class="html-attribute-name">tabindex</span>="<span
+					class="html-attribute-value">-1</span>"&gt;ng-context-menu on
+					GitHub<span class="html-tag">&lt;/a&gt;</span>
+				</td>
+			</tr>
+			<tr>
+				<td class="line-number" value="44"></td>
+				<td class="line-content"><span class="html-tag">&lt;/li&gt;</span>
+				</td>
+			</tr>
+			<tr>
+				<td class="line-number" value="45"></td>
+				<td class="line-content"><span class="html-tag">&lt;/ul&gt;</span>
+				</td>
+			</tr>
+			<tr>
+				<td class="line-number" value="46"></td>
+				<td class="line-content"><span class="html-tag">&lt;/div&gt;</span>
+				</td>
+			</tr>
+			<tr>
+				<td class="line-number" value="47"></td>
+				<td class="line-content"><span class="html-tag">&lt;/div&gt;</span>
+				</td>
+			</tr>
+			<tr>
+				<td class="line-number" value="48"></td>
+				<td class="line-content"><span class="html-end-of-file"></span>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+</body>
+</html>

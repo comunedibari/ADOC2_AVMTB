@@ -1,0 +1,51 @@
+<div style="padding: 0px 0px 0px 30px">
+	<div class="page-header" style="margin: 0">
+		<h2>
+			Inserimento nuovo messaggio
+		</h2>
+	</div>
+	<div style="padding-top: 15px">
+		Permette di inserire una nuova mail selezionando l'idmailbox e caricando il file eml
+	</div>
+	<div style="padding-bottom: 50px">
+		<table style="width: 100%">
+			<tr>
+				<td colspan="2" style="width: 100%; padding: 10px;">
+					<div class="alert alert-info" role="alert" ng-show="showInfo" class="ng-show">{{message}}</div>
+					<div class="alert alert-danger" role="alert" ng-show="showError" class="ng-show">{{error}}</div>
+				</td>
+			</tr>
+			<tr>
+				<td style="width: 45%; padding-left: 40px; vertical-align: top">
+					<div style="padding-bottom: 20px">
+						<h3>Add a saved eml</h3>
+					</div>
+					<form class="form-horizontal" role="form" id="test"
+						ng-submit="createNewEmail()">
+						<div class="form-group">
+							<label class="col-md-4 control-label">Mailbox</label>
+							<div class="col-md-6">
+								<select ng-model="selectedItem" ng-options="item as item.name for item in mailboxes" required required-select></select>
+							</div>	
+						</div>
+						<div class="form-group">
+							<label class="col-md-4 control-label">File eml</label>
+							<div class="col-md-5">
+							<input type="file" class="form-control" name="file" ng-model="file" required onchange="angular.element(this).scope().fileupload()"/>
+							</div>
+							
+						</div>
+						<div class="form-group">
+							<div style="padding-left: 200px">
+								<input type="submit" value="Submit" class="btn btn-primary" />
+							</div>
+						</div>
+					</form>
+				</td>
+				
+				
+			</tr>
+		</table>
+	</div>
+
+</div>

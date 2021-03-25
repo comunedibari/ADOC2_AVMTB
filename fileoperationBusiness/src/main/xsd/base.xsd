@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2010 (http://www.altova.com) by MESMERiZE (MiZE) -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ns1="it.eng.fileoperation.ws.base" targetNamespace="it.eng.fileoperation.ws.base" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:simpleType name="VerificationStatusType">
+		<xs:annotation>
+			<xs:documentation>possibili stati dell'operazione/verifica</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="OK"/>
+			<xs:enumeration value="KO"/>
+			<xs:enumeration value="ERROR"/>
+			<xs:enumeration value="SKIPPED"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="AbstractInputOperationType">
+		<xs:annotation>
+			<xs:documentation> input generico di una operazione</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="breakOnError" type="xs:boolean" default="false"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="AbstractResponseOperationType">
+		<xs:annotation>
+			<xs:documentation>Parte generica del risultato di una operazione </xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="verificationStatus" type="ns1:VerificationStatusType">
+				<xs:annotation>
+					<xs:documentation>stato della verifica</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="errorsMessage" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>eventuale Messaggio di Errore</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:sequence maxOccurs="unbounded">
+						<xs:element name="errMessage" type="ns1:messageType"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="warnings" minOccurs="0">
+				<xs:complexType>
+					<xs:sequence maxOccurs="unbounded">
+						<xs:element name="warnMessage" type="ns1:messageType"/>
+					</xs:sequence>
+				</xs:complexType> 
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:simpleType name="EnvelopeType">
+		<xs:annotation>
+			<xs:documentation>tipi di busta riconosciuti</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="CAdES_BES"/>
+			<xs:enumeration value="CAdES_T"/>
+			<xs:enumeration value="CAdES_C"/>
+			<xs:enumeration value="TSD"/>
+			<xs:enumeration value="M7M"/>
+			<xs:enumeration value="P7M"/>
+			<xs:enumeration value="TSR"/>
+			<xs:enumeration value="PAdES"/>
+			<xs:enumeration value="XAdES_XL"/>
+			<xs:enumeration value="CAdES_X_Long"/>
+			<xs:enumeration value="XAdES"/>
+			<xs:enumeration value="XAdES_T"/>
+			<xs:enumeration value="XAdES_C"/>
+			<xs:enumeration value="XAdES_X"/>
+			<xs:enumeration value="XAdES_BES"/>
+		</xs:restriction>
+	</xs:simpleType>
+	
+	<xs:complexType name="messageType">
+		<xs:sequence minOccurs="1" maxOccurs="1">
+			<xs:element name="code" type="xs:string"/>
+			<xs:element name="description" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	
+</xs:schema>
