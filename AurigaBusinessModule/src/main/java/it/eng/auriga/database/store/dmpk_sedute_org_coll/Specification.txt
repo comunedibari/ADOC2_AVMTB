@@ -1,0 +1,654 @@
+1        PACKAGE DMPK_SEDUTE_ORG_COLL AUTHID CURRENT_USER IS
+2        
+3        	-------- funzione per ottenere l'id. della circoscizione per cui sta lavorando l'utente
+4        	function GetCircoscrizioneLavoro(
+5        		IdDominioAutIn				IN		PLS_INTEGER,							-- (obblig.) Id. del dominio cui si è collegati
+6        		IdUserLavoroIn				IN		DMT_USERS.ID_USER%type DEFAULT NULL,	-- (obblig) Id.(ID_USER della DMT_USERS) dell'utente collegato, ovvero, in caso di sessione di lavoro in delega, quello a nome di cui si lavora
+7        		ErrContextOut				OUT		VARCHAR2,								-- Contesto (ovvero package e/o funzione/procedura) in cui si è verificato l'errore
+8        		ErrCodeOut					OUT		PLS_INTEGER,							-- N.ro errore di uscita
+9        		ErrMsgOut					OUT 	VARCHAR2								-- Messaggio d'errore
+10        		) return VARCHAR2;															-- Id. della circoscrizione in cui ricade la U.O. per cui si sta lavorando
+11        																					-- è NULL in caso non si stia lavorando per una circoscrizione o in caso di errore (ErrCodeOut valorizzato)
+12        
+13        	------- funzione per ottenere i dati di una seduta da convocare
+14        	function GetConvocazioneSeduta(
+15        		CodIdConnectionTokenIn		IN	    DMT_CONNECTION_TOKEN.CI_CONNECTION_TOKEN%TYPE,
+16        																					-- (obblig). Codice identificativo del token di connessione
+17        		IdUserLavoroIn				IN		DMT_USERS.ID_USER%type DEFAULT NULL,	-- Id.(ID_USER della DMT_USERS) dell'utente a nome di cui si lavora. Se non valorizzato è l'utente connesso
+18        		OrganoCollegialeIn 			IN		VARCHAR2,								-- (obblig.) Organo per cui si convoca la seduta. Valori possibili: giunta, consiglio, commissione
+19        		ListaCommissioniIn			IN		VARCHAR2 DEFAULT NULL,					-- (obblig. OrganoCollegialeIn = commessione) Lista con gli ID delle commissioni per cui si convoca seduta
+20        		IdSedutaIO 					IN OUT	VARCHAR2,								-- ID assegnato alla seduta (sempre valorizzato in output)
+21        		NroSedutaOut				OUT		PLS_INTEGER,							-- N.ro di seduta progressivo per organo e per anno (è vuoto se StatoSedutaOut = nuova)
+22        		DataOra1aConvocazioneOut 	OUT		VARCHAR2,								-- Data e ora della 1a convocazione seduta (nel formato FMT_STD_TIMESTAMP)
+23        		Luogo1aConvocazioneOut		OUT		VARCHAR2,								-- Luogo della 1a convocazione
+24        		DataOra2aConvocazioneOut 	OUT		VARCHAR2,								-- Data e ora della 2a convocazione seduta (nel formato FMT_STD_TIMESTAMP)
+25        		Luogo2aConvocazioneOut		OUT		VARCHAR2,								-- Luogo della 2a convocazione
+26        		TipoSessioneOut  			OUT		VARCHAR2,								-- Tipo di sessione. Valori possibili: ordinaria, straordinaria, urgente
+27        		StatoSedutaOut				OUT		VARCHAR2,								-- Stato della seduta. Valori possibili: nuova, OdG_in_preparazione, OdG_chiuso, inviata_convocazione
+28        		OdgInfoOut					OUT		NOCOPY CLOB,							-- XML conforme a schema SezioneCache.xsd con le variabili relative al documento di Ordine del Giorno (OdG)
+29        																					-- Variabili previste:
+30        																					--			CodCircoscrizione : codice dell'eventuale circoscrizione cui è relativa la seduta
+31        																					-- 			IdDoc: id. dell’ultimo OdG consolidato
+32        																					--			TsConsolidamento: data e ora di consolidamento dell'ultimo ODG (nel formato del parametro FMT_STD_TIMESTAMP)
+33        																					--			FlgCompletoIncrementale (valori I/C) Indica l'OdG consolidato è stato generato come OdG completo o solo la differenza rispetto al precedente OdG consolidato
+34        																					-- 			URI: URI dell’ultimo OdG consolidato
+35        																					-- 			Mimetype: mimtype dell’ultimo OdG consolidato
+36        																					--			FlgPdfizzabile (flag 1/0): 1 se ultimo OdG consolidato è in formato pdf o convertibile in pdf
+37        																					-- 			Dimensione : dimensione (in bytes) dell'ultimo OdG consolidato
+38        																					-- 			Impronta : impronta dell'ultimo OdG consolidato
+39        																					-- 			EncodingImpronta : encoding con cui è stata calcolata l'impronta dell'ultimo OdG consolidato
+40        																					-- 			AlgoritmoImpronta : algoritmo con cui è stata calcolata l'impronta dell'ultimo OdG consolidato
+41        																					-- 			FlgFirmato: flag 1/0 che indica se l'ultimo OdG consolidato è firmato (1) o meno (0)
+42        																					--			@Firmatari : variabile lista con i nomi dei firmatari (1 sola colonna) dell'ultimo OdG consolidato
+43        																					-- 			FlgDaFirmare: flag 1/0 che indica se il documento di OdG è da firmare (1) o meno (0)
+44        																					-- 			DisplayFilename: nome file con cui mostrare l'ultimo OdG consolidato
+45        																					-- 			NomeModello nome del modello OdG
+46        																					-- 			IdModello id del modello dell’OdG
+47        																					-- 			URIModello URI del modello dell’OdG
+48        																					-- 			TipoModello tipo di modello dell’OdG (es: odt_freemarker)
+49        																					--			@OdGConsolidati: lista di tutti gli OdG consolidati. Formata dalle colonne
+50        																					--				1: 	ID_DOC
+51        																					--				2: 	Data e ora di consolidamento (nel formato del parametro FMT_STD_TIMESTAMP)
+52        																					--				3:  (valori I/C) Indica se è stato generato come OdG completo o solo come differenza rispetto al precedente OdG consolidato
+53        																					-- 				4:	URI
+54        																					-- 				5:	Mimetype
+55        																					--				6:  FlgPdfizzabile (flag true/false)
+56        																					-- 				7: 	Dimensione (in bytes)
+57        																					-- 				8:	Impronta
+58        																					-- 				9:	EncodingImpronta
+59        																					-- 				10:	AlgoritmoImpronta
+60        																					-- 				11:	FlgFirmato (flag true/false)
+61        																					--				12: Firmatario/i (se più di uno separati da ,)
+62        																					-- 				13: DisplayFilename: nome file con cui mostrare l'OdG consolidato
+63        		ConvocazioneInfoOut			OUT		NOCOPY CLOB,							-- XML conforme a schema SezioneCache.xsd con le variabili relative al documento di convocazione
+64        																					-- Variabili previste:
+65        																					-- 			IdDoc: id. della convocazione se già salvata
+66        																					-- 			URI: URI della convocazione se già salvata
+67        																					-- 			Mimetype: mimtype della convocazione se già salvata
+68        																					--			FlgPdfizzabile (flag 1/0): 1 il file della convocazione è in formato pdf o convertibile in pdf
+69        																					-- 			Dimensione : dimensione (in bytes) del file della convocazione
+70        																					-- 			Impronta : impronta del file della convocazione
+71        																					-- 			EncodingImpronta : encoding con cui è stata calcolata l'impronta del file della convocazione
+72        																					-- 			AlgoritmoImpronta : algoritmo con cui è stata calcolata l'impronta del file della convocazione
+73        																					-- 			FlgFirmato: flag 1/0 che indica se il file della convocazione è firmato (1) o meno (0)
+74        																					--			@Firmatari : variabile lista con i nomi dei firmatari (1 sola colonna) del file della convocazione
+75        																					-- 			FlgDaFirmare: flag 1/0 che indica se il documento del file della convocazione è da firmare (1) o meno (0)
+76        																					-- 			DisplayFilename: nome file con cui mostrare il file della convocazione
+77        																					-- 			NomeModello nome del modello convocazione
+78        																					-- 			IdModello id del modello convocazione
+79        																					-- 			URIModello URI del modello convocazione
+80        																					-- 			TipoModello tipo di modello convocazione(es: odt_freemarker)
+81        																					--			TestoHtml	testo html da iniettare nel CKEDITOR da aprire quando si chiede di generare la convocazione
+82        		ArgomentiOdGOut				OUT		NOCOPY CLOB,							-- Lista xml con le proposte di delibere e gli altri argomenti in OdG.
+83        																					--			Colonne previste:
+84        																					--			1.	ID_UD
+85        																					--			2.	Tipo di atto/argomento
+86        																					--			3.	Codice breve che indica il tipo di atto/argomento e sue specificità
+87        																					--			4.	Estremi proposta/UD
+88        																					--			5.	Nro ordine in OdG
+89        																					--			6.	Oggetto
+90        																					--			7.	Nominativo proponente/i
+91        																					--			8.	Data inoltro in seduta (data senza ora)
+92        																					--			9.	Flag di inoltro fuori termine (valori 1 = Fuori termine, 0 = Normale)
+93        																					--			10.	Flag di aggiunto (valori 1= atto aggiunto in OdG dalla segreteria, 0 = atto inoltrato in OdG dal proponente)
+94        																					--			11.	Nro allegati
+95        																					--			12.	Estremi proposta delibera a cui si riferisce
+96        																					--			13.	ID_UD proposta delibera a cui si riferisce
+97        																					--			16.	ID del processo AURIGA collegato (numero intero, può non essere valorizzato)
+98        																					--			20: Struttura proponente (qualla che ha che avviato l'iter/caricato a sistema l'atto/argomento)
+99        																					--			21:	CdC della della struttura proponente
+100        																					--			22: Cod. Circoscrizione produttrice UD
+101        																					--			23: Nome Circoscrizione produttrice UD
+102        																					--			24: (valori 1/0) Se 1 indica UD già portata in una seduta già conclusa e rinviata ad altra seduta
+103        																					--			25: (valori 1/0) Flag di presenza in OdG già consolidato
+104        																					--			26: N.ro ordine in ultimo OdG consolidato
+105        																					--			27: Data e ora consolidamento primo OdG in cui figura la data UD (nel formato dato dal parametro FMT_STD_TIMESTAMP)
+106        																					--			29: URI del file principale (ultima versione)
+107        																					--			30: Nome del file principale (ultima versione)
+108        																					--			31: Stato di revisione del testo definitivo: pronto_da_firmare, firmato
+109        																					--			32: Flag (1/0) che indica se la proposta/argomento ha emendamenti
+110        																					--			33: Estremi proposta/UD da usare per ordinamento
+111        																					--			34: Iniziativa della delibera
+112        																					--			35: Dettagli del tipo di atto
+113        																					--			36: Flag (1/0) di immediatamente eseguibile
+114        		PresenzeOut					OUT		NOCOPY CLOB,							-- Lista xml dei soggetti che partecipano alle sedute dell’organo/i per cui si convoca.
+115        																					--			Colonne previste:
+116        																					--			1.	ID_USER
+117        																					--			2.	Nome  e cognome/denominazione
+118        																					--			3.	Incarico (Sindaco, Vice-sindaco, Assessore, Consigliere, Segretario Generale, Vice Segretario Generale Vicario, Presidente del Consiglio ecc)
+119        																					--			4.	Ruolo in seduta (presidente, vice-presidente, segretario, scrutatore)
+120        																					--			5.	Presente si (1) / no (0)
+121        																					--			7.	E-mail
+122        																					--			8.  ID_IN_RUBRICA se è un soggetto presente in rubrica e non è un utente censito (ID_USER nullo)
+123        		ErrContextOut				OUT		VARCHAR2,								-- Contesto (ovvero package e/o funzione/procedura) in cui si è verificato l'errore
+124        		ErrCodeOut					OUT		PLS_INTEGER,							-- N.ro errore di uscita
+125        		ErrMsgOut					OUT 	VARCHAR2)								-- Messaggio d'errore
+126        		return PLS_INTEGER;															-- Vale 1 se tutto è andato a buon fine, altrimenti 0
+127        
+128        	------- funzione per salvare i dati di una seduta da convocare
+129        	function SaveConvocazioneSeduta(
+130        		CodIdConnectionTokenIn		IN	    DMT_CONNECTION_TOKEN.CI_CONNECTION_TOKEN%TYPE,
+131        																					-- (obblig). Codice identificativo del token di connessione
+132        		IdUserLavoroIn				IN		DMT_USERS.ID_USER%type DEFAULT NULL,	-- Id.(ID_USER della DMT_USERS) dell'utente a nome di cui si lavora. Se non valorizzato è l'utente connesso
+133        		OrganoCollegialeIn 			IN		VARCHAR2,								-- (obblig.) Organo per cui si convoca la seduta. Valori possibili: giunta, consiglio, commissione
+134        		ListaCommissioniIn			IN		VARCHAR2 DEFAULT NULL,					-- (obblig. OrganoCollegialeIn = commissione) Lista con gli ID delle commissioni per cui si convoca seduta
+135        		IdSedutaIO 					IN OUT	VARCHAR2,								-- ID assegnato alla seduta (generato come SYS_GUID)
+136        																					-- In input può essere vuoto se la seduta è nuova, in output salvo in caso di errore è sempre valorizzato
+137        		NroSedutaOut				OUT		PLS_INTEGER,							-- N.ro di seduta progressivo per organo e per anno (salvo in caso di errore è sempre valorizzato)
+138        		DataOra1aConvocazioneIn 	IN		VARCHAR2 DEFAULT dmpk_utility.GetValConfigParamText(1, NULL, 'DATE_VAL_NO_UPD'),
+139        																					-- Data e ora della 1a convocazione seduta (nel formato FMT_STD_TIMESTAMP)
+140        		Luogo1aConvocazioneIn		IN		VARCHAR2 DEFAULT dmpk_utility.GetValConfigParamText(1, NULL, 'STR_VAL_NO_UPD'),
+141        																					-- Luogo della 1a convocazione
+142        		DataOra2aConvocazioneIn 	IN		VARCHAR2 DEFAULT dmpk_utility.GetValConfigParamText(1, NULL, 'DATE_VAL_NO_UPD'),
+143        																					-- Data e ora della 2a convocazione seduta (nel formato FMT_STD_TIMESTAMP)
+144        		Luogo2aConvocazioneIn		IN		VARCHAR2 DEFAULT dmpk_utility.GetValConfigParamText(1, NULL, 'STR_VAL_NO_UPD'),
+145        																					-- Luogo della 2a convocazione
+146        		TipoSessioneIn  			IN		VARCHAR2 DEFAULT dmpk_utility.GetValConfigParamText(1, NULL, 'STR_VAL_NO_UPD'),
+147        																					-- 	Tipo di sessione. Valori possibili: ordinaria, straordinaria, urgente
+148        		StatoSedutaIn				IN		VARCHAR2 DEFAULT dmpk_utility.GetValConfigParamText(1, NULL, 'STR_VAL_NO_UPD'),
+149        																					-- Stato della seduta.
+150        																					-- Valori possibili: nuova, OdG_in_preparazione, OdG_chiuso, inviata_convocazione
+151        																					-- Se non valorizzato si intende = "nuova" se IdSedutaIO in input è NULL, altrimenti si intende che resti invariato
+152        		OdgInfoIO					IN OUT	NOCOPY CLOB,							-- XML conforme a schema SezioneCache.xsd con le variabili relative al documento di Ordine del Giorno (OdG)
+153        																					-- Variabili previste:
+154        																					--			AzioneDaFare    : valori ammessi:
+155        																					--				consolidamento
+156        																					--				chiusura
+157        																					--				invio_email
+158        																					--			TipoOdGConsolidato (da settare quando AzioneDaFare = consolidamento):  valori ammessi
+159        																					--				completo
+160        																					--				supplemento
+161        																					--			InvioOdg_EmailTo  (da settare quando AzioneDaFare = invio_email) :  destinatari principali invio e-mail separati da , o ; se più di uno
+162        																					--			InvioOdg_EmailCC  (da settare quando AzioneDaFare = invio_email) :  destinatari cc invio e-mail separati da , o ; se più di uno
+163        																					--			Oggetto_Email    (da settare quando AzioneDaFare = invio_email) :  oggetto della mail inviata
+164        																					--			IdEmail (da settare quando AzioneDaFare = invio_email) :  Id. della mail inviata
+165        																					-- 			IdDoc: id. dell’OdG se è stato già generato il documento di OdG
+166        																					-- 			URI: URI del documento di OdG se è stato generato
+167        																					-- 			Mimetype: mimtype del documento di OdG se è stato generato
+168        																					--			FlgPdfizzabile (flag 1/0): 1 se formato pdf o convertibile in pdf
+169        																					-- 			Dimensione : dimensione (in bytes) del documento di OdG se è stato generato
+170        																					-- 			Impronta : impronta del documento di OdG se è stato generato
+171        																					-- 			EncodingImpronta : encoding con cui è stata calcolata l'impronta del documento di OdG
+172        																					-- 			AlgoritmoImpronta : algoritmo con cui è stata calcolata l'impronta del documento di OdG
+173        																					-- 			FlgFirmato: flag 1/0 che indica se il documento di OdG è firmato (1) o meno (0)
+174        																					--			@Firmatari : variabile lista con i nomi dei firmatari (una sola colonna)
+175        																					-- 			FlgDaFirmare: flag 1/0 che indica se il documento di OdG è da firmare (1) o meno (0)
+176        																					-- 			DisplayFilename: nome file con cui mostrare il documento di OdG
+177        		ConvocazioneInfoIn			IN		CLOB DEFAULT NULL,						-- XML conforme a schema SezioneCache.xsd con le variabili relative al documento di convocazione
+178        																					-- Variabili previste:
+179        																					--			AzioneDaFare    : valori ammessi:
+180        																					--				salvataggio
+181        																					--				firma
+182        																					--				invio_email
+183        																					--			InvioConvocazione_EmailTo  (da settare quando AzioneDaFare = invio_email) :  destinatari principali invio e-mail separati da , o ; se più di uno
+184        																					--			InvioConvocazione_EmailCC  (da settare quando AzioneDaFare = invio_email) :  destinatari cc invio e-mail separati da , o ; se più di uno
+185        																					--			Oggetto_Email    (da settare quando AzioneDaFare = invio_email) :  oggetto della mail inviata
+186        																					--			IdEmail (da settare quando AzioneDaFare = invio_email) :  Id. della mail inviata
+187        																					-- 			URI: URI del file della convocazione
+188        																					-- 			Mimetype: mimtype del file della convocazione
+189        																					--			FlgPdfizzabile (flag 1/0): 1 il file della convocazione è in formato pdf o convertibile in pdf
+190        																					-- 			Dimensione : dimensione (in bytes) del file della convocazione
+191        																					-- 			Impronta : impronta del file della convocazione
+192        																					-- 			EncodingImpronta : encoding con cui è stata calcolata l'impronta del file della convocazione
+193        																					-- 			AlgoritmoImpronta : algoritmo con cui è stata calcolata l'impronta del file della convocazione
+194        																					-- 			FlgFirmato: flag 1/0 che indica se il file della convocazione è firmato (1) o meno (0)
+195        																					--			@Firmatari : variabile lista con i nomi dei firmatari (1 sola colonna) del file della convocazione
+196        		ArgomentiOdGIn				IN		CLOB DEFAULT NULL,						-- Lista xml con le proposte di delibere e gli altri argomenti in OdG.
+197        																					-- Se NULL significa che le proposte di delibere e argomenti in OdG devono restare invariati.
+198        																					--			Colonne previste:
+199        																					--			1.	ID_UD
+200        																					--			2.	Tipo di atto/argomento
+201        																					--			3.	Codice breve che indica il tipo di atto/argomento e sue specificità
+202        																					--			4.	Estremi proposta/UD
+203        																					--			5.	Nro ordine in OdG
+204        																					--			6.	Oggetto
+205        																					--			7.	Nominativo proponente/i
+206        																					--			8.	Data inoltro in seduta (data senza ora)
+207        																					--			9.	Flag di inoltro fuori termine (valori 1 = Fuori termine, 0 = Normale)
+208        																					--			10.	Flag di aggiunto (valori 1= atto aggiunto in OdG dalla segreteria, 0 = atto inoltrato in OdG dal proponente)
+209        																					--			11.	Nro allegati
+210        																					--			12.	Estremi proposta delibera a cui si riferisce
+211        																					--			13.	ID_UD proposta delibera a cui si riferisce
+212        																					--			16.	ID del processo AURIGA collegato (numero intero, può non essere valorizzato)
+213        																					--			20: Struttura proponente (qualla che ha che avviato l'iter/caricato a sistema l'atto/argomento)
+214        																					--			21:	CdC della della struttura proponente
+215        																					--			22: Cod. Circoscrizione produttrice UD
+216        																					--			23: Nome Circoscrizione produttrice UD
+217        																					--			24: (valori 1/0) Se 1 indica UD già portata in una seduta già conclusa e rinviata ad altra seduta
+218        																					--			25: (valori 1/0) Flag di presenza in OdG già consolidato
+219        																					--			26: N.ro ordine in ultimo OdG consolidato
+220        																					--			27: Data e ora consolidamento primo OdG in cui figura la data UD (nel formato dato dal parametro FMT_STD_TIMESTAMP)
+221        																					--			28: (valori 1/0) Flag di delibera/argomento da eliminare dall'OdG
+222        																					--			29: URI del file principale (ultima versione)
+223        																					--			30: Nome del file principale (ultima versione)
+224        																					--			31: Stato di revisione del testo definitivo: pronto_da_firmare, firmato
+225        																					--			32: Flag (1/0) che indica se la proposta/argomento ha emendamenti
+226        																					--			34: Iniziativa della delibera
+227        																					--			35: Dettagli del tipo di atto
+228        																					--			36: Flag (1/0) di immediatamente eseguibile
+229        																					-- Vengono al momento considerate solo le colonne: 1, 5, 10, 28																					-- Vengono al momento considerate solo le colonne: 1, 5, 10, 22
+230        		PresenzeIn					IN		CLOB DEFAULT NULL,						-- Lista xml dei soggetti che partecipano alle sedute dell’organo/i per cui si convoca.
+231        																					-- Se NULL significa che le presenze devono restare invariate.
+232        																					--			Colonne previste:
+233        																					--			1.	ID_USER
+234        																					--			2.	Nome  e cognome/denominazione (considerato solo se ID_USER è nullo))
+235        																					--			3.	Incarico (Sindaco, Vice-sindaco, Assessore, Consigliere, Segretario Generale, Vice Segretario Generale Vicario, Presidente del Consiglio ecc)
+236        																					--			4.	Ruolo in seduta (presidente, vice-presidente, segretario, scrutatore)
+237        																					--			5.	Presente si (1) / no (0)
+238        																					--			8.  Id. in rubrica (considerato solo se ID_USER è nullo)
+239        																					-- Vengono al momento considerate solo le colonne: 1, 2, 4, 5, 8
+240        		FlgRollBckFullIn			IN 		PLS_INTEGER DEFAULT NULL,				-- (valori 1/0/NULL) Se 1 in caso di errore viene fatta la rollback completa (non a savepoint), altrimenti la rollback delle sole modifiche effettuate nella stored
+241        																					-- ATTENZIONE: La rollback, di qualsiasi tipo, non riguarda la scrittura di eventuali log
+242        		FlgAutoCommitIn				IN 		PLS_INTEGER DEFAULT NULL,				-- (valori 1/0/NULL) Se vale 1, dopo la rollback e qualunque sia l'esito (positivo o meno), la funzione esegue una commit finale
+243        		ErrContextOut				OUT		VARCHAR2,								-- Contesto (ovvero package e/o funzione/procedura) in cui si è verificato l'errore
+244        		ErrCodeOut					OUT		PLS_INTEGER,							-- N.ro errore di uscita
+245        		ErrMsgOut					OUT 	VARCHAR2)								-- Messaggio d'errore
+246        		return PLS_INTEGER;															-- Vale 1 se tutto è andato a buon fine, altrimenti 0
+247        
+248        
+249        	------- funzione per ottenere i dati di una seduta in fase di discussione o gestione post-discussione
+250        	------- se c'è più di una seduta in discussione o discussa ma di cui non è finita la gestione mostra sempre l'ultima (come data di 1a convocazione)
+251        	function GetDiscussioneSeduta(
+252        		CodIdConnectionTokenIn		IN	    DMT_CONNECTION_TOKEN.CI_CONNECTION_TOKEN%TYPE,
+253        																					-- (obblig). Codice identificativo del token di connessione
+254        		IdUserLavoroIn				IN		DMT_USERS.ID_USER%type DEFAULT NULL,	-- Id.(ID_USER della DMT_USERS) dell'utente a nome di cui si lavora. Se non valorizzato è l'utente connesso
+255        		OrganoCollegialeIn 			IN		VARCHAR2,								-- (obblig.) Organo che svolge la seduta. Valori possibili: giunta, consiglio, commissione
+256        		ListaCommissioniIn			IN		VARCHAR2 DEFAULT NULL,					-- (obblig. OrganoCollegialeIn = commessione) Lista con gli ID delle commissioni in seduta
+257        		IdSedutaIO 					IN OUT	VARCHAR2,								-- ID assegnato alla seduta (sempre valorizzato in output)
+258        		NroSedutaOut				OUT		PLS_INTEGER,							-- N.ro di seduta progressivo per organo e per anno (sempre valorizzato)
+259        		DataOra1aConvocazioneOut 	OUT		VARCHAR2,								-- Data e ora della 1a convocazione seduta (nel formato FMT_STD_TIMESTAMP)
+260        		Luogo1aConvocazioneOut		OUT		VARCHAR2,								-- Luogo della 1a convocazione
+261        		DataOra2aConvocazioneOut 	OUT		VARCHAR2,								-- Data e ora della 2a convocazione seduta (nel formato FMT_STD_TIMESTAMP)
+262        		Luogo2aConvocazioneOut		OUT		VARCHAR2,								-- Luogo della 2a convocazione
+263        		TipoSessioneOut  			OUT		VARCHAR2,								-- Tipo di sessione. Valori possibili: ordinaria, straordinaria, urgente
+264        		StatoSedutaOut				OUT		VARCHAR2,								-- Stato della seduta. Valori possibili:
+265        																					--			inviata_convocazione
+266        																					--			1a_convocazione
+267        																					--			1a_convocazione_deserta
+268        																					--			2a_convocazione
+269        																					--			lavori_conclusi
+270        																					--			firmati_atti_adottati
+271        		OdgInfoOut					OUT		NOCOPY CLOB,							-- XML conforme a schema SezioneCache.xsd con le variabili relative al documento di Ordine del Giorno (OdG)
+272        																					-- Variabili previste:
+273        																					--			CodCircoscrizione : codice dell'eventuale circoscrizione cui è relativa la seduta
+274        																					-- 			IdDoc: id. dell’ultimo OdG consolidato
+275        																					--			TsConsolidamento: data e ora di consolidamento dell'ultimo ODG (nel formato del parametro FMT_STD_TIMESTAMP)
+276        																					--			FlgCompletoIncrementale (valori I/C) Indica l'OdG consolidato è stato generato come OdG completo o solo la differenza rispetto al precedente OdG consolidato
+277        																					-- 			URI: URI dell’ultimo OdG consolidato
+278        																					-- 			Mimetype: mimtype dell’ultimo OdG consolidato
+279        																					--			FlgPdfizzabile (flag 1/0): 1 se ultimo OdG consolidato è in formato pdf o convertibile in pdf
+280        																					-- 			Dimensione : dimensione (in bytes) dell'ultimo OdG consolidato
+281        																					-- 			Impronta : impronta dell'ultimo OdG consolidato
+282        																					-- 			EncodingImpronta : encoding con cui è stata calcolata l'impronta dell'ultimo OdG consolidato
+283        																					-- 			AlgoritmoImpronta : algoritmo con cui è stata calcolata l'impronta dell'ultimo OdG consolidato
+284        																					-- 			FlgFirmato: flag 1/0 che indica se l'ultimo OdG consolidato è firmato (1) o meno (0)
+285        																					--			@Firmatari : variabile lista con i nomi dei firmatari (1 sola colonna) dell'ultimo OdG consolidato
+286        																					-- 			FlgDaFirmare: flag 1/0 che indica se il documento di OdG è da firmare (1) o meno (0)
+287        																					-- 			DisplayFilename: nome file con cui mostrare l'ultimo OdG consolidato
+288        																					-- 			NomeModello nome del modello OdG
+289        																					-- 			IdModello id del modello dell’OdG
+290        																					-- 			URIModello URI del modello dell’OdG
+291        																					-- 			TipoModello tipo di modello dell’OdG (es: odt_freemarker)
+292        																					--			@OdGConsolidati: lista di tutti gli OdG consolidati. Formata dalle colonne
+293        																					--				1: 	ID_DOC
+294        																					--				2: 	Data e ora di consolidamento (nel formato del parametro FMT_STD_TIMESTAMP)
+295        																					--				3:  (valori I/C) Indica se è stato generato come OdG completo o solo come differenza rispetto al precedente OdG consolidato
+296        																					-- 				4:	URI
+297        																					-- 				5:	Mimetype
+298        																					--				6:  FlgPdfizzabile (flag true/false)
+299        																					-- 				7: 	Dimensione (in bytes)
+300        																					-- 				8:	Impronta
+301        																					-- 				9:	EncodingImpronta
+302        																					-- 				10:	AlgoritmoImpronta
+303        																					-- 				11:	FlgFirmato (flag true/false)
+304        																					--				12: Firmatario/i (se più di uno separati da ,)
+305        																					-- 				13: DisplayFilename: nome file con cui mostrare l'OdG consolidato
+306        		ArgomentiOdGOut				OUT		NOCOPY CLOB,							-- Lista xml con le proposte di delibere e gli altri argomenti da discutere/discussi
+307        																					--			Colonne previste:
+308        																					--			1.	ID_UD
+309        																					--			2.	Tipo di atto/argomento
+310        																					--			3.	Codice breve che indica il tipo di atto/argomento e sue specificità
+311        																					--			4.	Estremi proposta/UD
+312        																					--			5.	Nro ordine in OdG
+313        																					--			6.	Oggetto
+314        																					--			7.	Nominativo proponente/i
+315        																					--			8.	Data inoltro in seduta (data senza ora)
+316        																					--			9.	Flag di inoltro fuori termine (valori 1 = Fuori termine, 0 = Normale)
+317        																					--			10.	Flag di aggiunto (valori 1= atto aggiunto in OdG dalla segreteria, 0 = atto inoltrato in OdG dal proponente)
+318        																					--			11.	Nro allegati
+319        																					--			12.	Estremi proposta delibera a cui si riferisce
+320        																					--			13.	ID_UD proposta delibera a cui si riferisce
+321        																					--			14.	Esito discussione
+322        																					--			15.	N° finale atto
+323        																					--			16.	ID del processo AURIGA collegato (numero intero, può non essere valorizzato)
+324        																					--			17.	ID del tipo del flusso Activiti del processo AURIGA collegato (stringa, può non essere valorizzato)
+325        																					--			18.	ID dell’istanza del flusso Activiti del processo AURIGA collegato (stringa, può non essere valorizzato)
+326        																					--			19.	Nome del task Activiti da completare alla chiusura lavori (passando l’esito come esito del task; può non essere valorizzato)
+327        																					--			20: Struttura proponente (qualla che ha che avviato l'iter/caricato a sistema l'atto/argomento)
+328        																					--			21:	CdC della della struttura proponente
+329        																					--			22: Cod. Circoscrizione produttrice UD
+330        																					--			23: Nome Circoscrizione produttrice UD
+331        																					--			24: (valori 1/0) Se 1 indica UD già portata in una seduta già conclusa e rinviata ad altra seduta
+332        																					--			25: (valori 1/0) Flag di presenza in OdG già consolidato
+333        																					--			26: N.ro ordine in ultimo OdG consolidato
+334        																					--			27: Data e ora consolidamento primo OdG in cui figura la data UD (nel formato dato dal parametro FMT_STD_TIMESTAMP)
+335        																					--			29: URI del file principale (ultima versione)
+336        																					--			30: Nome del file principale (ultima versione)
+337        																					--			31: Stato di revisione del testo definitivo: pronto_da_firmare, firmato
+338        																					--			32: Flag (1/0) che indica se la proposta/argomento ha emendamenti
+339        																					--			33: Estremi proposta/UD da usare per ordinamento
+340        																					--			34: Iniziativa della delibera
+341        																					--			35: Dettagli del tipo di atto
+342        																					--			36: Flag (1/0) di immediatamente eseguibile
+343        		Info1aConvocazioneOut		OUT		NOCOPY CLOB,							-- Dati della 1a convocazione: XML conforme a schema SezioneCache.xsd.
+344        																					-- Contiene le variabili
+345        																					--			InizioLavori	data e ora inizio lavori (nel formato FMT_STD_TIMESTAMP)
+346        																					--			FineLavori		data e ora fine lavori (nel formato FMT_STD_TIMESTAMP)
+347        																					--			Verbale.IdDoc: id. del verbale se è stato già generato
+348        																					--			Verbale.URI: URI del documento di verbale se è stato generato
+349        																					--			Verbale.Mimetype: mimtype del documento di verbale se è stato generato
+350        																					--			Verbale.Dimensione : dimensione (in bytes) del documento di verbale se è stato generato
+351        																					--			Verbale.FlgFirmato: flag 1/0 che indica se il documento di verbale è firmato (1) o meno (0)
+352        																					--			Verbale.FlgDaFirmare: flag 1/0 che indica se il documento di verbale è da firmare (1) o meno (0)
+353        																					--			Verbale.DisplayFilename: nome file con cui mostrare il documento di verbale
+354        																					--			Verbale.Impronta impronta del file del verbale
+355        																					--			Verbale.EncodingImpronta encoding con cui è stata calcolata l'impronta del file del verbale
+356        																					--			Verbale.AlgoritmoImpronta algoritmo con cui è stata calcolata l'impronta del file del verbale
+357        																					--			Verbale.NomeModello nome del modello del verbale
+358        																					--			Verbale.IdModello id del modello del verbale
+359        																					--			Verbale.URIModello URI del modello del verbale
+360        																					--			Verbale.TipoModello tipo di modello del verbale (es: odt_freemarker)
+361        																					--			@PresenzeAppelloIniziale. Lista con i presenti all'appello iniziale; prevede le colonne:
+362        																					--				1.	ID_USER
+363        																					--				2.	Nome  e cognome
+364        																					--				3.	Incarico (Sindaco, Vice-sindaco, Assessore, Consigliere, Segretario Generale, Vice Segretario Generale Vicario, Presidente del Consiglio)
+365        																					--				4.	Ruolo in seduta (presidente, vice-presidente, segretario, scrutatore)
+366        																					--				5.	Presente si (1) / no (0)
+367        		Info2aConvocazioneOut		OUT		NOCOPY CLOB,							-- Dati della 2a convocazione: XML conforme a schema SezioneCache.xsd.
+368        																					-- Contiene le variabili
+369        																					--			InizioLavori	data e ora inizio lavori (nel formato FMT_STD_TIMESTAMP)
+370        																					--			FineLavori		data e ora fine lavori (nel formato FMT_STD_TIMESTAMP)
+371        																					--			Verbale.IdDoc: id. del verbale se è stato già generato
+372        																					--			Verbale.URI: URI del documento di verbale se è stato generato
+373        																					--			Verbale.Mimetype: mimtype del documento di verbale se è stato generato
+374        																					--			Verbale.Dimensione : dimensione (in bytes) del documento di verbale se è stato generato
+375        																					--			Verbale.FlgFirmato: flag 1/0 che indica se il documento di verbale è firmato (1) o meno (0)
+376        																					--			Verbale.FlgDaFirmare: flag 1/0 che indica se il documento di verbale è da firmare (1) o meno (0)
+377        																					--			Verbale.DisplayFilename: nome file con cui mostrare il documento di verbale
+378        																					--			Verbale.Impronta impronta del file del verbale
+379        																					--			Verbale.EncodingImpronta encoding con cui è stata calcolata l'impronta del file del verbale
+380        																					--			Verbale.AlgoritmoImpronta algoritmo con cui è stata calcolata l'impronta del file del verbale
+381        																					--			Verbale.NomeModello nome del modello del verbale
+382        																					--			Verbale.IdModello id del modello del verbale
+383        																					--			Verbale.URIModello URI del modello del verbale
+384        																					--			Verbale.TipoModello tipo di modello del verbale (es: odt_freemarker)
+385        																					--			@PresenzeAppelloIniziale. Lista con i presenti all'appello iniziale; prevede le colonne:
+386        																					--				1.	ID_USER
+387        																					--				2.	Nome  e cognome
+388        																					--				3.	Incarico (Sindaco, Vice-sindaco, Assessore, Consigliere, Segretario Generale, Vice Segretario Generale Vicario, Presidente del Consiglio)
+389        																					--				4.	Ruolo in seduta (presidente, vice-presidente, segretario, scrutatore)
+390        																					--				5.	Presente si (1) / no (0)
+391        		EsitiXTipoArgomentoOut		OUT		NOCOPY CLOB,							-- Lista xml con gli esiti possibili per tipo atto/argomento in discussione.
+392        																					-- Serve per costruire il radio degli esiti in base al tipo di atto/argomento.
+393        																					-- Colonne restituite:
+394        																					--			1.	Tipo atto/argomento (decodifica, stessi valori della colonna 2 di ArgomentiOdGOut)
+395        																					--			2.	Esito (da usare come label di un radio-button dell’esito)
+396        																					--			3.	Flag esito adozione (valori 1/0): se 1 significa che il dato esito è uno positivo che implica adozione/ok sull’atto
+397        																					--			4.	Flag esito che implica numerazione (valori 1/0): se 1 significa che il dato esito è uno che implica l’assegnazione di una nuova numerazione definitiva all’atto
+398        		ErrContextOut				OUT		VARCHAR2,								-- Contesto (ovvero package e/o funzione/procedura) in cui si è verificato l'errore
+399        		ErrCodeOut					OUT		PLS_INTEGER,							-- N.ro errore di uscita
+400        		ErrMsgOut					OUT 	VARCHAR2)								-- Messaggio d'errore
+401        		return PLS_INTEGER;															-- Vale 1 se tutto è andato a buon fine, altrimenti 0
+402        
+403        	----------------- funzione per ottenere presenze e voti su una singola delibera/argomento discusso in una seduta
+404        	function GetPresenzeVotiSuContOdG(
+405        		CodIdConnectionTokenIn		IN	    DMT_CONNECTION_TOKEN.CI_CONNECTION_TOKEN%TYPE,
+406        																					-- (obblig). Codice identificativo del token di connessione
+407        		IdUserLavoroIn				IN		DMT_USERS.ID_USER%type DEFAULT NULL,	-- Id.(ID_USER della DMT_USERS) dell'utente a nome di cui si lavora. Se non valorizzato è l'utente connesso
+408        		IdSedutaIn 					IN		VARCHAR2,								-- (obblig.) ID assegnato alla seduta
+409        		IdUDArgomentoInOdgIn		IN		DMT_UNITA_DOC.ID_UD%type,				-- (obblig.) ID_UD corrispondente all'atto/argomento per cui ottenere presenze e voti
+410        		PresenzeVotiOut				OUT		NOCOPY CLOB,							-- Lista XML con presenze e voti relativi alla seduta e all'atto/argomento in input
+411        																					-- Le colonne previste sono:
+412        																					--			1.	ID_USER
+413        																					--			2.	Nome  e cognome
+414        																					--			3.	Incarico (Sindaco, Vice-sindaco, Assessore, Consigliere, Segretario Generale, Vice Segretario Generale Vicario, Presidente del Consiglio ecc)
+415        																					--			4.	Ruolo in seduta (presidente, vice-presidente, segretario, scrutatore)
+416        																					--			5.	(valori 1/0) Presente: si (=1) / no (=0)
+417        																					--			6.	Voto Valori: astenuto, favlorevole, contrario
+418        		TotaleAstenutiVotoOut	 	OUT		PLS_INTEGER,							-- Totale di astenuti nella votazione (intero, può essere non valorizzato)
+419        		TotaleVotiEspressiOut			OUT		PLS_INTEGER,						-- Totali di votanti, intesi come chi poteva votare anche se si è astenuto (intero, può essere non valorizzato)
+420        		TotaleVotiFavorevoliOut		OUT		PLS_INTEGER,							-- Totale di voti favorevoli (intero, può essere non valorizzato)
+421        		TotaleVotiContrariOut	 	OUT		PLS_INTEGER,							-- Totale di voti contrari (intero, può essere non valorizzato)
+422        		AltriPresentiOut			OUT		NOCOPY CLOB,							-- Lista XML con altri presenti alla discussione oltre i membri dell’organo in seduta (es. assessori e dirigenti in una seduta di consiglio).
+423        																					-- Le colonne previste sono:
+424        																					--			1.	ID_USER
+425        																					--			2.	Nome  e cognome + Incarico
+426        		ErrContextOut				OUT		VARCHAR2,								-- Contesto (ovvero package e/o funzione/procedura) in cui si è verificato l'errore
+427        		ErrCodeOut					OUT		PLS_INTEGER,							-- N.ro errore di uscita
+428        		ErrMsgOut					OUT 	VARCHAR2)								-- Messaggio d'errore
+429        		return PLS_INTEGER;															-- Vale 1 se tutto è andato a buon fine, altrimenti 0
+430        
+431        
+432        	----------------- funzione per salvare presenze e voti su una singola delibera/argomento discusso in una seduta
+433        	function SavePresenzeVotiSuContOdG(
+434        		CodIdConnectionTokenIn		IN	    DMT_CONNECTION_TOKEN.CI_CONNECTION_TOKEN%TYPE,
+435        																					-- (obblig). Codice identificativo del token di connessione
+436        		IdUserLavoroIn				IN		DMT_USERS.ID_USER%type DEFAULT NULL,	-- Id.(ID_USER della DMT_USERS) dell'utente a nome di cui si lavora. Se non valorizzato è l'utente connesso
+437        		IdSedutaIn 					IN		VARCHAR2,								-- (obblig.) ID assegnato alla seduta
+438        		IdUDArgomentoInOdgIn		IN		DMT_UNITA_DOC.ID_UD%type,				-- (obblig.) ID_UD corrispondente all'atto/argomento per cui ottenere presenze e voti
+439        		PresenzeVotiIn				IN		CLOB DEFAULT NULL,						-- Lista XML con presenze e voti relativi alla seduta e all'atto/argomento in input
+440        																					-- Se NULL significa che le presenze e i voti nominali devono restare invariati.
+441        																					-- Le colonne previste sono:
+442        																					--			1.	ID_USER
+443        																					--			2.	Nome  e cognome
+444        																					--			3.	Incarico (Sindaco, Vice-sindaco, Assessore, Consigliere, Segretario Generale, Vice Segretario Generale Vicario, Presidente del Consiglio ecc)
+445        																					--			4.	Ruolo in seduta (presidente, vice-presidente, segretario, scrutatore)
+446        																					--			5.	(valori 1/0) Presente: si (=1) / no (=0)
+447        																					--			6.	Voto Valori: astenuto, favlorevole, contrario
+448        																					-- Al momento vengono considerate solo le colonne 1, 4, 5, 6
+449        		TotaleAstenutiVotoIn	 	IN		PLS_INTEGER DEFAULT dmpk_utility.GetValConfigParamNumber(1, NULL, 'NUM_VAL_NO_UPD'),
+450        																					-- Totale di astenuti nella votazione (intero, può essere non valorizzato)
+451        		TotaleVotiEspressiIn				IN		PLS_INTEGER DEFAULT dmpk_utility.GetValConfigParamNumber(1, NULL, 'NUM_VAL_NO_UPD'),
+452        																					-- Totali di votanti, intesi come chi poteva votare anche se si è astenuto (intero, può essere non valorizzato)
+453        		TotaleVotiFavorevoliin		IN		PLS_INTEGER DEFAULT dmpk_utility.GetValConfigParamNumber(1, NULL, 'NUM_VAL_NO_UPD'),
+454        																					-- Totale di voti favorevoli (intero, può essere non valorizzato)
+455        		TotaleVotiContrariOut	 	IN		PLS_INTEGER DEFAULT dmpk_utility.GetValConfigParamNumber(1, NULL, 'NUM_VAL_NO_UPD'),
+456        																					-- Totale di voti contrari (intero, può essere non valorizzato)
+457        		AltriPresentiIn				IN		CLOB DEFAULT NULL,						-- Lista XML con altri presenti alla discussione oltre i membri dell’organo in seduta (es. assessori e dirigenti in una seduta di consiglio).
+458        																					-- Se NULL significa che le altre presenze devono restare invariate.
+459        																					-- Le colonne previste sono:
+460        																					--			1.	ID_USER
+461        																					--			2.	Nome  e cognome + Incarico
+462        																					-- Al momento viene considerata solo la colonne 1
+463        		FlgRollBckFullIn			IN 		PLS_INTEGER DEFAULT NULL,				-- (valori 1/0/NULL) Se 1 in caso di errore viene fatta la rollback completa (non a savepoint), altrimenti la rollback delle sole modifiche effettuate nella stored
+464        																					-- ATTENZIONE: La rollback, di qualsiasi tipo, non riguarda la scrittura di eventuali log
+465        		FlgAutoCommitIn				IN 		PLS_INTEGER DEFAULT NULL,				-- (valori 1/0/NULL) Se vale 1, dopo la rollback e qualunque sia l'esito (positivo o meno), la funzione esegue una commit finale
+466        		ErrContextOut				OUT		VARCHAR2,								-- Contesto (ovvero package e/o funzione/procedura) in cui si è verificato l'errore
+467        		ErrCodeOut					OUT		PLS_INTEGER,							-- N.ro errore di uscita
+468        		ErrMsgOut					OUT 	VARCHAR2)								-- Messaggio d'errore
+469        		return PLS_INTEGER;															-- Vale 1 se tutto è andato a buon fine, altrimenti 0
+470        
+471        
+472        	----- funzione per ottenere come simulazione i n.ri definitivi che sarebbero assegnati agli atti approvati in seduta
+473        	function SimulaNumerazioneAttiSeduta(
+474        		CodIdConnectionTokenIn		IN	    DMT_CONNECTION_TOKEN.CI_CONNECTION_TOKEN%TYPE,
+475        																					-- (obblig). Codice identificativo del token di connessione
+476        		IdUserLavoroIn				IN		DMT_USERS.ID_USER%type DEFAULT NULL,	-- Id.(ID_USER della DMT_USERS) dell'utente a nome di cui si lavora. Se non valorizzato è l'utente connesso
+477        		IdSedutaIn 					IN		VARCHAR2,								-- (obblig.) ID assegnato alla seduta
+478        		ArgomentiOdGIO				IN OUT	CLOB,									-- Lista xml con le proposte di delibere e gli altri argomenti da discutere/discussi
+479        																					--			Colonne previste:
+480        																					--			1.	ID_UD
+481        																					--			2.	Tipo di atto/argomento
+482        																					--			3.	Codice breve che indica il tipo di atto/argomento e sue specificità
+483        																					--			4.	Estremi proposta/UD
+484        																					--			5.	Nro ordine in discussione
+485        																					--			6.	Oggetto
+486        																					--			7.	Nominativo proponente/i
+487        																					--			8.	Data inoltro in seduta (data senza ora)
+488        																					--			9.	Flag di inoltro fuori termine (valori 1 = Fuori termine, 0 = Normale)
+489        																					--			10.	Flag di aggiunto (valori 1= atto aggiunto in OdG dalla segreteria, 0 = atto inoltrato in OdG dal proponente)
+490        																					--			11.	Nro allegati
+491        																					--			12.	Estremi proposta delibera a cui si riferisce
+492        																					--			13.	ID_UD proposta delibera a cui si riferisce
+493        																					--			14.	Esito discussione
+494        																					--			15.	N° finale atto
+495        																					--			16.	ID del processo AURIGA collegato (numero intero, può non essere valorizzato)
+496        																					--			17.	ID del tipo del flusso Activiti del processo AURIGA collegato (stringa, può non essere valorizzato)
+497        																					--			18.	ID dell’istanza del flusso Activiti del processo AURIGA collegato (stringa, può non essere valorizzato)
+498        																					--			19.	Nome del task Activiti da completare alla chiusura lavori (passando l’esito come esito del task; può non essere valorizzato)
+499        																					--			20: Struttura proponente (qualla che ha che avviato l'iter/caricato a sistema l'atto/argomento)
+500        																					--			21:	CdC della della struttura proponente
+501        																					--			22: Cod. Circoscrizione produttrice UD
+502        																					--			23: Nome Circoscrizione produttrice UD
+503        																					--			24: (valori 1/0) Se 1 indica UD già portata in una seduta già conclusa e rinviata ad altra seduta
+504        																					--			25: (valori 1/0) Flag di presenza in OdG già consolidato
+505        																					--			26: N.ro ordine in ultimo OdG consolidato
+506        																					--			27: Data e ora consolidamento primo OdG in cui figura la data UD (nel formato dato dal parametro FMT_STD_TIMESTAMP)
+507        																					--			29: URI del file principale (ultima versione)
+508        																					--			30: Nome del file principale (ultima versione)
+509        																					--			31: Stato di revisione del testo definitivo: pronto_da_firmare, firmato
+510        																					--			32: Flag (1/0) che indica se la proposta/argomento ha emendamenti
+511        																					--			33: Estremi proposta/UD da usare per ordinamento
+512        																					--			34: Iniziativa della delibera
+513        																					--			35: Dettagli del tipo di atto
+514        																					--			36: Flag (1/0) di immediatamente eseguibile
+515        																					-- IN INPUT vengono considerate solo le colonnne 1 e 14
+516        																					-- IN OUTPUT viene valorizzata la colonna 15 con il n.ro simulato
+517        		ErrContextOut				OUT		VARCHAR2,								-- Contesto (ovvero package e/o funzione/procedura) in cui si è verificato l'errore
+518        		ErrCodeOut					OUT		PLS_INTEGER,							-- N.ro errore di uscita
+519        		ErrMsgOut					OUT 	VARCHAR2)								-- Messaggio d'errore
+520        		return PLS_INTEGER;															-- Vale 1 se tutto è andato a buon fine, altrimenti 0
+521        
+522        	------- funzione per salvare i dati di una seduta in fase di discussione o di gestione post-discussione
+523        	function SaveDiscussioneSeduta(
+524        		CodIdConnectionTokenIn		IN	    DMT_CONNECTION_TOKEN.CI_CONNECTION_TOKEN%TYPE,
+525        																					-- (obblig). Codice identificativo del token di connessione
+526        		IdUserLavoroIn				IN		DMT_USERS.ID_USER%type DEFAULT NULL,	-- Id.(ID_USER della DMT_USERS) dell'utente a nome di cui si lavora. Se non valorizzato è l'utente connesso
+527        		IdSedutaIn 					IN		VARCHAR2,								-- (obblig) ID assegnato alla seduta
+528        		StatoSedutaIO				IN OUT	VARCHAR2,								-- Stato della seduta. In input se NULL significa che lo stato resta invariato o si aggiorna in automatico in base agli altri dati in input
+529        																					-- Valori possibili:
+530        																					--			inviata_convocazione
+531        																					--			1a_convocazione
+532        																					--			1a_convocazione_deserta
+533        																					--			2a_convocazione
+534        																					--			lavori_conclusi
+535        																					--			firmati_atti_adottati
+536        		ArgomentiOdGIO				IN OUT	CLOB,									-- Lista xml con le proposte di delibere e gli altri argomenti da discutere/discussi
+537        																					--			Colonne previste:
+538        																					--			1.	ID_UD
+539        																					--			2.	Tipo di atto/argomento
+540        																					--			3.	Codice breve che indica il tipo di atto/argomento e sue specificità
+541        																					--			4.	Estremi proposta/UD
+542        																					--			5.	Nro ordine in discussione
+543        																					--			6.	Oggetto
+544        																					--			7.	Nominativo proponente/i
+545        																					--			8.	Data inoltro in seduta (data senza ora)
+546        																					--			9.	Flag di inoltro fuori termine (valori 1 = Fuori termine, 0 = Normale)
+547        																					--			10.	Flag di aggiunto (valori 1= atto aggiunto in OdG dalla segreteria, 0 = atto inoltrato in OdG dal proponente)
+548        																					--			11.	Nro allegati
+549        																					--			12.	Estremi proposta delibera a cui si riferisce
+550        																					--			13.	ID_UD proposta delibera a cui si riferisce
+551        																					--			14.	Esito discussione
+552        																					--			15.	N° finale atto
+553        																					--			16.	ID del processo AURIGA collegato (numero intero, può non essere valorizzato)
+554        																					--			17.	ID del tipo del flusso Activiti del processo AURIGA collegato (stringa, può non essere valorizzato)
+555        																					--			18.	ID dell’istanza del flusso Activiti del processo AURIGA collegato (stringa, può non essere valorizzato)
+556        																					--			19.	Nome del task Activiti da completare alla chiusura lavori (passando l’esito come esito del task; può non essere valorizzato)
+557        																					--			20: Struttura proponente (qualla che ha che avviato l'iter/caricato a sistema l'atto/argomento)
+558        																					--			21:	CdC della della struttura proponente
+559        																					--			22: Cod. Circoscrizione produttrice UD
+560        																					--			23: Nome Circoscrizione produttrice UD
+561        																					--			24: (valori 1/0) Se 1 indica UD già portata in una seduta già conclusa e rinviata ad altra seduta
+562        																					--			25: (valori 1/0) Flag di presenza in OdG già consolidato
+563        																					--			26: N.ro ordine in ultimo OdG consolidato
+564        																					--			27: Data e ora consolidamento primo OdG in cui figura la data UD (nel formato dato dal parametro FMT_STD_TIMESTAMP)
+565        																					--			29: URI del file principale (ultima versione)
+566        																					--			30: Nome del file principale (ultima versione)
+567        																					--			31: Stato di revisione del testo definitivo: pronto_da_firmare, firmato
+568        																					--			32: Flag (1/0) che indica se la proposta/argomento ha emendamenti
+569        																					--			33: Estremi proposta/UD da usare per ordinamento
+570        																					--			34: Iniziativa della delibera
+571        																					--			35: Dettagli del tipo di atto
+572        																					--			36: Flag (1/0) di immediatamente eseguibile
+573        																					--	IN INPUT vengono condiderate solo le colonne 1, 5, 10, 14, 31
+574        		Info1aConvocazioneIO		IN OUT CLOB,									-- Dati della 1a convocazione: XML conforme a schema SezioneCache.xsd.
+575        																					-- Contiene le variabili
+576        																					--			InizioLavori	data e ora inizio lavori (nel formato FMT_STD_TIMESTAMP)
+577        																					--			FineLavori		data e ora fine lavori (nel formato FMT_STD_TIMESTAMP)
+578        																					--			Verbale.IdDoc: id. del verbale se è stato già generato
+579        																					--			Verbale.URI: URI del documento di verbale se è stato generato
+580        																					--			Verbale.Mimetype: mimtype del documento di verbale se è stato generato
+581        																					--			Verbale.Dimensione : dimensione (in bytes) del documento di verbale se è stato generato
+582        																					--			Verbale.FlgFirmato: flag 1/0 che indica se il documento di verbale è firmato (1) o meno (0)
+583        																					--			Verbale.FlgDaFirmare: flag 1/0 che indica se il documento di verbale è da firmare (1) o meno (0)
+584        																					--			Verbale.DisplayFilename: nome file con cui mostrare il documento di verbale
+585        																					--			Verbale.Impronta impronta del file del verbale
+586        																					--			Verbale.EncodingImpronta encoding con cui è stata calcolata l'impronta del file del verbale
+587        																					--			Verbale.AlgoritmoImpronta algoritmo con cui è stata calcolata l'impronta del file del verbale
+588        																					--			Verbale.NomeModello nome del modello del verbale
+589        																					--			Verbale.IdModello id del modello del verbale
+590        																					--			Verbale.URIModello URI del modello del verbale
+591        																					--			Verbale.TipoModello tipo di modello del verbale (es: odt_freemarker)
+592        																					--			@PresenzeAppelloIniziale. Lista con i presenti all'appello iniziale; prevede le colonne:
+593        																					--				1.	ID_USER
+594        																					--				2.	Nome  e cognome
+595        																					--				3.	Incarico (Sindaco, Vice-sindaco, Assessore, Consigliere, Segretario Generale, Vice Segretario Generale Vicario, Presidente del Consiglio)
+596        																					--				4.	Ruolo in seduta (presidente, vice-presidente, segretario, scrutatore)
+597        																					--				5.	Presente si (1) / no (0)
+598        		Info2aConvocazioneIO		IN OUT CLOB,									-- Dati della 2a convocazione: XML conforme a schema SezioneCache.xsd.
+599        																					-- Contiene le variabili
+600        																					--			InizioLavori	data e ora inizio lavori (nel formato FMT_STD_TIMESTAMP)
+601        																					--			FineLavori		data e ora fine lavori (nel formato FMT_STD_TIMESTAMP)
+602        																					--			Verbale.IdDoc: id. del verbale se è stato già generato
+603        																					--			Verbale.URI: URI del documento di verbale se è stato generato
+604        																					--			Verbale.Mimetype: mimtype del documento di verbale se è stato generato
+605        																					--			Verbale.Dimensione : dimensione (in bytes) del documento di verbale se è stato generato
+606        																					--			Verbale.FlgFirmato: flag 1/0 che indica se il documento di verbale è firmato (1) o meno (0)
+607        																					--			Verbale.FlgDaFirmare: flag 1/0 che indica se il documento di verbale è da firmare (1) o meno (0)
+608        																					--			Verbale.DisplayFilename: nome file con cui mostrare il documento di verbale
+609        																					--			Verbale.Impronta impronta del file del verbale
+610        																					--			Verbale.EncodingImpronta encoding con cui è stata calcolata l'impronta del file del verbale
+611        																					--			Verbale.AlgoritmoImpronta algoritmo con cui è stata calcolata l'impronta del file del verbale
+612        																					--			Verbale.NomeModello nome del modello del verbale
+613        																					--			Verbale.IdModello id del modello del verbale
+614        																					--			Verbale.URIModello URI del modello del verbale
+615        																					--			Verbale.TipoModello tipo di modello del verbale (es: odt_freemarker)
+616        																					--			@PresenzeAppelloIniziale. Lista con i presenti all'appello iniziale; prevede le colonne:
+617        																					--				1.	ID_USER
+618        																					--				2.	Nome  e cognome
+619        																					--				3.	Incarico (Sindaco, Vice-sindaco, Assessore, Consigliere, Segretario Generale, Vice Segretario Generale Vicario, Presidente del Consiglio)
+620        																					--				4.	Ruolo in seduta (presidente, vice-presidente, segretario, scrutatore)
+621        																					--				5.	Presente si (1) / no (0)
+622        		FlgRollBckFullIn			IN 		PLS_INTEGER DEFAULT NULL,				-- (valori 1/0/NULL) Se 1 in caso di errore viene fatta la rollback completa (non a savepoint), altrimenti la rollback delle sole modifiche effettuate nella stored
+623        																					-- ATTENZIONE: La rollback, di qualsiasi tipo, non riguarda la scrittura di eventuali log
+624        		FlgAutoCommitIn				IN 		PLS_INTEGER DEFAULT NULL,				-- (valori 1/0/NULL) Se vale 1, dopo la rollback e qualunque sia l'esito (positivo o meno), la funzione esegue una commit finale
+625        		ErrContextOut				OUT		VARCHAR2,								-- Contesto (ovvero package e/o funzione/procedura) in cui si è verificato l'errore
+626        		ErrCodeOut					OUT		PLS_INTEGER,							-- N.ro errore di uscita
+627        		ErrMsgOut					OUT 	VARCHAR2)								-- Messaggio d'errore
+628        		return PLS_INTEGER;															-- Vale 1 se tutto è andato a buon fine, altrimenti 0
+629        
+630        	----- funzione per ottenere i log delle operazioni più rilevanti avvenute (o anche solo tentate) su una seduta
+631        	function GetLogSeduta(
+632        			CodIdConnectionTokenIn		IN		DMT_CONNECTION_TOKEN.CI_CONNECTION_TOKEN%type,
+633        																					-- (obblig). Codice identificativo del token di connessione
+634        			IdUserLavoroIn				IN		DMT_USERS.ID_USER%type DEFAULT NULL,-- Id. dell'utente a nome di cui si lavora. Se non valorizzato è l'utente connesso
+635        			IdSedutaIn					IN		VARCHAR2,							-- (obblig.) Identificativo della seduta di cui estarre i log
+636        			ListaLogOut					OUT		NOCOPY CLOB,						-- Lista con i log delle operazioni avvenute sulla seduta (XML conforme a schema LISTA_STD.xsd)
+637        																					-- Ogni variazione è un tag "Riga" che contiene le seguenti colonne:
+638        																					-- 1: Timestamp dell'operazione (nel formato dato dal parametro di config. FMT_STD_TIMESTAMP)
+639        																					-- 2: Progressivo operazione per ordinamento cronologico
+640        																					-- 3: Id. dell'utente che ha effettuato l'operazione
+641        																					-- 4: Decodifica dell'utente che ha effettuato l'operazione
+642        																					-- 5: Id. dell'utente a nome di cui stava lavorando chi ha effettuato l'operazione
+643        																					-- 6: Decodifica dell'utente a nome di cui stava lavorando chi ha effettuato l'operazione
+644        																					-- 7: Codice del tipo di operazione
+645        																					-- 8: Decodifica del tipo di operazione
+646        																					-- 9: Descrizione/dettagli dell'operazione
+647        																					-- 10:Esito dell'operazione (valori: successo; fallita)
+648        																					-- 11:Messaggio di errore (nel caso di operazione fallita)
+649        			FlgIncludiOpFalliteIn		IN		PLS_INTEGER DEFAULT NULL,			-- (valori 1/0/NULL) Se 1 nel log vengono inserite anche le operazioni tentate ma NON andate a buon fine, altrimenti sono estratte solo le operazioni andate a buon fine
+650        			ErrContextOut				OUT		VARCHAR2,							-- Contesto (ovvero package e/o funzione/procedura) in cui si è verificato l'errore
+651        			ErrCodeOut					OUT		PLS_INTEGER,						-- N.ro errore di uscita
+652        			ErrMsgOut					OUT 	VARCHAR2)							-- Messaggio d'errore
+653        			return PLS_INTEGER;														-- 1 in caso di successo, 0 in caso di errore
+654        END DMPK_SEDUTE_ORG_COLL;

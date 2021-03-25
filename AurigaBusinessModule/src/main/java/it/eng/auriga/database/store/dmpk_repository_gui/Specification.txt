@@ -1,0 +1,1236 @@
+1        PACKAGE DMPK_REPOSITORY_GUI AUTHID CURRENT_USER IS
+2        
+3        	function LoadDettDoc(
+4        			CodIdConnectionTokenIn		IN		DMT_CONNECTION_TOKEN.CI_CONNECTION_TOKEN%type,
+5        																	-- (obblig). Codice identificativo del token di connessione
+6        			IdUserLavoroIn			IN		DMT_USERS.ID_USER%type DEFAULT NULL,	-- Id. dell'utente a nome di cui si lavora. Se non valorizzato è l'utente connesso
+7        			IdDocIn				IN		DMT_DOCUMENTS.ID_DOC%type,			-- (obblig.) Id del documento
+8        			DatiDocOut				OUT     NOCOPY CLOB,						-- Lista monoriga con i dati salienti di un documento (XML conforme a schema LISTA_STD.xsd)
+9        																	-- L'unico tag "Riga" contiene le seguenti colonne:
+10        																	-- 1: Identificativo (ID_DOC) del documento
+11        																	-- 2: Codice del tipo di relazione del doc. con l'unità documentaria (tra cui P = Primario, ALL=Allegato)
+12        																	-- 3: Descrizione del tipo di relazione del doc. con l'unità documentaria (tra Allegato)
+13        																	-- 4: Identificativo del tipo di documento
+14        																	-- 5: Nome del tipo di documento
+15        																	-- 6: Descrizione/oggetto
+16        																	-- 7: N.ro dell'eventuale ultima versione elettronica visibile all'utente
+17        																	-- 8: N.ro dell'eventuale ultima versione elettronica del documento (visibile o meno all'utente)
+18        																	-- 9: Nome con cui mostrare il file corrispondente all'eventuale ultima versione elettronica visibile all'utente
+19        																	-- 10: (valori 1/NULL) Indica lo stato di pubblicata (1) o meno (NULL) dell'ultima versione elettronica visibile all'utente
+20        																	-- 11: (valori 1/NULL) Indica (se 1) che l'ultima versione elettronica visibile all'utente deriva da una scansione
+21        																	-- 12: Note dell'ultima versione elettronica dell'allegato visibile all'utente
+22        																	-- 13: Bitmap (stringa di 1/0) di abilitazioni alle operazioni sul file del documento (l'ultima versione visibile)
+23        																	-- 	I significati dei bit (caratteri di posizione i-esima) sono:
+24        																	-- 	1° carattere: Abilitazione al versioning/modifica del file
+25        																	-- 	2° carattere: Abilitazione alla firma del file
+26        																	-- 	3° carattere: Abilitazione alla cancellazione di tutte le versioni del file
+27        																	-- 	4° carattere: Abilitazione alla modifica delle note del file
+28        																	-- 	5° carattere: Abilitazione alla modifica dello stato di pubblicazione del file
+29        																	--	6° carattere: Abilitazione al lock del documento
+30        																	--	7° carattere: Abilitazione al unlock del documento
+31        																	--	8° carattere: Abilitazione al creare nuova versione non pubblicata
+32        																	--	9° carattere: Abilitazione alla riproduzione - i.e. downolad, copia, stampa - del file
+33        			ErrContextOut			OUT		VARCHAR2,						-- Contesto (ovvero package e/o funzione/procedura) in cui si è verificato l'errore
+34        			ErrCodeOut				OUT		PLS_INTEGER,					-- N.ro errore di uscita
+35        			ErrMsgOut				OUT 		VARCHAR2)						-- Messaggio d'errore
+36        			return PLS_INTEGER;											-- 1 in caso di successo, 0 in caso di errore
+37        
+38        	/***** funzione per estrarre i dati delle unità documentarie collegate ad una data un'unità documentaria 	*****/
+39        	function GetUDCollegate(
+40        			CodIdConnectionTokenIn		IN		DMT_CONNECTION_TOKEN.CI_CONNECTION_TOKEN%type,
+41        																	-- (obblig). Codice identificativo del token di connessione
+42        			IdUserLavoroIn			IN		DMT_USERS.ID_USER%type DEFAULT NULL,	-- Id. dell'utente a nome di cui si lavora. Se non valorizzato è l'utente connesso
+43        			IdUDIn   				IN		DMT_UNITA_DOC.ID_UD%type, 			-- (obblig.) Identificativo dell'unità documentaria di cui estrarre le relazioni con altre unità documentarie
+44        			ListaRelazioniVsUDOut		OUT		NOCOPY CLOB,					-- XML con la lista delle relazioni dell'unità documentaria con altre unità documentarie (relazioni di precedente-successivo ecc.)
+45        																	-- Ogni relazione è un tag "Riga" che contiene le seguenti colonne:
+46        																	-- 1: Identificativo dell'unità documentaria collegata
+47        																	-- 2: Categoria di una registrazione/numerazione dell'unità documentaria collegata; valori ammessi: PG = Protocollo Generale; PP = Protocollo Particolare; R = Repertorio; E = Registrazione d'emergenza; A = Altro tipo di numerazione
+48        																	-- 3: Sigla di una registrazione/numerazione dell'unità documentaria collegata
+49        																	-- 4: Anno di una registrazione/numerazione dell'unità documentaria collegata
+50        																	-- 5: N.ro di una registrazione/numerazione dell'unità documentaria collegata
+51        																	-- 6: Codice della categoria/natura generale della relazione tra le due unità doc. (valori da dizionario)
+52        																	-- 7: Descrizione della categoria/natura generale della relazione tra le due unità doc. (valori da dizionario)
+53        																	-- 8: Codice del ruolo che svolge nella relazione l'unità documentaria di cui si sta caricando il dettaglio (valori da dizionario)
+54        																	-- 9: Descrizione del ruolo che svolge nella relazione l'unità documentaria di cui si sta caricando il dettaglio (valori da dizionario)
+55        																	-- 10: Codice del ruolo che svolge nella relazione l'unità documentaria collegata a quella di cui si sta caricando il dettaglio (valori da dizionario)
+56        																	-- 11: Descrizione del ruolo che svolge nella relazione l'unità documentaria collegata a quella di cui si sta caricando il dettaglio (valori da dizionario)
+57        																	-- 12: Dettagli della relazione (campo descrittivo)
+58        																	-- 13: Oggetto dell'unità documentaria collegata
+59        																	-- 14: ID_DOC del documento primario dell'unità documentaria collegata
+60        																	-- 15: N.ro dell'ultima versione visibile del documento primario dell'unità documentaria collegata
+61        																	-- 16: Nome con cui mostrare il file dell'ultima versione visibile del documento primario dell'unità documentaria collegata
+62        																	-- 17: Nome dell'unità documentaria collegata
+63        																	-- 18: Estremi di registrazione/numerazione dell'unità documentaria collegata
+64        																	-- 19: Dati di trace sul collegamento tra le due UD (creato da chi, quando)
+65        																	-- 20: Rowid del record della relazione
+66        																	-- 21: (flag 1/0) Se 1 indica che l'utente di lavoro NON ha diritti di accesso sull'unità documentaria collegata, o che non può vederne tutti i dati e file in chiaro
+67        																	--				  Se 1 il collegamento NON può essere rimosso nè variato dall'utente di lavoro
+68        			ErrContextOut			OUT		VARCHAR2,						-- Contesto (ovvero package e/o funzione/procedura) in cui si è verificato l'errore
+69        			ErrCodeOut				OUT		PLS_INTEGER,					-- N.ro errore di uscita
+70        			ErrMsgOut				OUT 		VARCHAR2						-- Messaggio d'errore
+71        			)return PLS_INTEGER;											-- 1 in caso di successo, 0 in caso di errore
+72        
+73        	/*****	funzione per controllare i dati di una relazione di un'unità documentaria IdUDIn con un'altra unità doc. 	******/
+74        	/***** 	i dati della relazione sono nel clob in input (unica riga in un XML conforme a schema di una LISTA_STD.xsd)	******/
+75        	/*****	I dati della relazione vengono rielaborati e restituiti pronti per l'inserimento/aggiornamento 			******/
+76        	function CtrlDatiUDCollegata(
+77        			CodIdConnectionTokenIn		IN		DMT_CONNECTION_TOKEN.CI_CONNECTION_TOKEN%type,
+78        																	-- (obblig). Codice identificativo del token di connessione
+79        			IdUserLavoroIn			IN		DMT_USERS.ID_USER%type DEFAULT NULL,	-- Id. dell'utente a nome di cui si lavora. Se non valorizzato è l'utente connesso
+80        			IdUDIn   				IN		DMT_UNITA_DOC.ID_UD%type, 			-- (obblig.) Identificativo dell'unità documentaria vs cui c'è la relazione
+81        			XMLRelazioneVsUDIO		IN OUT	NOCOPY CLOB,					-- XML con i dati della relazioni dell'unità documentaria IdUdIn con un altra unità documentaria (relazione di precedente-successivo ecc.)
+82        																	-- Contiene un solo tag "Riga" con le seguenti colonne:
+83        																	-- 1: Identificativo dell'unità documentaria collegata
+84        																	-- 2: Categoria di una registrazione/numerazione dell'unità documentaria collegata; valori ammessi: PG = Protocollo Generale; PP = Protocollo Particolare; R = Repertorio; E = Registrazione d'emergenza; A = Altro tipo di numerazione
+85        																	-- 3: Sigla di una registrazione/numerazione dell'unità documentaria collegata
+86        																	-- 4: Anno di una registrazione/numerazione dell'unità documentaria collegata
+87        																	-- 5: N.ro di una registrazione/numerazione dell'unità documentaria collegata
+88        																	-- 6: Codice della categoria/natura generale della relazione tra le due unità doc. (valori da dizionario)
+89        																	-- 7: Descrizione della categoria/natura generale della relazione tra le due unità doc. (valori da dizionario)
+90        																	-- 8: Codice del ruolo che svolge nella relazione l'unità documentaria di cui si sta caricando il dettaglio (valori da dizionario)
+91        																	-- 9: Descrizione del ruolo che svolge nella relazione l'unità documentaria di cui si sta caricando il dettaglio (valori da dizionario)
+92        																	-- 10: Codice del ruolo che svolge nella relazione l'unità documentaria collegata a quella di cui si sta caricando il dettaglio (valori da dizionario)
+93        																	-- 11: Descrizione del ruolo che svolge nella relazione l'unità documentaria collegata a quella di cui si sta caricando il dettaglio (valori da dizionario)
+94        																	-- 12: Dettagli della relazione (campo descrittivo)
+95        																	-- 13: Oggetto dell'unità documentaria collegata
+96        																	-- 14: ID_DOC del documento primario dell'unità documentaria collegata
+97        																	-- 15: N.ro dell'ultima versione visibile del documento primario dell'unità documentaria collegata
+98        																	-- 16: Nome con cui mostrare il file dell'ultima versione visibile del documento primario dell'unità documentaria collegata
+99        																	-- 17: Nome dell'unità documentaria collegata
+100        																	-- 18: Estremi di registrazione/numerazione dell'unità documentaria collegata
+101        																	-- 19: Tipo, oggetto + dati di trace sull'unità documentaria collegata da usare come alt della stessa
+102        																	-- 20: Rowid del record della relazione
+103        			ErrContextOut			OUT		VARCHAR2,						-- Contesto (ovvero package e/o funzione/procedura) in cui si è verificato l'errore
+104        			ErrCodeOut				OUT		PLS_INTEGER,					-- N.ro errore di uscita
+105        			ErrMsgOut				OUT 		VARCHAR2						-- Messaggio d'errore
+106        			)return PLS_INTEGER;											-- 1 in caso di successo, 0 in caso di errore
+107        
+108        	/***** funzione per estrarre i dati delle cartelle collegate - con relazioni NON di appartenenza/inclusione - ad una data cartella	*****/
+109        	/***** vengono estratti i dati delle sole cartelle visibili all'utente collegato									*****/
+110        	function GetFolderCollegati(
+111        			CodIdConnectionTokenIn		IN		DMT_CONNECTION_TOKEN.CI_CONNECTION_TOKEN%type,
+112        																	-- (obblig). Codice identificativo del token di connessione
+113        			IdUserLavoroIn			IN		DMT_USERS.ID_USER%type DEFAULT NULL,	-- Id. dell'utente a nome di cui si lavora. Se non valorizzato è l'utente connesso
+114        			IdFolderIn   			IN		DMT_FOLDER.ID_FOLDER%type, 			-- (obblig.) Identificativo della cartella di cui estrarre le relazioni con altre cartelle
+115        			ListaRelazioniVsFolderOut	OUT		NOCOPY CLOB,					-- XML con la lista delle relazioni - NON di appartenenza / inclusione - della cartella con altre cartelle (relazioni di precedente-successivo ecc.)
+116        																	-- Ogni relazione è un tag "Riga" che contiene le seguenti colonne:
+117        																	-- 1: Identificativo della cartella
+118        																	-- 2: Percorso e nome della cartella
+119        																	-- 3: Anno di apertura della cartella (se basata sul titolario di classificazione)
+120        																	-- 4: Livelli di classificazione della cartella se basata sul titolario di classificazione (separati dal separatore standard previsto per i livelli di classificazione nel dominio)
+121        																	-- 5: N.ro di fascicolo (se cartella basata sul titolario di classificazione)
+122        																	-- 6: Codice della categoria/natura generale della relazione tra le cartelle (valori da dizionario)
+123        																	-- 7: Descrizione della categoria/natura generale della relazione tra le due cartelle (valori da dizionario)
+124        																	-- 8: Codice del ruolo che svolge nella relazione la cartella di cui si sta caricando il dettaglio (valori da dizionario)
+125        																	-- 9: Descrizione del ruolo che svolge nella relazione la cartella di cui si sta caricando il dettaglio (valori da dizionario)
+126        																	-- 10: Codice del ruolo che svolge nella relazione la cartella collegata a quella di cui si sta caricando il dettaglio (valori da dizionario)
+127        																	-- 11: Descrizione del ruolo che svolge nella relazione la cartella collegata a quella di cui si sta caricando il dettaglio (valori da dizionario)
+128        																	-- 12: Dettagli della relazione (campo descrittivo)
+129        																	-- 13: Oggetto della cartella collegata
+130        																	-- 14: N.ro di sotto-fascicolo (se sottofascicolo basato sul titolario di classificazione)
+131        																	-- 15: N.ro di inserto (se inserto di sottofascicolo basato sul titolario di classificazione)
+132        																	-- 16: N.ro secondario della cartella collegata
+133        																	-- 17: Nome della cartella collegata
+134        																	-- 18: <non utilizzata>
+135        																	-- 19: Tipo, oggetto + dati di trace sulla cartella collegata da usare come alt della stessa
+136        																	-- 20: Rowid del record della relazione
+137        			ErrContextOut			OUT		VARCHAR2,						-- Contesto (ovvero package e/o funzione/procedura) in cui si è verificato l'errore
+138        			ErrCodeOut				OUT		PLS_INTEGER,					-- N.ro errore di uscita
+139        			ErrMsgOut				OUT 		VARCHAR2						-- Messaggio d'errore
+140        			)return PLS_INTEGER;											-- 1 in caso di successo, 0 in caso di errore
+141        
+142        	/*****	funzione per controllare i dati di una relazione - non di appartenenza/inclusione - di un folder IdFolderIn con un altro folder 			******/
+143        	/***** 	i dati della relazione sono nel clob in input (unica riga in un XML conforme a schema di una LISTA_STD.xsd)							******/
+144        	/*****	I dati della relazione vengono rielaborati e restituiti pronti per l'inserimento/aggiornamento 									******/
+145        	function CtrlDatiFolderCollegato(
+146        			CodIdConnectionTokenIn		IN		DMT_CONNECTION_TOKEN.CI_CONNECTION_TOKEN%type,
+147        																	-- (obblig). Codice identificativo del token di connessione
+148        			IdUserLavoroIn			IN		DMT_USERS.ID_USER%type DEFAULT NULL,	-- Id. dell'utente a nome di cui si lavora. Se non valorizzato è l'utente connesso
+149        			IdFolderIn   			IN		DMT_FOLDER.ID_FOLDER%type, 			-- (obblig.) Identificativo del folder vs cui c'è la relazione
+150        			XMLRelazioneVsFolderIO		IN OUT	NOCOPY CLOB,					-- XML con i dati della relazione del folder IdFolderIn con un altro folder (relazione di precedente-successivo ecc.)
+151        																	-- Contiene un solo tag "Riga" con le seguenti colonne:
+152        																	-- 1: Identificativo della cartella
+153        																	-- 2: Percorso e nome della cartella
+154        																	-- 3: Anno di apertura della cartella (se basata sul titolario di classificazione)
+155        																	-- 4: Livelli di classificazione della cartella se basata sul titolario di classificazione (separati dal separatore standard previsto per i livelli di classificazione nel dominio)
+156        																	-- 5: N.ro di fascicolo (se cartella basata sul titolario di classificazione)
+157        																	-- 6: Codice della categoria/natura generale della relazione tra le cartelle (valori da dizionario)
+158        																	-- 7: Descrizione della categoria/natura generale della relazione tra le due cartelle (valori da dizionario)
+159        																	-- 8: Codice del ruolo che svolge nella relazione la cartella di cui si sta caricando il dettaglio (valori da dizionario)
+160        																	-- 9: Descrizione del ruolo che svolge nella relazione la cartella di cui si sta caricando il dettaglio (valori da dizionario)
+161        																	-- 10: Codice del ruolo che svolge nella relazione la cartella collegata a quella di cui si sta caricando il dettaglio (valori da dizionario)
+162        																	-- 11: Descrizione del ruolo che svolge nella relazione la cartella collegata a quella di cui si sta caricando il dettaglio (valori da dizionario)
+163        																	-- 12: Dettagli della relazione (campo descrittivo)
+164        																	-- 13: Oggetto della cartella collegata
+165        																	-- 14: N.ro di sotto-fascicolo (se sottofascicolo basato sul titolario di classificazione)
+166        																	-- 15: N.ro di inserto (se inserto di sottofascicolo basato sul titolario di classificazione)
+167        																	-- 16: N.ro secondario della cartella collegata
+168        																	-- 17: Nome della cartella collegata
+169        																	-- 18: <non utilizzata>
+170        																	-- 19: Tipo, oggetto + dati di trace sulla cartella collegata da usare come alt della stessa
+171        																	-- 20: Rowid del record della relazione
+172        			ErrContextOut			OUT		VARCHAR2,						-- Contesto (ovvero package e/o funzione/procedura) in cui si è verificato l'errore
+173        			ErrCodeOut				OUT		PLS_INTEGER,					-- N.ro errore di uscita
+174        			ErrMsgOut				OUT 		VARCHAR2						-- Messaggio d'errore
+175        			)return PLS_INTEGER;											-- 1 in caso di successo, 0 in caso di errore
+176        
+177        	/***** funzione per estrarre i destinatari (di registrazione, invio notifica) e/o gli assegnatari di un'unità documentaria *****/
+178        	function LoadDestAssUD(
+179        			CodIdConnectionTokenIn		IN		DMT_CONNECTION_TOKEN.CI_CONNECTION_TOKEN%type,
+180        																	-- (obblig). Codice identificativo del token di connessione
+181        			IdUDIn   				IN    	DMT_UNITA_DOC.ID_UD%type, 			-- (obblig.) Identificativo dell'unità documentaria di cui caricare i destinatari/assegnatari
+182        			TipiDestintariIn			IN		VARCHAR2,						-- Indica che cosa estrarre. Valori ammessi:
+183        																	-- DR = Destinatari di registrazione
+184        																	-- AA = Assegnatari attuali (destinatari di invio)
+185        																	-- A 	= Tutti gli assegnatari, anche quelli "storici"
+186        																	-- DI = Destinatari di invio
+187        																	-- DN = Destinatari di notifica
+188        																	-- Può essere anche una concatenazione dei valori precedenti separati da ;.
+189        																	-- Se non valorizzato vengono estratti tutti: destinatari di registrazione, invio (anche storici) e notifica
+190        			DestinatariAssegnatariOut	OUT		NOCOPY CLOB,					-- Lista con i destinatari "di registrazione" esterni ed interni del documento + i destinatari di invii/notifiche (xml comforme a schema LISTA_STD.xsd)
+191        																	-- Ciscun destinatario/assegnatario è un tag "Riga" che contiene le seguenti colonna:
+192        																	--	1: (obblig.) Indicatore del tipo di destinastario / assegnatario
+193        																	--		Valori possibili:
+194        																	--			E	= Soggetto esterno
+195        																	--			SP	= Soggetto produttore
+196        																	-- 			AOO	= AOO
+197        																	-- 			UT 	= Utente
+198        																	--			SV	= Scrivania virtuale
+199        																	--			UO	= Unità organizzativa (vale a dire tutte le scrivanie virtuali ad essa afferenti)
+200        																	--			G	= Gruppo
+201        																	--			R	= Ruolo amministrativo contestualizzato ovvero i soggetti che hanno un certo ruolo amministrativo (eventualmente rispetto ad una certa UO o un dato livello della struttura organizzativa/tipo di UO o entrambi)
+202        																	--	2: Identificativo del destinatario / assegnatario
+203        																	--		è un ID_SOGG_RUBRICA di DMT_RUBRICA_SOGGETTI se colonna 1=E
+204        																	--		è un ID_SP_AOO di DMT_SOGGETTI_PROD_AOO se colonna 1 è SP o AOO
+205        																	--		è un ID_UO di DMT_STRUTTURA_ORG se colonna 1=UO,
+206        																	--		è un ID_GRUPPO di DMT_GRUPPI se colonna 1 =G
+207        																	--		è un ID_USER di DMT_USERS se colonna 1 =UT
+208        																	--		è un ID_SCRIVANIA di DMT_SCRIVANIE_VIRTUALI se colonna 1 =SV
+209        																	--		è un ID_RUOLO_AMM di DMT_RUOLI_AMM se colonna 1 =R
+210        																	--	3: Denominazione/nome del destinatario / assegnatario (se trattasi di UO può essere la denominazione semplice o preceduta da quella di tutte le UO superiori separate da "|")
+211        																	--	4: Identificativo della UO cui appartiene la scrivania destinataria / assegnataria
+212        																	--	5: Nri livello della UO destinataria o a cui appartiene la scrivania destinataria / assegnataria (tutti o alcuni; però se si specifica un livello è obbligatorio indicare tutti i livelli superiori; vanno specificati come appaiono nella GUI, ovvero romani se previsto, 0 o -- se nulli; sono separati dal separatore dei livelli valido per il soggetto produttore/AOO di appartenenza della UO)
+213        																	--	6: Denominazione della UO cui appartiene la scrivania destinataria / assegnataria (può essere la denominazione semplice o preceduta da quella di tutte le UO superiori separate da "|")
+214        																	--	7: Codice che identifica nell'applicazione esterna da cui ci si connette l'utente destinatario /assegnatario o quello che occupa la scrivania destinataria / assegnataria
+215        																	--	8: Denominazione dell'utente che occupa la scrivania destinataria / assegnataria
+216        																	--	9: (valore 1) Indica che il destinatario / assegnatario, se UO, sono anche tutte le sue sotto-UO
+217        																	--	10: (valori interi da 1 a n) Livello della struttura organizzativa in cui si espleta il ruolo amministrativo destinatario / assegnatario
+218        																	--	11: Se colonna 1 =R: Codice del tipo di unità organizzativa in cui si espleta il ruolo amministrativo destinatario / assegnatario (alternativo alla colonna 10)
+219        																	--		Se colonna 1 =UT o SV: Username (delle credenziali locali) dell'utente destinatario o che occupa la scrivania destinataria / assegnataria
+220        																	--	12: Se colonna 1 =R: Descrizione del tipo di unità organizzativa (es: settore, servizio, ecc) in cui si espleta il ruolo amministrativo destinatario / assegnatario(alternativo alla colonna 10)
+221        																	--		Se colonna 1 =UT o SV: N.ro di matricola dell'utente destinatario o che occupa la scrivania destinataria / assegnataria
+222        																	--	13: Identificativo della UO in cui si espleta il ruolo amministrativo destinatario / assegnatario o dalla quale risalire alla/e UO del livello/tipo indicati in cui si espleta il ruolo amministrativo destinatario / assegnatario
+223        																	--	14: Denominazione/nome della UO in cui si espleta il ruolo amministrativo destinatario / assegnatario o dalla quale risalire alla/e UO del livello/tipo indicati in cui si espleta il ruolo amministrativo destinatario / assegnatario (può essere la denominazione semplice o preceduta da quella di tutte le UO superiori separate da "|")
+224        																	--	15: Nri livello della UO in cui si espleta il ruolo amministrativo destinatario / assegnatario o dalla quale risalire alla/e UO del livello/tipo indicati in cui si espleta il ruolo amministrativo destinatario / assegnatario (tutti o alcuni; però se si specifica un livello è obbligatorio indicare tutti i livelli superiori; vanno specificati come appaiono nella GUI, ovvero romani se previsto, 0 o -- se nulli; sono separati dal separatore dei livelli valido per il soggetto produttore/AOO di appartenenza della UO)
+225        																	--	16:(valore 1) Indica che il ruolo amministrativo destinatario / assegnatario si espleta anche nelle sotto-UO della/e UO rintracciate tramite i valori delle 3 colonne precedenti
+226        																	-- 	17: Flag 1/0 che indica se si tratta di un destinatario ufficiale (1) o meno (0)
+227        																	--	18: Flag 1/0 che indica se si tratta di un attuale assegnatario di copia (1) o meno (0)
+228        																	--	19: Flag 1/0 che indica se si tratta di un assegnatario, anche storico, di copia (1) o meno (0)
+229        																	--	20: Flag 1/0 che indica se si tratta di un soggetto cui è stato notificato il documento (1) o meno (0)
+230        																	--	21: Flag 1/0 che indica se si tratta di un destinatario per conoscenza (1) o meno
+231        																	--	22: ID_INVIO dell'eventuale primo invio al destinatario/assegnatario
+232        																	--	23: ID_NOTIFICA dell'eventuale prima notifica del documento al destinatario/assegnatario
+233        																	--	24: Data e ora da cui decorre l'eventuale ultima assegnazione al soggetto (nel formato dato dal parametro di config. FMT_STD_TIMESTAMP)
+234        																	--	25: Data e ora in cui è terminata l'eventuale ultima assegnazione al soggetto (nel formato dato dal parametro di config. FMT_STD_TIMESTAMP)
+235        																	--	26: Data e ora da cui decorre l'eventuale ultima notifica al soggetto (nel formato dato dal parametro di config. FMT_STD_TIMESTAMP)
+236        																	--	29: Dati identificativi del destinatario / assegnatario (per soggetto esterno è la denominazione / cognome e nome)
+237        																	/******* inizio campi relativi solo ai destinatari esterni ******/
+238        																	-- 	30: Identificativo con cui il soggetto è registrato in rubrica soggetti (se vi è presente)
+239        																	-- 	31: Codice del soggetto in un eventuale anagrafe esterna (ACS o altro)
+240        																	-- 	32: Cognome del soggetto (se persona fisica)
+241        																	-- 	33: Nome del soggetto (se persona fisica)
+242        																	-- 	34: Indicatore si persona fisica (1) o giuridica (0)
+243        																	-- 	35: Codice fiscale del soggetto
+244        																	-- 	36: Partita IVA del soggetto
+245        																	-- 	37: Data di nascita/istituzione del soggetto (nel formato del parametro di conf. FMT_STD_DATA)
+246        																	-- 	38: (valori M/F) Sesso del soggetto (se persona fisica): M = Maschio, F = Femmina
+247        																	-- 	39: Codice ISTAT del comune (italiano) di nascita/istituzione del soggetto
+248        																	-- 	40: Nome del comune italiano o della città (se estera) di nascita/istituzione del soggetto
+249        																	-- 	41: Codice ISTAT dello stato di nascita/istituzione del soggetto
+250        																	-- 	42: Nome dello stato di nascita/istituzione del soggetto
+251        																	-- 	43: Codice ISTAT dello stato di cittadinanza del soggetto
+252        																	-- 	44: Nome dello stato di cittadinanza del soggetto
+253        																	-- 	45: Targa della provincia del comune di nascita del soggetto
+254        																	-- 	46: Titolo di studio/professionale
+255        																	-- 	47: Codice che indica il mezzo di trasmissione dell'unità documentaria al destinataro. Valori in dizionario
+256        																	--	48: Descrizione del mezzo di trasmissione dell'unità documentaria al destinatario. Valori in dizionaro
+257        																	--	49: Data e ora di spedizione/invio al destinatario (nel formato dato dal parametro di conf. FMT_STD_TIMESTAMP)
+258        																	--	50: Data di raccomandata (se la trasmissione è tramite raccomandata)(nel formato dato dal parametro di conf. FMT_STD_DATA)
+259        																	--	51: Nro di raccomandata al destinatario (se la trasmissione è tramite raccomandata)
+260        																	--	52: Data di notifica al destinatario (nel formato dato dal parametro di conf. FMT_STD_DATA)
+261        																	--	53: Nro di notifica al destinatario
+262        																	-- 	54: Codice identificativo toponomastico dell'indirizzo fisico di invio al destinatario (se invio tramite posta ordinaria e se censito nella toponomastica del sistema)
+263        																	-- 	55: Indirizzo (senza civico) fisico di invio al destinatario (se invio tramite posta ordinaria) (alternativo o ridondante rispetto al campo precedente)
+264        																	-- 	56: Civico dell'indirizzo fisico di invio al destinatario (se invio tramite posta ordinaria)
+265        																	-- 	57: Interno dell'indirizzo fisico di invio al destinatario (se invio tramite posta ordinaria)
+266        																	-- 	58: Scala dell'indirizzo fisico di invio al destinatario (se invio tramite posta ordinaria)
+267        																	-- 	59: Piano dell'indirizzo fisico di invio al destinatario (se invio tramite posta ordinaria)
+268        																	-- 	60: CAP dell'indirizzo fisico di invio al destinatario (se invio tramite posta ordinaria)
+269        																	-- 	61: Località dell'indirizzo fisico di invio al destinatario (se invio tramite posta ordinaria)
+270        																	-- 	62: Codice ISTAT del comune italiano dell'indirizzo fisico di invio al destinatario (se invio tramite posta ordinaria)
+271        																	-- 	63: Nome del comune/città dell'indirizzo fisico di invio al destinatario (se invio tramite posta ordinaria)
+272        																	-- 	64: Codice ISTAT dello stato dell'indirizzo fisico di invio al destinatario (se invio tramite posta ordinaria)
+273        																	-- 	65: Nome dello stato dell'indirizzo fisico di invio al destinatario (se invio tramite posta ordinaria)
+274        																	-- 	66: Targa della provincia del comune dell'indirizzo fisico di invio al destinatario (se invio tramite posta ordinaria)
+275        																	-- 	67: Indirizzo e-mail del destinatario (se invio tramite posta elettronica)
+276        																	--	68: Indicatore che l'indirizzo e-mail del destinatario è un idirizzo di Posta Elettronica Certificata. Valore fisso 1.
+277        																	--	69: Estremi del gestore della casella e-mail del destinatario se è di Posta Elettronica Certificata.
+278        																	--	70: Indicatore che l'indirizzo e-mail del destinatario è dichiarato all'Indice PA. Valore fisso 1.
+279        																	--	71: Indicatore che l'indirizzo e-mail del destinatario è una casella istituzionale di un'AOO. Valore fisso 1.
+280        																	-- 	72: Nro fax del destinatario (se invio tramite fax)
+281        																	--	73: Identificativo del record del destinatario esterno (ID_RELAZIONE)
+282        			ErrContextOut			OUT		VARCHAR2,						-- Contesto (ovvero package e/o funzione/procedura) in cui si è verificato l'errore
+283        			ErrCodeOut				OUT		PLS_INTEGER,					-- N.ro errore di uscita
+284        			ErrMsgOut				OUT 		VARCHAR2,						-- Messaggio d'errore
+285        			FlgEscludiAssSenzaInvioIn	IN		PLS_INTEGER DEFAULT NULL)			-- (valori 1/0/NULL) Se 1 tra gli assegnatari non viene considerato quello non derivante da invio, altrimenti sì.
+286        			return PLS_INTEGER;											-- 1 in caso di successo, 0 in caso di errore
+287        
+288        	/***** funzione per estrarre i soggetti esterni collegati ad un documento *****/
+289        	function LoadSoggEstDoc(
+290        			CodIdConnectionTokenIn		IN		DMT_CONNECTION_TOKEN.CI_CONNECTION_TOKEN%type,
+291        																	-- (obblig). Codice identificativo del token di connessione
+292        			IdDocIn   				IN    	DMT_DOCUMENTS.ID_DOC%type, 			-- (obblig.) Identificativo dell'unità documentaria di cui caricare i soggetti esterni
+293        			NaturaRelDocVsSoggIn		IN		VARCHAR2,						-- Indica che natura/e devono avere le relazioni dei soggetti da estrarre con il documento. Valori ammessi:
+294        																	-- D 	= Destinatari
+295        																	-- M 	= Mittenti
+296        																	-- #A = Tutti i soggetti tranne mittenti e destinatari
+297        																	-- qualsiasi valore possibile per il campo COD_NATURA_REL dei soggetti esterni dei documenti
+298        																	-- Può essere anche una concatenazione dei valori precedenti separati da ;.
+299        																	-- Se non valorizzato vengono estratti tutti: destinatari, mittenti e altri soggetti
+300        			SoggettiEsterniOut		OUT		NOCOPY CLOB,					-- Lista con i dati dei soggetti esterni in relazione con il documento
+301        																	--	Ogni nominativo è un tag "Riga" che può contenere le seguenti colonne:
+302        																	--	1: Identificativo del soggetto nella rubrica soggetti del sistema
+303        																	--	2: Codice identificativo del soggetto nell'anagrafe residenti o ditte
+304        																	--	3: Se 1 indica che il soggetto è una persona fisica (altrimenti si intende essere una persona giuridica)
+305        																	--	4: Denominazione (se persona giuridica) o cognome (se persona fisica)
+306        																	--	5: Nome (se persona fisica)
+307        																	--	6: Codice fiscale
+308        																	--	7: Partita IVA
+309        																	--	8: Sesso (valori F/M/NULL) (se persona fisica)
+310        																	--	9: Data di nascita/istituzione (nel formato dato dal parametro FMT_STD_DATA)
+311        																	--	10: Codice ISTAT del comune di nascita/istituzione
+312        																	--	11: Nome del comune (se italiano) o città estera di nascita/istituzione
+313        																	--	12: Codice ISTAT dello stato estero di nascita/istituzione
+314        																	--	13: Nome dello stato estero di nascita/istituzione
+315        																	--	14: Codice ISTAT dello stato di cittadinanza
+316        																	--	15: Nome dello stato di cittadinanza
+317        																	--	16: <non utilizzata>
+318        																	--	17: Codice della natura della relazione del soggetto con il documento (firmatario, contraente ecc). Valori da dizionario.
+319        																	--	18: Descrizione della natura della relazione del soggetto con il documento (firmatario, contraente ecc). Valori da dizionario.
+320        																	--	19: Dettagli sulla natura della relazione tra soggetto e documento
+321        																	--	20: Titolo di studio/professionale
+322        																	--	21: Targa della provincia del comune di nascita del soggetto
+323        																	--	22: Identificativo del record del soggetto esterno (ID_RELAZIONE)
+324        			ErrContextOut			OUT		VARCHAR2,						-- Contesto (ovvero package e/o funzione/procedura) in cui si è verificato l'errore
+325        			ErrCodeOut				OUT		PLS_INTEGER,					-- N.ro errore di uscita
+326        			ErrMsgOut				OUT 		VARCHAR2,						-- Messaggio d'errore
+327        			FlgEscludiAssSenzaInvioIn	IN		PLS_INTEGER DEFAULT NULL)			-- (valori 1/0/NULL) Se 1 tra gli assegnatari non viene considerato quello non derivante da invio, altrimenti sì.
+328        			return PLS_INTEGER;											-- 1 in caso di successo, 0 in caso di errore
+329        
+330        	/***** funzione per estrarre i soggetti esterni collegati ad un folder *****/
+331        	function LoadSoggEstFolder(
+332        			CodIdConnectionTokenIn		IN		DMT_CONNECTION_TOKEN.CI_CONNECTION_TOKEN%type,
+333        																	-- (obblig). Codice identificativo del token di connessione
+334        			IdFolderIn   			IN    	DMT_FOLDER.ID_FOLDER%type, 			-- (obblig.) Identificativo del folder di cui caricare i soggetti esterni
+335        			NaturaRelDocVsSoggIn		IN		VARCHAR2,						-- Indica che natura/e devono avere le relazioni dei soggetti da estrarre con il folder. Valori ammessi:
+336        																	-- qualsiasi valore possibile per il campo COD_NATURA_REL dei soggetti esterni dei documenti
+337        																	-- Può essere anche una concatenazione dei valori precedenti separati da ;.
+338        																	-- Se non valorizzato vengono estratti tutti i soggetti collegati al folder
+339        			SoggettiEsterniOut		OUT		NOCOPY CLOB,					-- Lista con i dati dei soggetti esterni in relazione con il folder
+340        																	--	Ogni nominativo è un tag "Riga" che può contenere le seguenti colonne:
+341        																	--	1: Identificativo del soggetto nella rubrica soggetti del sistema
+342        																	--	2: Codice identificativo del soggetto nell'anagrafe residenti o ditte
+343        																	--	3: Se 1 indica che il soggetto è una persona fisica (altrimenti si intende essere una persona giuridica)
+344        																	--	4: Denominazione (se persona giuridica) o cognome (se persona fisica)
+345        																	--	5: Nome (se persona fisica)
+346        																	--	6: Codice fiscale
+347        																	--	7: Partita IVA
+348        																	--	8: Sesso (valori F/M/NULL) (se persona fisica)
+349        																	--	9: Data di nascita/istituzione (nel formato dato dal parametro FMT_STD_DATA)
+350        																	--	10: Codice ISTAT del comune di nascita/istituzione
+351        																	--	11: Nome del comune (se italiano) o città estera di nascita/istituzione
+352        																	--	12: Codice ISTAT dello stato estero di nascita/istituzione
+353        																	--	13: Nome dello stato estero di nascita/istituzione
+354        																	--	14: Codice ISTAT dello stato di cittadinanza
+355        																	--	15: Nome dello stato di cittadinanza
+356        																	--	16: <non utilizzata>
+357        																	--	17: Codice della natura della relazione del soggetto con il folder. Valori da dizionario.
+358        																	--	18: Descrizione della natura della relazione del soggetto con il folder. Valori da dizionario.
+359        																	--	19: Dettagli sulla natura della relazione tra soggetto e folder
+360        																	--	20: Titolo di studio/professionale
+361        																	--	21: Targa della provincia del comune di nascita del soggetto
+362        																	--	22: Identificativo del record del soggetto esterno (ID_RELAZIONE)
+363        			ErrContextOut			OUT		VARCHAR2,						-- Contesto (ovvero package e/o funzione/procedura) in cui si è verificato l'errore
+364        			ErrCodeOut				OUT		PLS_INTEGER,					-- N.ro errore di uscita
+365        			ErrMsgOut				OUT 		VARCHAR2,						-- Messaggio d'errore
+366        			FlgEscludiAssSenzaInvioIn	IN		PLS_INTEGER DEFAULT NULL)			-- (valori 1/0/NULL) Se 1 tra gli assegnatari non viene considerato quello non derivante da invio, altrimenti sì.
+367        			return PLS_INTEGER;											-- 1 in caso di successo, 0 in caso di errore
+368        
+369        	function LoadDettUD(
+370        			CodIdConnectionTokenIn		IN		DMT_CONNECTION_TOKEN.CI_CONNECTION_TOKEN%type,
+371        																	-- (obblig). Codice identificativo del token di connessione
+372        			IdUserLavoroIn			IN		DMT_USERS.ID_USER%type DEFAULT NULL,	-- Id. dell'utente a nome di cui si lavora. Se non valorizzato è l'utente connesso
+373        			IdUDIO   				IN OUT   	DMT_UNITA_DOC.ID_UD%type, 			-- (obblig.) Identificativo dell'unità documentaria di cui caricare il dettaglio
+374        			IdDocPrimarioOut			OUT		DMT_DOCUMENTS.ID_DOC%type,			-- Id. del documento primario dell'UD
+375        			ListaRegNumOut			OUT		NOCOPY CLOB,					-- Lista di registrazioni/numerazioni date all'unità documentaria
+376        																	-- Ciscuna riga della lista contiene le seguenti colonne:
+377        																	--	1: Codice della categoria di registrazione/numerazione; valori ammessi: PG = Protocollo Generale; PP = Protocollo Particolare; R = Repertorio; E = Registrazione d'emergenza; A = Altro tipo di numerazione
+378        																	--	2: Sigla di registrazione/numerazione
+379        																	--	3: Anno di registrazione/numerazione
+380        																	--	4: N.ro di registrazione/numerazione
+381        																	--	5: Data e ora di registrazione/numerazione (nel formato dato dal parametro di config. FMT_STD_TIMESTAMP)
+382        																	--	6: Identificativo dell'utente che ha effettuato la registrazione/numerazione
+383        																	--	7: Codice che identifica l'utente che ha effettuato la registrazione/numerazione nell'applicazione esterna da cui ci si connette
+384        																	--	8: Denominazione dell'utente che ha effettuato la registrazione/numerazione
+385        																	--	9: Identificativo della UO presso cui è stata effettuata la registrazione/numerazione
+386        																	--	10: Denominazione della UO presso cui è stata effettuata la registrazione/numerazione (può essere la denominazione semplice o preceduta da quella di tutte le UO superiori separate da "|")
+387        																	--	11: N.ri livello della UO presso cui è stata effettuata la registrazione/numerazione (tutti o alcuni; però se si specifica un livello è obbligatorio indicare tutti i livelli superiori; vanno specificati come appaiono nella GUI, ovvero romani se previsto, 0 o -- se nulli; sono separati dal separatore dei livelli valido per il soggetto produttore/AOO di appartenenza della UO)
+388        																	--	12: Codice che identifica la registrazione nel sistema in cui è stata data
+389        																	--	13: Data in cui decade la riservatezza data all'unità documentaria dalla data registrazione/numerazione (nel formato dato dal parametro di config. FMT_STD_DATA)
+390        																	--	14: (valori 1/NULL) Se 1 significa che la registrazione/numerazione è annullata
+391        																	--	15: Data e ora di annullamento della registrazione (nel formato dato dal parametro di config. FMT_STD_TIMESTAMP)
+392        																	--	16: Identificativo dell'unità documentaria che rappresenta l'atto di autorizzazione all'annullamento della data registrazione/numerazione
+393        																	--	17: Estremi dell'atto di autorizzazione annullamento (alternativo al precedente e gestito solo se quello non è valorizzato)
+394        																	--	18: Motivazioni dell'annullamento della data registrazione/numerazione
+395        																	--	19: (valori 1/NULL) Se 1 significa che la registrazione/numerazione è stata richiesta dal sistema documentale e quindi non è modificabile
+396        			StringaRegNumOut			OUT		VARCHAR2,						-- Estremi delle numerazioni/registrazioni già date all'unità documentaria, espressi come stringa unica (se più di una numerazione separati da a ;)
+397        			IdTipoDocPrimarioOut		OUT		DMT_DOC_TYPES.ID_DOC_TYPE%type,		-- Id. del tipo del documento primario
+398        			NomeTipoDocPrimarioOut		OUT		DMT_DOC_TYPES.NOME_DOC_TYPE%type,		-- Nome del tipo del documento primario
+399        			NroLastVisibleVerPrimarioOut	OUT		PLS_INTEGER,					-- N.ro dell'eventuale ultima versione elettronica del doc. primario visibile all'utente
+400        			NroLastVerPrimarioOut		OUT		PLS_INTEGER,					-- N.ro dell'eventuale ultima versione elettronica del doc. primario (visibile o meno all'utente)
+401        			DisplayFilenamePrimarioOut	OUT		VARCHAR2,						-- Nome con cui mostrare il file corrispondente all'eventuale ultima versione elettronica del doc. primario visibile all'utente
+402        			FlgPubblFilePrimarioOut		OUT		PLS_INTEGER,					-- (valori 1/NULL) Indica lo stato di pubblicata (1) o meno (NULL) dell'ultima versione elettronica del doc. primario visibile all'utente
+403        			FlgDaDigitFilePrimarioOut	OUT		PLS_INTEGER,					-- (valori 1/NULL) Indica (se 1) che l'ultima versione elettronica del doc. primario visibile all'utente deriva da una scansione
+404        			NoteFilePrimarioOut		OUT		VARCHAR2,						-- Note dell'ultima versione elettronica del doc. primario visibile all'utente
+405        			AbilitazioniFilePrimarioOut	OUT		VARCHAR2,						-- Bitmap (stringa di 1/0) di abilitazioni alle operazioni sul file primario (l'ultima versione visibile)
+406        																	-- I significati dei bit (caratteri di posizione i-esima) sono:
+407        																	-- 1° carattere: Abilitazione al versioning/modifica del file
+408        																	-- 2° carattere: Abilitazione alla firma del file
+409        																	-- 3° carattere: Abilitazione alla cancellazione di tutte le versioni del file
+410        																	-- 4° carattere: Abilitazione alla modifica delle note del file
+411        																	-- 5° carattere: Abilitazione alla modifica dello stato di pubblicazione del file
+412        																	-- 8° carattere: Abilitazione al creare nuova versione non pubblicata
+413        																	-- 9° carattere: Abilitazione alla riproduzione - i.e. downolad, copia, stampa - del file
+414        			DesOggettoPrimarioOut		OUT		DMT_DOCUMENTS.DES_OGG%type, 			-- Oggetto del documento primario
+415        			FlgAcqProdOut			OUT		VARCHAR2,            				-- se A l'unità doc. è stata acquisita, se P prodotta
+416        			TsArrivoStesuraOut		OUT		VARCHAR2,						-- Data e ora di arrivo (se UD acquisita; nel formato dato dal parametro di config. FMT_STD_TIMESTAMP) o data di stesura (se UD prodotta, nel formato dato dal parametro di config. FMT_STD_DATA)
+417        			FlgTipoProvOut			OUT		DMT_DOC_TYPES.FLG_TIPO_PROV%type,   	-- Tipo di provenienza del doc. primario dell'unità documentaria: E = In entrata, I = Tra uffici, U = In uscita
+418        			MittentiOut				OUT		VARCHAR2,						-- Mittente/i esterni o uffici produttori dell'unità documentaria (se più di uno separati da ;)
+419        																	-- Nel caso degli uffici produttori la descrizione è seguita dai livelli (tra parentesi quadre)
+420        																	-- Nel caso dei soggetti esterni la denominazione può essere seguita tra quadre dell'id. dell'eventuale soggetto della rubrica che corrisponde al mittente
+421        			FlgMovimentataOut			OUT		PLS_INTEGER,					-- (valori 1/0) Indica se è un'unità documentaria che è già stata movimentata (1) oppure no (0)
+422        			EstremiSoggInCaricoAOut		OUT		VARCHAR2,						-- Estremi di chi ha in carico copia dell'unità documentaria senza che ci sia stato un invio: sigla del tipo di soggetto (UT = Utente, UO = Unità Operativa, SV = Scrivania virtuale) seguita dal suo identificativo (es: UT101, UO1004)
+423        			DestinatariAssegnatariOut	OUT		NOCOPY CLOB,					-- Lista con i destinatari "di registrazione" esterni ed interni del documento + i destinatari di invii/notifiche (xml comforme a schema LISTA_STD.xsd)
+424        																	-- Ciscun destinatario/assegnatario è un tag "Riga" che contiene le seguenti colonna:
+425        																	--	1: (obblig.) Indicatore del tipo di destinastario / assegnatario
+426        																	--		Valori possibili:
+427        																	--			E	= Soggetto esterno
+428        																	--			SP	= Soggetto produttore
+429        																	-- 			AOO	= AOO
+430        																	-- 			UT 	= Utente
+431        																	--			SV	= Scrivania virtuale
+432        																	--			UO	= Unità organizzativa (vale a dire tutte le scrivanie virtuali ad essa afferenti)
+433        																	--			G	= Gruppo
+434        																	--			R	= Ruolo amministrativo contestualizzato ovvero i soggetti che hanno un certo ruolo amministrativo (eventualmente rispetto ad una certa UO o un dato livello della struttura organizzativa/tipo di UO o entrambi)
+435        																	--	2: Identificativo del destinatario / assegnatario
+436        																	--		è un ID_SOGG_RUBRICA di DMT_RUBRICA_SOGGETTI se colonna 1=E
+437        																	--		è un ID_SP_AOO di DMT_SOGGETTI_PROD_AOO se colonna 1 è SP o AOO
+438        																	--		è un ID_UO di DMT_STRUTTURA_ORG se colonna 1=UO,
+439        																	--		è un ID_GRUPPO di DMT_GRUPPI se colonna 1 =G
+440        																	--		è un ID_USER di DMT_USERS se colonna 1 =UT
+441        																	--		è un ID_SCRIVANIA di DMT_SCRIVANIE_VIRTUALI se colonna 1 =SV
+442        																	--		è un ID_RUOLO_AMM di DMT_RUOLI_AMM se colonna 1 =R
+443        																	--	3: Denominazione/nome del destinatario / assegnatario (se trattasi di UO può essere la denominazione semplice o preceduta da quella di tutte le UO superiori separate da "|")
+444        																	--	4: Identificativo della UO cui appartiene la scrivania destinataria / assegnataria
+445        																	--	5: Nri livello della UO destinataria o a cui appartiene la scrivania destinataria / assegnataria (tutti o alcuni; però se si specifica un livello è obbligatorio indicare tutti i livelli superiori; vanno specificati come appaiono nella GUI, ovvero romani se previsto, 0 o -- se nulli; sono separati dal separatore dei livelli valido per il soggetto produttore/AOO di appartenenza della UO)
+446        																	--	6: Denominazione della UO cui appartiene la scrivania destinataria / assegnataria (può essere la denominazione semplice o preceduta da quella di tutte le UO superiori separate da "|")
+447        																	--	7: Codice che identifica nell'applicazione esterna da cui ci si connette l'utente destinatario /assegnatario o quello che occupa la scrivania destinataria / assegnataria
+448        																	--	8: Denominazione dell'utente che occupa la scrivania destinataria / assegnataria
+449        																	--	9: (valore 1) Indica che il destinatario / assegnatario, se UO, sono anche tutte le sue sotto-UO
+450        																	--	10: (valori interi da 1 a n) Livello della struttura organizzativa in cui si espleta il ruolo amministrativo destinatario / assegnatario
+451        																	--	11: Se colonna 1 =R: Codice del tipo di unità organizzativa in cui si espleta il ruolo amministrativo destinatario / assegnatario (alternativo alla colonna 10)
+452        																	--		Se colonna 1 =UT o SV: Username (delle credenziali locali) dell'utente destinatario o che occupa la scrivania destinataria / assegnataria
+453        																	--	12: Se colonna 1 =R: Descrizione del tipo di unità organizzativa (es: settore, servizio, ecc) in cui si espleta il ruolo amministrativo destinatario / assegnatario(alternativo alla colonna 10)
+454        																	--		Se colonna 1 =UT o SV: N.ro di matricola dell'utente destinatario o che occupa la scrivania destinataria / assegnataria
+455        																	--	13: Identificativo della UO in cui si espleta il ruolo amministrativo destinatario / assegnatario o dalla quale risalire alla/e UO del livello/tipo indicati in cui si espleta il ruolo amministrativo destinatario / assegnatario
+456        																	--	14: Denominazione/nome della UO in cui si espleta il ruolo amministrativo destinatario / assegnatario o dalla quale risalire alla/e UO del livello/tipo indicati in cui si espleta il ruolo amministrativo destinatario / assegnatario (può essere la denominazione semplice o preceduta da quella di tutte le UO superiori separate da "|")
+457        																	--	15: Nri livello della UO in cui si espleta il ruolo amministrativo destinatario / assegnatario o dalla quale risalire alla/e UO del livello/tipo indicati in cui si espleta il ruolo amministrativo destinatario / assegnatario (tutti o alcuni; però se si specifica un livello è obbligatorio indicare tutti i livelli superiori; vanno specificati come appaiono nella GUI, ovvero romani se previsto, 0 o -- se nulli; sono separati dal separatore dei livelli valido per il soggetto produttore/AOO di appartenenza della UO)
+458        																	--	16:(valore 1) Indica che il ruolo amministrativo destinatario / assegnatario si espleta anche nelle sotto-UO della/e UO rintracciate tramite i valori delle 3 colonne precedenti
+459        																	-- 	17: Flag 1/0 che indica se si tratta di un destinatario ufficiale (1) o meno (0)
+460        																	--	18: Flag 1/0 che indica se si tratta di un attuale assegnatario di copia (1) o meno (0)
+461        																	--	19: Flag 1/0 che indica se si tratta di un assegnatario, anche storico, di copia (1) o meno (0)
+462        																	--	20: Flag 1/0 che indica se si tratta di un soggetto cui è stato notificato il documento (1) o meno (0)
+463        																	--	21: Flag 1/0 che indica se si tratta di un destinatario per conoscenza (1) o meno
+464        																	--	22: ID_INVIO dell'eventuale primo invio al destinatario/assegnatario
+465        																	--	23: ID_NOTIFICA dell'eventuale prima notifica del documento al destinatario/assegnatario
+466        																	--	24: Data e ora da cui decorre l'eventuale ultima assegnazione al soggetto (nel formato dato dal parametro di config. FMT_STD_TIMESTAMP)
+467        																	--	25: Data e ora in cui è terminata l'eventuale ultima assegnazione al soggetto (nel formato dato dal parametro di config. FMT_STD_TIMESTAMP)
+468        																	--	26: Data e ora da cui decorre l'eventuale ultima notifica al soggetto (nel formato dato dal parametro di config. FMT_STD_TIMESTAMP)
+469        																	--	29: Dati identificativi del destinatario / assegnatario (per soggetto esterno è la denominazione / cognome e nome)
+470        																	/******* inizio campi relativi solo ai destinatari esterni ******/
+471        																	-- 	30: Identificativo con cui il soggetto è registrato in rubrica soggetti (se vi è presente)
+472        																	-- 	31: Codice del soggetto in un eventuale anagrafe esterna (ACS o altro)
+473        																	-- 	32: Cognome del soggetto (se persona fisica)
+474        																	-- 	33: Nome del soggetto (se persona fisica)
+475        																	-- 	34: Indicatore si persona fisica (1) o giuridica (0)
+476        																	-- 	35: Codice fiscale del soggetto
+477        																	-- 	36: Partita IVA del soggetto
+478        																	-- 	37: Data di nascita/istituzione del soggetto (nel formato del parametro di conf. FMT_STD_DATA)
+479        																	-- 	38: (valori M/F) Sesso del soggetto (se persona fisica): M = Maschio, F = Femmina
+480        																	-- 	39: Codice ISTAT del comune (italiano) di nascita/istituzione del soggetto
+481        																	-- 	40: Nome del comune italiano o della città (se estera) di nascita/istituzione del soggetto
+482        																	-- 	41: Codice ISTAT dello stato di nascita/istituzione del soggetto
+483        																	-- 	42: Nome dello stato di nascita/istituzione del soggetto
+484        																	-- 	43: Codice ISTAT dello stato di cittadinanza del soggetto
+485        																	-- 	44: Nome dello stato di cittadinanza del soggetto
+486        																	-- 	45: Targa della provincia del comune di nascita del soggetto
+487        																	-- 	46: Titolo di studio/professionale
+488        																	-- 	47: Codice che indica il mezzo di trasmissione dell'unità documentaria al destinataro. Valori in dizionario
+489        																	--	48: Descrizione del mezzo di trasmissione dell'unità documentaria al destinatario. Valori in dizionaro
+490        																	--	49: Data e ora di spedizione/invio al destinatario (nel formato dato dal parametro di conf. FMT_STD_TIMESTAMP)
+491        																	--	50: Data di raccomandata (se la trasmissione è tramite raccomandata)(nel formato dato dal parametro di conf. FMT_STD_DATA)
+492        																	--	51: Nro di raccomandata al destinatario (se la trasmissione è tramite raccomandata)
+493        																	--	52: Data di notifica al destinatario (nel formato dato dal parametro di conf. FMT_STD_DATA)
+494        																	--	53: Nro di notifica al destinatario
+495        																	-- 	54: Codice identificativo toponomastico dell'indirizzo fisico di invio al destinatario (se invio tramite posta ordinaria e se censito nella toponomastica del sistema)
+496        																	-- 	55: Indirizzo (senza civico) fisico di invio al destinatario (se invio tramite posta ordinaria) (alternativo o ridondante rispetto al campo precedente)
+497        																	-- 	56: Civico dell'indirizzo fisico di invio al destinatario (se invio tramite posta ordinaria)
+498        																	-- 	57: Interno dell'indirizzo fisico di invio al destinatario (se invio tramite posta ordinaria)
+499        																	-- 	58: Scala dell'indirizzo fisico di invio al destinatario (se invio tramite posta ordinaria)
+500        																	-- 	59: Piano dell'indirizzo fisico di invio al destinatario (se invio tramite posta ordinaria)
+501        																	-- 	60: CAP dell'indirizzo fisico di invio al destinatario (se invio tramite posta ordinaria)
+502        																	-- 	61: Località dell'indirizzo fisico di invio al destinatario (se invio tramite posta ordinaria)
+503        																	-- 	62: Codice ISTAT del comune italiano dell'indirizzo fisico di invio al destinatario (se invio tramite posta ordinaria)
+504        																	-- 	63: Nome del comune/città dell'indirizzo fisico di invio al destinatario (se invio tramite posta ordinaria)
+505        																	-- 	64: Codice ISTAT dello stato dell'indirizzo fisico di invio al destinatario (se invio tramite posta ordinaria)
+506        																	-- 	65: Nome dello stato dell'indirizzo fisico di invio al destinatario (se invio tramite posta ordinaria)
+507        																	-- 	66: Targa della provincia del comune dell'indirizzo fisico di invio al destinatario (se invio tramite posta ordinaria)
+508        																	-- 	67: Indirizzo e-mail del destinatario (se invio tramite posta elettronica)
+509        																	--	68: Indicatore che l'indirizzo e-mail del destinatario è un idirizzo di Posta Elettronica Certificata. Valore fisso 1.
+510        																	--	69: Estremi del gestore della casella e-mail del destinatario se è di Posta Elettronica Certificata.
+511        																	--	70: Indicatore che l'indirizzo e-mail del destinatario è dichiarato all'Indice PA. Valore fisso 1.
+512        																	--	71: Indicatore che l'indirizzo e-mail del destinatario è una casella istituzionale di un'AOO. Valore fisso 1.
+513        																	-- 	72: Nro fax del destinatario (se invio tramite fax)
+514        																	--	73: Identificativo del record del destinatario esterno (ID_RELAZIONE)
+515        			AltriSoggettiEsterniOut		OUT		NOCOPY CLOB,					--	Lista con i dati di altri soggetti esterni (firmatari, conraenti ecc) in relazione con il documento
+516        																	--	Ogni nominativo è un tag "Riga" che può contenere le seguenti colonne:
+517        																	--	1: Identificativo del soggetto nella rubrica soggetti del sistema
+518        																	--	2: Codice identificativo del soggetto nell'anagrafe residenti o ditte
+519        																	--	3: Se 1 indica che il soggetto è una persona fisica (altrimenti si intende essere una persona giuridica)
+520        																	--	4: Denominazione (se persona giuridica) o cognome (se persona fisica)
+521        																	--	5: Nome (se persona fisica)
+522        																	--	6: Codice fiscale
+523        																	--	7: Partita IVA
+524        																	--	8: Sesso (valori F/M/NULL) (se persona fisica)
+525        																	--	9: Data di nascita/istituzione (nel formato dato dal parametro FMT_STD_DATA)
+526        																	--	10: Codice ISTAT del comune di nascita/istituzione
+527        																	--	11: Nome del comune (se italiano) o città estera di nascita/istituzione
+528        																	--	12: Codice ISTAT dello stato estero di nascita/istituzione
+529        																	--	13: Nome dello stato estero di nascita/istituzione
+530        																	--	14: Codice ISTAT dello stato di cittadinanza
+531        																	--	15: Nome dello stato di cittadinanza
+532        																	--	16: <non utilizzata>
+533        																	--	17: Codice della natura della relazione del soggetto con il documento (firmatario, contraente ecc). Valori da dizionario.
+534        																	--	18: Descrizione della natura della relazione del soggetto con il documento (firmatario, contraente ecc). Valori da dizionario.
+535        																	--	19: Dettagli sulla natura della relazione tra soggetto e documento
+536        																	--	20: Titolo di studio/professionale
+537        																	--	21: Targa della provincia del comune di nascita del soggetto
+538        																	--	22: Identificativo del record del soggetto esterno (ID_RELAZIONE)
+539        			DocNonPrimariOut			OUT     NOCOPY CLOB,						-- Lista degli eventuali documenti allegati e altri documenti non primari associati all'unità documentaria (XML conforme a schema LISTA_STD.xsd)
+540        																	-- Ogni documento allegato/non primario è un tag "Riga" che contiene le seguenti colonne:
+541        																	-- 1: Identificativo (ID_DOC) del documento
+542        																	-- 2: Codice del tipo di relazione del doc. con l'unità documentaria (tra cui ALL=Allegato)
+543        																	-- 3: Descrizione del tipo di relazione del doc. con l'unità documentaria (tra Allegato)
+544        																	-- 4: Identificativo del tipo di documento
+545        																	-- 5: Nome del tipo di documento
+546        																	-- 6: Descrizione/oggetto dell'allegato
+547        																	-- 7: N.ro dell'eventuale ultima versione elettronica dell'allegato visibile all'utente
+548        																	-- 8: N.ro dell'eventuale ultima versione elettronica del doc. allegato (visibile o meno all'utente)
+549        																	-- 9: Nome con cui mostrare il file corrispondente all'eventuale ultima versione elettronica dell'allegato visibile all'utente
+550        																	-- 10: (valori 1/NULL) Indica lo stato di pubblicata (1) o meno (NULL) dell'ultima versione elettronica dell'allegato visibile all'utente
+551        																	-- 11: (valori 1/NULL) Indica (se 1) che l'ultima versione elettronica dell'allegato visibile all'utente deriva da una scansione
+552        																	-- 12: Note dell'ultima versione elettronica dell'allegato visibile all'utente
+553        																	-- 13: Bitmap (stringa di 1/0) di abilitazioni alle operazioni sul file dell'allegato (l'ultima versione visibile)
+554        																	-- 	I significati dei bit (caratteri di posizione i-esima) sono:
+555        																	-- 	1° carattere: Abilitazione al versioning/modifica del file
+556        																	-- 	2° carattere: Abilitazione alla firma del file
+557        																	-- 	3° carattere: Abilitazione alla cancellazione di tutte le versioni del file
+558        																	-- 	4° carattere: Abilitazione alla modifica delle note del file
+559        																	-- 	5° carattere: Abilitazione alla modifica dello stato di pubblicazione del file
+560        																	--	6° carattere: Abilitazione al lock del documento
+561        																	--	7° carattere: Abilitazione al unlock del documento
+562        																	--	8° carattere: Abilitazione al creare nuova versione non pubblicata
+563        																	--	9° carattere: Abilitazione alla riproduzione - i.e. downolad, copia, stampa - del file
+564        																	-- 14: Codice che indica il supporto originale dell'allegato (cartaceo, informatico ecc)
+565        																	-- 15: Descrizione del supporto originale dell'allegato (cartaceo, informatico ecc)
+566        																	-- 16: (1/0) Flag che indica se allegato originariamente cartaceo (1) o elettronico (0)
+567        																	-- 17: Indica se il cartaceo è: originale unico (OU), originale non unico (ONU), copia (C)
+568        																	-- 18: N.ro di pagine del cartaceo
+569        																	-- 19: (1/0) Indica se il cartaceo è stato eliminato
+570        																	-- 20: Data dell'eliminazione del cartaceo
+571        																	-- 21: Id. (interno ad AURIGA) dell'utente che ha eliminato il cartaceo
+572        																	-- 22: Nome dell'utente che ha eliminato il cartaceo
+573        																	-- 23: Id. (interno ad AURIGA) dell'utente che ha autorizzato l'eliminazione del cartaceo
+574        																	-- 24: Nome dell'utente che ha autorizzato l'eliminazione del cartaceo
+575        																	-- 25: Parole chiave legate all'allegato
+576        																	-- 26: Dati di un eventuale lock sul documento
+577        																	-- 27: Rowid del record del documento
+578        																	-- 28: (1/0) Abilitazione alla riproduzione - i.e. downolad, copia, stampa - del file se presente
+579        			ContenitoriOut			OUT     NOCOPY CLOB,						-- Lista dei folder/workspace e aree lavoro dell'utente in cui si trova il documento
+580        																	-- Ogni contenitore è un tag "Riga" che contiene le seguenti colonne:
+581        																	-- 1: F/W/A Indica se trattasi di Folder (F), Workspace (W) o Area lavoro utente (A)
+582        																	-- 2: Id. del folder o workspace
+583        																	-- 3: Path e nome del folder o nome del workspace/area lavoro utente
+584        																	-- 4: Indica se il folder rappresenta: LIB = Libreria; CLS = Voce del titolario di classificazione; SER=Serie; UA = Unità archivistica (fascicolo basato sul titolario di classificazione); GEN = Folder generico
+585        																	-- 5: Descrizione del tipo di folder (di dettaglio se specificato, se non quello generale)
+586        																	-- 6: Data e ora di inserimento/ingresso nel contenitore (nel formato dato dal parametro di config. FMT_STD_TIMESTAMP)
+587        																	-- 7: Motivi dell'inserimento nel folder/workspace/area lavoro utente
+588        																	-- 8: Codice del ruolo dell'unità documentaria nel folder
+589        																	-- 9: Descrizione del ruolo dell'unità documentaria nel folder
+590        																	-- 10:Rowid del record di relazione unità documentaria vs folder/workspace
+591        																	-- 11: Id. e nomi dei folder che compongono il percorso del folder (nel formato <Id>|*|<Nome>|*|<Id>|*|<Nome>...)
+592        																	-- 12: Flag (1/0) che indica se il contenitore può propagare o meno i suoi permessi agli oggetti contenuti
+593        																	-- 13: Flag (1/NULL) che se 1 indica che l'unità doc. di lavoro eredita i permessi da quelli del contenitore
+594        			ParoleChiavePrimarioOut		OUT		VARCHAR2,						-- Parole chiave legate al documento primario
+595        			EstensoriOut			OUT		VARCHAR2,						-- Nomi degli estensori seguiti, tra quadre, dalla username dell'estensore (se più di uno separati da ;) (es: Rossi Mario [ROSSI_M]; Ferrari Francesco [FERRARI_F])
+596        			ListaRelazioniVsUDOut		OUT		NOCOPY CLOB,					-- XML con la lista delle relazioni dell'unità documentaria con altre unità documentarie (relazioni di precedente-successivo ecc.)
+597        																	-- Ogni relazione è un tag "Riga" che contiene le seguenti colonne:
+598        																	-- 1: Identificativo dell'unità documentaria collegata
+599        																	-- 2: Categoria di una registrazione/numerazione dell'unità documentaria collegata; valori ammessi: PG = Protocollo Generale; PP = Protocollo Particolare; R = Repertorio; E = Registrazione d'emergenza; A = Altro tipo di numerazione
+600        																	-- 3: Sigla di una registrazione/numerazione dell'unità documentaria collegata
+601        																	-- 4: Anno di una registrazione/numerazione dell'unità documentaria collegata
+602        																	-- 5: N.ro di una registrazione/numerazione dell'unità documentaria collegata
+603        																	-- 6: Codice della categoria/natura generale della relazione tra le due unità doc. (valori da dizionario)
+604        																	-- 7: Descrizione della categoria/natura generale della relazione tra le due unità doc. (valori da dizionario)
+605        																	-- 8: Codice del ruolo che svolge nella relazione l'unità documentaria di cui si sta caricando il dettaglio (valori da dizionario)
+606        																	-- 9: Descrizione del ruolo che svolge nella relazione l'unità documentaria di cui si sta caricando il dettaglio (valori da dizionario)
+607        																	-- 10: Codice del ruolo che svolge nella relazione l'unità documentaria collegata a quella di cui si sta caricando il dettaglio (valori da dizionario)
+608        																	-- 11: Descrizione del ruolo che svolge nella relazione l'unità documentaria collegata a quella di cui si sta caricando il dettaglio (valori da dizionario)
+609        																	-- 12: Dettagli della relazione (campo descrittivo)
+610        																	-- 13: Oggetto dell'unità documentaria collegata
+611        																	-- 14: ID_DOC del documento primario dell'unità documentaria collegata
+612        																	-- 15: N.ro dell'ultima versione visibile del documento primario dell'unità documentaria collegata
+613        																	-- 16: Nome con cui mostrare il file dell'ultima versione visibile del documento primario dell'unità documentaria collegata
+614        																	-- 17: Nome dell'unità documentaria collegata
+615        																	-- 18: Estremi di registrazione/numerazione dell'unità documentaria collegata
+616        																	-- 19: Dati di trace sul collegamento tra le due UD (creato da chi, quando)
+617        																	-- 20: Rowid del record della relazione
+618        																	-- 21: (flag 1/0) Se 1 indica che l'utente di lavoro NON ha diritti di accesso sull'unità documentaria collegata, o che non può vederne tutti i dati e file in chiaro
+619        																	--				  Se 1 il collegamento NON può essere rimosso nè variato dall'utente di lavoro
+620        			CodStatoOut				OUT		VARCHAR2,						-- Codice dello stato (generale e di dettaglio) dell'unità documentaria
+621        																	-- E' composto da: <cod_stato>;<cod_stato_dett>
+622        			DesStatoOut				OUT		VARCHAR2,						-- Descrizione dello stato (di dettaglio se valorizzato, se no quello generale) dell'unità documentaria
+623        			NoteUDOut				OUT		VARCHAR2,						-- Note dell'unità documentaria
+624        			AbilitazioniAzioniOut		OUT		VARCHAR2,						-- E' una stringa di 1/0 in cui ogni carattere rappresenta l'abilitazione (1) o meno (0) ad una certa azione sull'unità documentaria
+625        																	-- 1° carattere: Editing/modifica dei metadati
+626        																	-- 2° carattere: Cancellazione dell'unità documentaria
+627        																	-- 3° carattere: Invio dell'unità documentaria
+628        																	-- 4° carattere: Notifica dell'unità documentaria
+629        																	-- 5° carattere: Presa in carico dell'unità documentaria
+630        																	-- 6° carattere: Avvio di un processo sull'unità documentaria
+631        																	-- 7° carattere: Lock dell'unità documentaria
+632        																	-- 8° carattere: Unlock dell'unità documentaria
+633        																	-- 9° carattere: Aggiunta ai preferiti
+634        																	-- 10°carattere: Eliminazione dai preferiti
+635        																	-- 11°carattere: Abilitazione a creare prima versione non pubblicata di un nuovo documento non primario
+636        																	-- 12°carattere: Presa visione dell'unità documentaria
+637        																	-- 13° carattere: Abilitazione a creare la prima versione per un nuovo documento non primario
+638        																	-- 14° carattere: Abilitazione alla modifica dei permessi
+639        			InfoSuLockOut			OUT		VARCHAR2,						-- Dati di un eventuale lock sull'unità documentaria o oggetti che la contengono o suoi documenti/file
+640        			IdProcessOut			OUT		DMT_PROCESSES.ID_PROCESS%type,		-- Id. del processo/procedimento in corso sull'unità doc. (valorizzato solo se ve n'è uno solo)
+641        			FlgProcGuidatoDaWFOut		OUT		PLS_INTEGER,					-- (valori 1/0) Indica se il processo/procedimento IdProcessOut è guidato o meno dal motore di workflow
+642        			RowidOut				OUT		VARCHAR2,						-- Rowid del record del documento primario dell'unità doc.
+643        			AttributiAddOut			OUT		NOCOPY CLOB,					-- Lista degli eventuali ulteriori attributi con cui sono caratterizzati l'unità documentaria e il suo doc. primario (XML conforme a schema LISTA_STD.xsd)
+644        																	-- Ogni attributo è un tag "Riga" che contiene le seguenti colonne:
+645        																	-- 1: N.ro (valori da 1 a n) del riquadro (fieldset) in cui mostrare l'attributo
+646        																	-- 2: Nome identificativo dell'attributo (ATTR_NAME)
+647        																	-- 3: Label del campo con cui rappresentare l'attributo
+648        																	-- 4: Tipo di attributo. Valori: DATE, DATETIME, TEXT, TEXT-AREA, CHECK, INTEGER, EURO, DECIMAL, COMBO-BOX, LISTA
+649        																	-- 5: N.ro massimo di caratteri/cifre
+650        																	-- 6: Larghezza del campo con cui rappresentare l'attributo (size)
+651        																	-- 7: Valore dell'attributo
+652        																	-- 8: Label del riquadro (fieldset) in cui mostrare l'attributo
+653        																	-- 9: (valori 1/0) 1 indica che l'attributo è obbligatorio, 0 che è facoltativo
+654        																	-- 10: Altezza (in nro righe) del campo con cui rappresentare l'attributo (se TEXT-AREA)
+655        																	-- 11:(valori 1/0) 1 indica se l'attributo è modificabile, 0 che è in sola visualizzazione
+656        			FlgMostraAltriAttrOut		OUT		PLS_INTEGER,					-- (valori 1/0) Se 1 nella GUI vanno mostrati gli attributi addizionali (ce ne sono di visibile all'utente), se 0 no
+657        			NomeUDCreatoInAutomaticoOut	OUT		PLS_INTEGER,					-- (valori 1/NULL) Se 1 il nome dell'unità documentaria è quello creato in automatico e quindi dopo l'aggiornamento di oggetto o versionamento file primario il NomeUD va forzato a NULL.
+658        			NomeUnitaDocOut			OUT		DMT_UNITA_DOC.NOME_UD%type,			-- Nome dell'unità documentaria
+659        			StatoConsPrimarioOut		OUT		VARCHAR2,						-- Stato conservazione legato al documento primario			
+660              			FlgInvioInConservazioneOut	OUT		DMT_DOCUMENTS.FLG_INVIO_IN_CONSERV%type,				-- valori 1/0: 1= da inviare in conservazione
+661        			FlgUrgenzaInvioInConservOut 	OUT		DMT_DOCUMENTS.FLG_URGENZA_INVIO_IN_CONSERV%type,		-- urgenza dell'invio in conservazione
+662        			IdInConservazioneOut		OUT		DMT_DOCUMENTS.ID_IN_CONSERVAZIONE%type,				-- Id. dato dal sistema di conservazione (se il doc. è in conservazione)
+663        			ErrContextOut			OUT		VARCHAR2,						-- Contesto (ovvero package e/o funzione/procedura) in cui si è verificato l'errore
+664        			ErrCodeOut				OUT		PLS_INTEGER,					-- N.ro errore di uscita
+665        			ErrMsgOut				OUT 		VARCHAR2)						-- Messaggio d'errore
+666        			return PLS_INTEGER;											-- 1 in caso di successo, 0 in caso di errore
+667        
+668        
+669        	/******* restituisce i dati di una registrazione a protocollo o ad altro registro, anche provvisorio, indicata attraverso il suo ID_UD 	*********/
+670        	/******* i dati sono restituiti come XML secondo schema SezioneCache.xsd.																*********/ 
+671        	/******* utilizzata per caricare i dati della registrazione nelle GUI del modulo protocollo di Auriga									*********/
+672        	function LoadDettUDXGUIModProt(
+673        			CodIdConnectionTokenIn		IN		DMT_CONNECTION_TOKEN.CI_CONNECTION_TOKEN%type,
+674        																					-- (obblig). Codice identificativo del token di connessione
+675        			IdUserLavoroIn				IN		DMT_USERS.ID_USER%type DEFAULT NULL,-- Id. dell'utente a nome di cui si lavora. Se non valorizzato è l'utente connesso
+676        			IdUDIn   					IN    	DMT_UNITA_DOC.ID_UD%type, 			-- (obblig.) Identificativo dell'unità documentaria di cui caricare il dettaglio
+677        			DatiUDXMLOut				OUT		NOCOPY CLOB,						-- Dati della registrazione (XML conforme a schema SezioneCache.xsd), con l'eccezione degli attributi custom che sono restituiti nell'argomento AttributiAddOut
+678        																					-- I dati restituiti corrispondono ai seguenti tag Variabile:
+679        																					-- ##############TODO
+680        			AttributiAddOut				OUT		NOCOPY CLOB,						-- Lista degli eventuali ulteriori attributi - attributi custom - con cui sono caratterizzati l'unità documentaria e il suo doc. primario (XML conforme a schema LISTA_STD.xsd)
+681        																					-- Ogni attributo è un tag "Riga" che contiene le seguenti colonne:
+682        																					-- 1: N.ro (valori da 1 a n) del riquadro (fieldset) in cui mostrare l'attributo
+683        																					-- 2: Nome identificativo dell'attributo (ATTR_NAME)
+684        																					-- 3: Label del campo con cui rappresentare l'attributo
+685        																					-- 4: Tipo di attributo. Valori: DATE, DATETIME, TEXT, TEXT-AREA, CHECK, INTEGER, EURO, DECIMAL, COMBO-BOX, LISTA
+686        																					-- 5: N.ro massimo di caratteri/cifre
+687        																					-- 6: Larghezza del campo con cui rappresentare l'attributo (size)
+688        																					-- 7: Valore dell'attributo
+689        																					-- 8: Label del riquadro (fieldset) in cui mostrare l'attributo
+690        																					-- 9: (valori 1/0) 1 indica che l'attributo è obbligatorio, 0 che è facoltativo
+691        																					-- 10: Altezza (in nro righe) del campo con cui rappresentare l'attributo (se TEXT-AREA)
+692        																					-- 11:(valori 1/0) 1 indica se l'attributo è modificabile, 0 che è in sola visualizzazione
+693        			FlgMostraAltriAttrOut		OUT		PLS_INTEGER,						-- (valori 1/0) Se 1 nella GUI vanno mostrati gli attributi addizionali (ce ne sono di visibile all'utente), se 0 no
+694        			ErrContextOut				OUT		VARCHAR2,							-- Contesto (ovvero package e/o funzione/procedura) in cui si è verificato l'errore
+695        			ErrCodeOut					OUT		PLS_INTEGER,						-- N.ro errore di uscita
+696        			ErrMsgOut					OUT 	VARCHAR2,							-- Messaggio d'errore
+697        			FlgSoloAbilAzioniIn			IN		PLS_INTEGER DEFAULT NULL,			-- Se 1 indica che la funzione non deve caricare tutti i dati del dettaglio unità doc. ma solo le abilitazioni alle azioni 
+698        			TsAnnDatiIn					IN		VARCHAR2 DEFAULT NULL,				-- Timestamp di un annullamento dati, nel formato DD/MM/RRRR HH24:MI:SS, un istante prima del quale deve essere restituito il dettaglio - dati e file - dell'unità documentaria
+699        			IdProcessIn					IN		INTEGER DEFAULT NULL,				-- Id. del processo all'interno del quale viene eventualmente chiamata la maschera di dettaglio UD
+700        			TaskNameIn					IN		VARCHAR2 DEFAULT NULL,				-- Nome identificativo del task di processo all'interno del quale viene eventualmente chiamata la maschera di dettaglio UD			
+701        			IdPubblicazioneIn			IN		DMT_STORICO_PUBBL.ID_PUBBLICAZIONE%type DEFAULT NULL
+702        																					-- Id. pubblicazione dell'UD di cui visualizzare i dati
+703        			) return PLS_INTEGER;													-- 1 in caso di successo, 0 in caso di errore
+704        
+705        	/******* restituisce i file di una fatturaPA e/o ricevute collegate, indicata attraverso il suo ID_UD 		*********/
+706        	/******* i dati sono restituiti come XML secondo schema SezioneCache.xsd.									*********/ 
+707        	/******* può restituire solo i file della fattura o solo le ricevute SDICollegate							*********/
+708        	function LoadFileFatturaPA(
+709        			CodIdConnectionTokenIn		IN		DMT_CONNECTION_TOKEN.CI_CONNECTION_TOKEN%type,
+710        																					-- (obblig). Codice identificativo del token di connessione
+711        			IdUserLavoroIn				IN		DMT_USERS.ID_USER%type DEFAULT NULL,-- Id. dell'utente a nome di cui si lavora. Se non valorizzato è l'utente connesso
+712        			IdUDIn   					IN    	DMT_UNITA_DOC.ID_UD%type, 			-- (obblig.) Identificativo dell'unità documentaria di cui caricare il dettaglio
+713        			FlgFileFatturaIn			IN		PLS_INTEGER DEFAULT 1,				-- (valori 1/0) Se 1 sono restituiti i file della fattura (fatturaPA in xml e suoi eventuali allegati)
+714        			FlgRicevuteIn				IN		PLS_INTEGER DEFAULT 1,				-- (valori 1/0) Se 1 sono restituiti i file delle ricevute inviate da SdI a fronte della data fattura
+715        			DatiUDXMLOut				OUT		NOCOPY CLOB,						-- Dati dei file (XML conforme a schema SezioneCache.xsd), con l'eccezione degli attributi custom che sono restituiti nell'argomento AttributiAddOut
+716        																					-- I dati restituiti corrispondono ai seguenti tag Variabile:
+717        																					-- quelli del file primario con la FatturaPA:
+718        																					--  #IdDocPrimario
+719        																					--	#FilePrimario.NroLastVisibleVer
+720        																					--	#FilePrimario.NroLastVer
+721        																					--	#FilePrimario.DisplayFilename
+722        																					--	#FilePrimario.URI
+723        																					--	#FilePrimario.URI_VerNonFirmata
+724        																					--	#FilePrimario.Dimensione
+725        																					--	#FilePrimario.FlgFirmato (valori 1/0)
+726        																					--	#FilePrimario.Impronta
+727        																					--	#FilePrimario.AlgoritmoImpronta
+728        																					--	#FilePrimario.EncodingImpronta (hex o base64)
+729        																					--	#FilePrimario.Mimetype
+730        																					--	#FilePrimario.FlgConvertibilePdf (valori 1/0)
+731        																					-- @Allegati, lista con le seguenti colonne:
+732        																					--        1: ID_DOC
+733        																					--        2: Id. del tipo documento
+734        																					--        3: Nome del tipo documento
+735        																					--        4: Descrizione
+736        																					--        5: N.ro ultima versione visibile all'utente
+737        																					--        6: Nro Ultima versione valida
+738        																					--        7: Nome file
+739        																					--        8: URI
+740        																					--        9: Dimensione (in bytes)
+741        																					--        10: Flag file firmato digitalmente (valori 1/0)
+742        																					--        11: mimetype
+743        																					--        12: Flag di formato pdf o convertibile in pdf (valori 1/0)
+744        																					--        13: impronta
+745        																					--        14: Algortitmo impronta
+746        																					--        14: Encoding impronta (hex o base64)
+747        																					-- @RicevuteSdI, lista con le seguenti colonne:
+748        																					--        1: ID_DOC
+749        																					--        2: tipo di ricevuta
+750        																					--        3: data e ora di arrivo della ricevuta (formato dato dal parametro FMT_STD_TIMESTAMP)
+751        																					--        4: descrizione
+752        																					--        5: nome file
+753        																					--        6: URI
+754        																					--        7: Dimensione (in bytes)
+755        																					--        8: Flag file firmato digitalmente (valori 1/0)
+756        																					--        9: Flag di formato pdf o convertibile in pdf (valori 1/0)
+757        																					--        10: mimetype
+758        																					--        11: ID_FORMATO su Auriga
+759        																					--        12: impronta
+760        																					--        13: Algortitmo impronta
+761        																					--        14: Encoding impronta (hex o base64)
+762        			ErrContextOut				OUT		VARCHAR2,							-- Contesto (ovvero package e/o funzione/procedura) in cui si è verificato l'errore
+763        			ErrCodeOut					OUT		PLS_INTEGER,						-- N.ro errore di uscita
+764        			ErrMsgOut					OUT 	VARCHAR2)							-- Messaggio d'errore
+765        			return PLS_INTEGER;														-- 1 in caso di successo, 0 in caso di errore
+766        		
+767        	/******* restituisce i file di una fattura archiviata (non PA) o in generale di un doc. archiviato			*********/
+768        	/******* i dati sono restituiti come XML secondo schema SezioneCache.xsd.									*********/
+769        	function LoadFileFattura(
+770        			CodIdConnectionTokenIn		IN		DMT_CONNECTION_TOKEN.CI_CONNECTION_TOKEN%type,
+771        																					-- (obblig). Codice identificativo del token di connessione
+772        			IdUserLavoroIn				IN		DMT_USERS.ID_USER%type DEFAULT NULL,-- Id. dell'utente a nome di cui si lavora. Se non valorizzato è l'utente connesso
+773        			IdUDIn   					IN    	DMT_UNITA_DOC.ID_UD%type, 			-- (obblig.) Identificativo dell'unità documentaria di cui caricare il dettaglio
+774        			FlgFileFatturaIn			IN		PLS_INTEGER DEFAULT 1,				-- non utilizzato
+775        			FlgRicevuteIn				IN		PLS_INTEGER DEFAULT 1,				-- non utilizzato
+776        			DatiUDXMLOut				OUT		NOCOPY CLOB,						-- Dati dei file (XML conforme a schema SezioneCache.xsd), con l'eccezione degli attributi custom che sono restituiti nell'argomento AttributiAddOut
+777        																					-- I dati restituiti corrispondono ai seguenti tag Variabile:
+778        																					-- quelli del file primario con la FatturaPA:
+779        																					--  #IdDocPrimario
+780        																					--	#FilePrimario.NroLastVisibleVer
+781        																					--	#FilePrimario.NroLastVer
+782        																					--	#FilePrimario.DisplayFilename
+783        																					--	#FilePrimario.URI
+784        																					--	#FilePrimario.URI_VerNonFirmata
+785        																					--	#FilePrimario.Dimensione
+786        																					--	#FilePrimario.FlgFirmato (valori 1/0)
+787        																					--	#FilePrimario.Impronta
+788        																					--	#FilePrimario.AlgoritmoImpronta
+789        																					--	#FilePrimario.EncodingImpronta (hex o base64)
+790        																					--	#FilePrimario.Mimetype
+791        																					--	#FilePrimario.FlgConvertibilePdf (valori 1/0)
+792        																					-- @Allegati, lista con le seguenti colonne:
+793        																					--        1: ID_DOC
+794        																					--        2: Id. del tipo documento
+795        																					--        3: Nome del tipo documento
+796        																					--        4: Descrizione
+797        																					--        5: N.ro ultima versione visibile all'utente
+798        																					--        6: Nro Ultima versione valida
+799        																					--        7: Nome file
+800        																					--        8: URI
+801        																					--        9: Dimensione (in bytes)
+802        																					--        10: Flag file firmato digitalmente (valori 1/0)
+803        																					--        11: mimetype
+804        																					--        12: Flag di formato pdf o convertibile in pdf (valori 1/0)
+805        																					--        13: impronta
+806        																					--        14: Algortitmo impronta
+807        																					--        14: Encoding impronta (hex o base64)
+808        																					-- @RicevuteSdI, lista con le seguenti colonne:
+809        																					--        1: ID_DOC
+810        																					--        2: tipo di ricevuta
+811        																					--        3: data e ora della ricevuta (formato dato dal parametro FMT_STD_TIMESTAMP)
+812        																					--        4: descrizione
+813        																					--        5: nome file
+814        																					--        6: URI
+815        																					--        7: Dimensione (in bytes)
+816        																					--        8: Flag file firmato digitalmente (valori 1/0)
+817        																					--        9: Flag di formato pdf o convertibile in pdf (valori 1/0)
+818        																					--        10: mimetype
+819        																					--        11: ID_FORMATO su Auriga
+820        																					--        12: impronta
+821        																					--        13: Algortitmo impronta
+822        																					--        14: Encoding impronta (hex o base64)
+823        			ErrContextOut				OUT		VARCHAR2,							-- Contesto (ovvero package e/o funzione/procedura) in cui si è verificato l'errore
+824        			ErrCodeOut					OUT		PLS_INTEGER,						-- N.ro errore di uscita
+825        			ErrMsgOut					OUT 	VARCHAR2,							-- Messaggio d'errore
+826        			FlgNoScambioAllPrimarioIn	IN		PLS_INTEGER DEFAULT 0)				-- Se 1 indica che NON devono essere scambiati in alcun caso 1° allegato e primario in ciò che viene restituito in output
+827        			return PLS_INTEGER;														-- 1 in caso di successo, 0 in caso di errore
+828        
+829        	function LoadDettFolder(
+830        			CodIdConnectionTokenIn		IN	    	DMT_CONNECTION_TOKEN.CI_CONNECTION_TOKEN%TYPE,
+831        																	-- (obblig). Codice identificativo del token di connessione
+832        			IdUserLavoroIn			IN		DMT_USERS.ID_USER%type DEFAULT NULL,	-- Id. dell'utente a nome di cui si lavora. Se non valorizzato è l'utente connesso
+833        			IdFolderIO   			IN OUT   	DMT_FOLDER.ID_FOLDER%type, 			-- (obblig) Identificativo del folder di cui caricare il dettaglio
+834        			FlgParticolaritaFolderOut	OUT		VARCHAR2,						-- Indica se il folder è:
+835        																	-- L = Libreria
+836        																	-- C = Classificazione
+837        																	-- FA = Fascicolo archivistico basato sul titolario di classificazione
+838        																	-- SF = Sottofascicolo di fascicolo basato sul titolario di classificazione
+839        																	-- I = Inserto di Sottofascicolo di fascicolo basato sul titolario di classificazione
+840        																	-- FO = Forum di discussione
+841        																	-- TH = Thread di discussione in un forum
+842        																	-- S = Serie
+843        																	-- non valorizzato per i folder che non ricadono nelle tipologie di cui sopra
+844        			NomeFolderOut			OUT		VARCHAR2,						-- Nome del folder
+845        			DtAperturaOut			OUT		VARCHAR2,						-- Data di apertura/creazione del folder (nel formato dato dal parametro di conf. FMT_STD_DATA)
+846        			IdClassificazioneOut		OUT		DMT_TITOLARIO.ID_CLASSIFICAZIONE%type,	-- Id. della classificazione del folder
+847        			LivelliClassificazioneOut	OUT		VARCHAR2,						-- Stringa con i n.ri livello della classificazione del folder (sono separati dal separatore dei livelli di classificazione valido per il soggetto produttore/AOO)
+848        			DesClassificazioneOut		OUT		VARCHAR2,						-- Descrizione della classificazione del folder
+849        			AnnoAperturaOut			OUT		DMT_FOLDER.ANNO_APERTURA%type,		-- Anno di apertura del folder (se fascicolo di titolario)
+850        			NroProgrFascOut			OUT		DMT_FOLDER.NRO_PROGR_FASC%type,		-- N.ro progressivo di fascicolo (se fascicolo di titolario) (è il progressivo annuale nella classificazione)
+851        			NroProgrSottoFascOut		OUT		DMT_FOLDER.NRO_PROGR_SOTTOFASC%type,	-- N.ro di sottofascicolo, progressivo nel fascicolo (se fascicolo di titolario)
+852        			NroProgrInsertoOut		OUT		DMT_FOLDER.NRO_INSERTO%type,			-- N.ro di inserto, progressivo nel sottofascicolo (se fascicolo di titolario)
+853        			IdTipoFolderOut			OUT		DMT_FOLDER_TYPES.ID_FOLDER_TYPE%type,	-- Id. del tipo del folder (quello di dettaglio se specificato, se no quello generale)
+854        			NomeTipoFolderOut			OUT		DMT_FOLDER_TYPES.NOME_FOLDER_TYPE%type,	-- Nome del tipo del folder (quello di dettaglio se specificato, se no quello generale)
+855        			NroSecondarioOut			OUT		VARCHAR2,						-- Stringa di identificazione alternativa del folder
+856        			OggettoOut				OUT		DMT_FOLDER.DES_OGG%type,			-- Oggetto/descrizione del folder
+857        			DtChiusuraOut			OUT		VARCHAR2,						-- Data di eventuale chiusura del folder (nel formato dato dal parametro di conf. FMT_STD_DATA)
+858        			FlgMovimentatoOut			OUT		PLS_INTEGER,					-- (valori 1/0) Indica se è folder che è stato movimentato (1) oppure no (0)
+859        			EstremiSoggInCaricoAOut		OUT		VARCHAR2,						-- Estremi di chi ha in carico il folder senza che ci sia stato un invio: sigla del tipo di soggetto (UT = Utente, UO = Unità Operativa, SV = Scrivania virtuale) seguita dal suo identificativo (es: UT101, UO1004)
+860        			SoggettiEsterniOut		OUT		NOCOPY CLOB,					-- Lista con i dati di soggetti esterni in relazione con il folder
+861        																	--	Ogni nominativo è un tag "Riga" che può contenere le seguenti colonne:
+862        																	--	1: Identificativo del soggetto nella rubrica soggetti del sistema
+863        																	--	2: Codice identificativo del soggetto nell'anagrafe residenti o ditte
+864        																	--	3: Se 1 indica che il soggetto è una persona fisica (altrimenti si intende essere una persona giuridica)
+865        																	--	4: Denominazione (se persona giuridica) o cognome (se persona fisica)
+866        																	--	5: Nome (se persona fisica)
+867        																	--	6: Codice fiscale
+868        																	--	7: Partita IVA
+869        																	--	8: Sesso (valori F/M/NULL) (se persona fisica)
+870        																	--	9: Data di nascita/istituzione (nel formato dato dal parametro FMT_STD_DATA)
+871        																	--	10: Codice ISTAT del comune di nascita/istituzione
+872        																	--	11: Nome del comune (se italiano) o città estera di nascita/istituzione
+873        																	--	12: Codice ISTAT dello stato estero di nascita/istituzione
+874        																	--	13: Nome dello stato estero di nascita/istituzione
+875        																	--	14: Codice ISTAT dello stato di cittadinanza
+876        																	--	15: Nome dello stato di cittadinanza
+877        																	--	16: <non utilizzata>
+878        																	--	17: Codice della natura della relazione del soggetto con il folder. Valori da dizionario.
+879        																	--	18: Descrizione della natura della relazione del soggetto con il folder. Valori da dizionario.
+880        																	--	19: Dettagli sulla natura della relazione tra soggetto e folder
+881        																	--	20: Titolo di studio/professionale
+882        																	--	21: Targa della provincia del comune di nascita del soggetto
+883        																	--	22: Identificativo del record del soggetto esterno (ID_RELAZIONE)
+884        			ContenitoriOut			OUT     	NOCOPY CLOB,					-- Lista dei folder e aree lavoro dell'utente in cui si trova il folder
+885        																	-- Ogni contenitore è un tag "Riga" che contiene le seguenti colonne:
+886        																	-- 1: F/A Indica se trattasi di Folder (F) o Area lavoro utente (A)
+887        																	-- 2: Id. del folder
+888        																	-- 3: Path e nome del folder o nome dell'area lavoro utente
+889        																	-- 4: Indica se il folder rappresenta: LIB = Libreria; CLS = Voce del titolario di classificazione; SER=Serie; UA = Unità archivistica (fascicolo basato sul titolario di classificazione); GEN = Folder generico
+890        																	-- 5: Descrizione del tipo di folder (di dettaglio se specificato, se non quello generale)
+891        																	-- 6: Data e ora di inserimento/ingresso nel contenitore (nel formato dato dal parametro di config. FMT_STD_TIMESTAMP)
+892        																	-- 7: Motivi dell'inserimento nel folder/area lavoro utente
+893        																	-- 8: Rowid del record di relazione folder vs folder superiore
+894        																	-- 9: Flag 1/0 che indica se relazione riservata dal sistema
+895        																	-- 11: Id. e nomi dei folder che compongono il percorso del folder (nel formato <Id>|*|<Nome>|*|<Id>|*|<Nome>...)
+896        																	-- 12: Flag (1/0) che indica se il contenitore può propagare o meno i suoi permessi agli oggetti contenuti
+897        																	-- 13: Flag (1/NULL) che se 1 indica cheil folder di lavoro eredita i permessi da quelli del contenitore
+898        			ListaRelazioniVsFolderOut	OUT		NOCOPY CLOB,					-- XML con la lista delle relazioni - NON di appartenenza / inclusione - della cartella con altre cartelle (relazioni di precedente-successivo ecc.)
+899        																	-- Ogni relazione è un tag "Riga" che contiene le seguenti colonne:
+900        																	-- 1: Identificativo della cartella
+901        																	-- 2: Percorso e nome della cartella
+902        																	-- 3: Anno di apertura della cartella (se basata sul titolario di classificazione)
+903        																	-- 4: Livelli di classificazione della cartella se basata sul titolario di classificazione (separati dal separatore standard previsto per i livelli di classificazione nel dominio)
+904        																	-- 5: N.ro di fascicolo (se cartella basata sul titolario di classificazione)
+905        																	-- 6: Codice della categoria/natura generale della relazione tra le cartelle (valori da dizionario)
+906        																	-- 7: Descrizione della categoria/natura generale della relazione tra le due cartelle (valori da dizionario)
+907        																	-- 8: Codice del ruolo che svolge nella relazione la cartella di cui si sta caricando il dettaglio (valori da dizionario)
+908        																	-- 9: Descrizione del ruolo che svolge nella relazione la cartella di cui si sta caricando il dettaglio (valori da dizionario)
+909        																	-- 10: Codice del ruolo che svolge nella relazione la cartella collegata a quella di cui si sta caricando il dettaglio (valori da dizionario)
+910        																	-- 11: Descrizione del ruolo che svolge nella relazione la cartella collegata a quella di cui si sta caricando il dettaglio (valori da dizionario)
+911        																	-- 12: Dettagli della relazione (campo descrittivo)
+912        																	-- 13: Oggetto della cartella collegata
+913        																	-- 14: N.ro di sotto-fascicolo (se sottofascicolo basato sul titolario di classificazione)
+914        																	-- 15: N.ro di inserto (se inserto di sottofascicolo basato sul titolario di classificazione)
+915        																	-- 16: N.ro secondario della cartella collegata
+916        																	-- 17: Nome della cartella collegata
+917        																	-- 18: <non utilizzata>
+918        																	-- 19: Tipo, oggetto + dati di trace sulla cartella collegata da usare come alt della stessa
+919        																	-- 20: Rowid del record della relazione
+920        			ParoleChiaveOut			OUT		VARCHAR2,						-- Parole chiave legate al folder
+921        			CodStatoOut				OUT		VARCHAR2,						-- Codice dello stato (generale e di dettaglio) del folder
+922        																	-- E' composto da: <cod_stato>;<cod_stato_dett>
+923        			DesStatoOut				OUT		VARCHAR2,						-- Descrizione dello stato (di dettaglio se valorizzato, se no quello generale) del folder
+924        			NoteOut				OUT		DMT_FOLDER.NOTE%type,				-- Annotazioni sul folder
+925        			AbilitazioniAzioniOut		OUT		VARCHAR2,						-- E' una stringa di 1/0 in cui ogni carattere rappresenta l'abilitazione (1) o meno (0) ad una certa azione sull'unità documentaria
+926        																	-- 1° carattere: Editing/modifica
+927        																	-- 2° carattere: Cancellazione
+928        																	-- 3° carattere: Invio
+929        																	-- 4° carattere: Notifica
+930        																	-- 5° carattere: Presa visione/presa in carico
+931        																	-- 6° carattere: Avvio di un processo sul folder
+932        																	-- 7° carattere: Lock
+933        																	-- 8° carattere: Unlock
+934        																	-- 9° carattere: Aggiunta ai preferiti
+935        																	-- 10° carattere: Eliminazione dai preferiti
+936        																	-- 11° carattere: Modifica di n.ro fascicolo, sottofascicolo e n.ro inserto
+937        																	-- 12° carattere: Modifica del nome del folder e della data di apertura e chiusura
+938        																	-- 14° carattere: Abilitazione alla modifica dei permessi
+939        			InfoSuLockOut			OUT		VARCHAR2,						-- Dati di un eventuale lock sul folder o oggetti che lo contengono
+940        			IdProcessOut			OUT		DMT_PROCESSES.ID_PROCESS%type,		-- Id. del processo/procedimento in corso sul folder (valorizzato solo se ve n'è uno solo)
+941        			FlgProcGuidatoDaWFOut		OUT		PLS_INTEGER,					-- (valori 1/0) Indica se il processo/procedimento IdProcessOut è guidato o meno dal motore di workflow
+942        			RowidOut				OUT		VARCHAR2,						-- Rowid del record del folder
+943        			AttributiAddOut			OUT		NOCOPY CLOB,					-- Lista degli eventuali ulteriori attributi con cui caratterizzare il folder (XML conforme a schema LISTA_STD.xsd)
+944        																	-- Ogni attributo è un tag "Riga" che contiene le seguenti colonne:
+945        																	-- 1: N.ro (valori da 1 a n) del riquadro (fieldset) in cui mostrare l'attributo
+946        																	-- 2: Nome identificativo dell'attributo (ATTR_NAME)
+947        																	-- 3: Label del campo con cui rappresentare l'attributo
+948        																	-- 4: Tipo di attributo. Valori: DATE, DATETIME, TEXT, TEXT-AREA, CHECK, INTEGER, EURO, DECIMAL, COMBO-BOX, LISTA
+949        																	-- 5: N.ro massimo di caratteri/cifre
+950        																	-- 6: Larghezza del campo con cui rappresentare l'attributo (size)
+951        																	-- 7: Valore dell'attributo
+952        																	-- 8: Label del riquadro (fieldset) in cui mostrare l'attributo
+953        																	-- 9: (valori 1/0) 1 indica che l'attributo è obbligatorio, 0 che è facoltativo
+954        																	-- 10: Altezza (in nro righe) del campo con cui rappresentare l'attributo (se TEXT-AREA)
+955        																	-- 11:(valori 1/0) 1 indica se l'attributo è modificabile, 0 che è in sola visualizzazione
+956        			FlgMostraAltriAttrOut		OUT		PLS_INTEGER,					-- (valori 1/0) Se 1 nella GUI vanno mostrati gli attributi addizionali (ce ne sono di visibile all'utente), se 0 no
+957        			ErrContextOut			OUT		VARCHAR2,						-- Contesto (ovvero package e/o funzione/procedura) in cui si è verificato l'errore
+958        			ErrCodeOut				OUT		PLS_INTEGER,					-- N.ro errore di uscita
+959        			ErrMsgOut				OUT 		VARCHAR2)						-- Messaggio d'errore
+960        			return PLS_INTEGER;											-- 1 in caso di successo, 0 in caso di errore
+961        
+962        	/******* restituisce i dati di un fascicolo (o sotto-fascicolo o inserto) basato sul piano di classificazione e indicato attraverso il suo ID_FOLDER 	*********/
+963        	/******* i dati sono restituiti come XML secondo schema SezioneCache.xsd.																				*********/ 
+964        	/******* utilizzata per caricare i dati del fascicolo nelle GUI del modulo protocollo di Auriga															*********/
+965        	/******* serve anche ad ottenere i dati da preimpostare nella maschera du creazione di un nuovo fascicolo di cui si indica il folder padre				*********/
+966        	function LoadDettFascXGUIModProt(
+967        			CodIdConnectionTokenIn		IN		DMT_CONNECTION_TOKEN.CI_CONNECTION_TOKEN%type,
+968        																					-- (obblig). Codice identificativo del token di connessione
+969        			IdUserLavoroIn				IN		DMT_USERS.ID_USER%type DEFAULT NULL,-- Id. dell'utente a nome di cui si lavora. Se non valorizzato è l'utente connesso
+970        			IdFolderIn   				IN    	DMT_FOLDER.ID_FOLDER%type, 			-- (obblig.) Identificativo - ID_FOLDER - del fascicolo o sotto-fascicolo o inserto di cui caricare il dettaglio
+971        																					-- se FlgFascInCreazioneIn=1 è l'ID del folder in cui creare il fascicolo (classifica o fascicolo o sotto-fascicolo di appartenenza)
+972        			DatiFascXMLOut				OUT		NOCOPY CLOB,						-- Dati del fascicolo (XML conforme a schema SezioneCache.xsd), con l'eccezione degli attributi custom che sono restituiti nell'argomento AttributiAddOut
+973        																					-- I dati restituiti corrispondono ai seguenti tag Variabile:
+974        																					-- ##############TODO
+975        			AttributiAddOut				OUT		NOCOPY CLOB,						-- Lista degli eventuali ulteriori attributi - attributi custom - con cui è caratterizzato il fascicolo (o sotto-fascicolo o inserto) (XML conforme a schema LISTA_STD.xsd)
+976        																					-- Ogni attributo è un tag "Riga" che contiene le seguenti colonne:
+977        																					-- 1: N.ro (valori da 1 a n) del riquadro (fieldset) in cui mostrare l'attributo
+978        																					-- 2: Nome identificativo dell'attributo (ATTR_NAME)
+979        																					-- 3: Label del campo con cui rappresentare l'attributo
+980        																					-- 4: Tipo di attributo. Valori: DATE, DATETIME, TEXT, TEXT-AREA, CHECK, INTEGER, EURO, DECIMAL, COMBO-BOX, LISTA
+981        																					-- 5: N.ro massimo di caratteri/cifre
+982        																					-- 6: Larghezza del campo con cui rappresentare l'attributo (size)
+983        																					-- 7: Valore dell'attributo
+984        																					-- 8: Label del riquadro (fieldset) in cui mostrare l'attributo
+985        																					-- 9: (valori 1/0) 1 indica che l'attributo è obbligatorio, 0 che è facoltativo
+986        																					-- 10: Altezza (in nro righe) del campo con cui rappresentare l'attributo (se TEXT-AREA)
+987        																					-- 11:(valori 1/0) 1 indica se l'attributo è modificabile, 0 che è in sola visualizzazione
+988        			FlgMostraAltriAttrOut		OUT		PLS_INTEGER,						-- (valori 1/0) Se 1 nella GUI vanno mostrati gli attributi addizionali (ce ne sono di visibile all'utente), se 0 no
+989        			ErrContextOut				OUT		VARCHAR2,							-- Contesto (ovvero package e/o funzione/procedura) in cui si è verificato l'errore
+990        			ErrCodeOut					OUT		PLS_INTEGER,						-- N.ro errore di uscita
+991        			ErrMsgOut					OUT 	VARCHAR2,							-- Messaggio d'errore
+992        			FlgSoloAbilAzioniIn			IN		PLS_INTEGER DEFAULT NULL,			-- Se 1 indica che la funzione non deve caricare tutti i dati del dettaglio fascicolo ma solo le abilitazioni alle azioni 
+993        			FlgFascInCreazioneIn		IN		PLS_INTEGER DEFAULT NULL)			-- Se 1 indica che si vogliono i dati da preimpostare nella maschera di creazione di un nuovo fascicolo da creare nel foolder indicato in IdFolderIn
+994        			return PLS_INTEGER;														-- 1 in caso di successo, 0 in caso di errore
+995        
+996        	/******* funzione per ottenere la lista degli oggetti acceduti di recente da un utente (non uno della DMT_USERS) autenticato o da un browser identificato da cookie 	*****/
+997        	/******* gli oggetti sono ordinati in ordine decrescente per data di ultimo accesso															*****/
+998        	function GetObjRecentlyAccessed(
+999        			CodIdConnectionTokenIn		IN	    	DMT_CONNECTION_TOKEN.CI_CONNECTION_TOKEN%TYPE,
+1000        																	-- (obblig). Codice identificativo del token di connessione utilizzato
+1001        			CookieIn				IN		DMT_COOKIE_INFO.COOKIE%type DEFAULT NULL,	-- (obblig. se UsernameIn non è valorizzato) Cookie che identifica il browser per cui estrarre gli oggetti acceduti di recente
+1002        			UsernameIn				IN		DMT_COOKIE_INFO.COOKIE%type DEFAULT NULL, -- (obblig. se CookieIn non è valorizzato) Username con cui si è autenticato l'utente (non di sistema) per cui estrarre gli oggetti acceduti di recente
+1003        			FlgTyObjIn				IN		VARCHAR2,						-- (obblig.) Indica il tipo di oggetti acceduti di recente da estrarre. Valori ammessi:
+1004        																	-- F = Folder
+1005        																	-- UD = Unità documentaria
+1006        																	-- D = Documento
+1007        																	-- V = Versione elettronica di documento
+1008        																	-- W = Workspace
+1009        			FlgAccessoInLavorazioneIn	IN		VARCHAR2 DEFAULT NULL,				-- (valori 1/0/NULL) Se 1 si ricercano oggetti acceduti non solo in visualizzazione, altrimenti quelli acceduti sia in sola visualizzazione che in lavorazione
+1010        			NroMaxOggettiIn			IN		PLS_INTEGER DEFAULT 10,				-- Massimo n.ro di oggetti da estarre (se ce ne sono di più vengono estratti gli ultimi NroMaxOggettiIn acceduti)
+1011        			ListaXMLOut				OUT		NOCOPY CLOB,					-- Lista degli oggetti acceduti di recente (XML conforme a schema LISTA_STD.xsd)
+1012        																	-- Ogni oggetto è un tag "Riga" con le seguenti colonne:
+1013        																	-- 1: Data e ora di ultimo accesso (nel formato del parametro di config. FMT_STD_TIMESTAMP)
+1014        																	-- 2: Data e ora di ultimo accesso in lavorazione (nel formato del parametro di config. FMT_STD_TIMESTAMP)
+1015        																	-- 3: Id. del documento / folder/ unità documentaria / workspace
+1016        																	-- 4: N.ro di versione (valorizzato se FlgTyObjIn=V)
+1017        																	-- 5: Descrizione dell'oggetto
+1018        																	-- 6: Rowid del record della DMT_COOKIE_INFO
+1019        			ErrContextOut			OUT		VARCHAR2,						-- Contesto (ovvero package e/o funzione/procedura) in cui si è verificato l'errore
+1020        			ErrCodeOut				OUT		PLS_INTEGER,					-- N.ro errore di uscita
+1021        			ErrMsgOut				OUT 		VARCHAR2)						-- Messaggio d'errore
+1022        			return PLS_INTEGER;											-- 1 in caso di successo, 0 in caso di errore
+1023        
+1024        
+1025        	/******* funzione per ottenere la lista dei file (ultime versioni visibili) associati ad un atto in pubblicazione che devono essere scaricabili dall'Albo Virtuale *****/
+1026        	/******* per gli atti gestiti da ePraxi estrae i file di tutti i documenti "in pubblicazione" contenuti nel folder dell'atto						   	 *****/
+1027        	function GetFilesAttoInAlbo(
+1028        			CodIdConnectionTokenIn		IN	    	DMT_CONNECTION_TOKEN.CI_CONNECTION_TOKEN%TYPE,
+1029        																	-- (obblig). Codice identificativo del token di connessione utilizzato dall'applicazione dell'Albo Virtuale
+1030        			IdDocPrimarioAttoIn		IN		DMT_DOCUMENTS.ID_DOC%type,			-- (obblig.) ID_DOC del documento primario dell'atto di cui estrarre i file
+1031        			ListaXMLOut				OUT		NOCOPY CLOB,					-- Lista dei file scaricabili dall'Albo(XML conforme a schema LISTA_STD.xsd)
+1032        																	-- Ogni file è un tag "Riga" con le seguenti colonne:
+1033        																	-- 1: Id. del documento
+1034        																	-- 2: N.ro di versione
+1035        																	-- 3: Nome con cui visualizzare il file
+1036        																	-- 4: Dettagli sul file (da usare come alt)
+1037        																	-- 5: Tipo di documento
+1038        																	-- 6: Estremi di registrazione del documento
+1039        																	-- 7: Oggetto/descrizione del documento
+1040        																	-- 8: Uffici/Enti competenti
+1041        																	-- 9: Periodo/i di pubblicazione
+1042        			ErrContextOut			OUT		VARCHAR2,						-- Contesto (ovvero package e/o funzione/procedura) in cui si è verificato l'errore
+1043        			ErrCodeOut				OUT		PLS_INTEGER,					-- N.ro errore di uscita
+1044        			ErrMsgOut				OUT 		VARCHAR2,						-- Messaggio d'errore
+1045        			FlgEscludiPrimarioIn		IN		PLS_INTEGER DEFAULT NULL)			-- (Valori 1/0) Se vale 1 nei file estratti ci sono solo gli allegati, altrimenti si include il dispositivo atto/file primario
+1046        			return PLS_INTEGER;											-- 1 in caso di successo, 0 in caso di errore
+1047        
+1048        	------ funzione per ottenere le variazioni dei dati (e file) di un'unità documentaria che compiano nella stampa del registro ufficiale (ad esempio di protocollo) in cui l'unità è stata registrata e che sono pertanto storicizzati
+1049        	------ la funzione al momento non fa alcun controllo di autorizzazione dell'accesso all'unità documentaria da parte dell'utente collegato/di lavoro
+1050        	------ le variazioni sono ordinate in ordine di data crescente (dalle più vecchie alle più recenti) e NON sono paginate
+1051        	function GetListaVariazioniDatiReg(
+1052        			CodIdConnectionTokenIn		IN		DMT_CONNECTION_TOKEN.CI_CONNECTION_TOKEN%type,
+1053        																					-- (obblig). Codice identificativo del token di connessione
+1054        			IdUserLavoroIn				IN		DMT_USERS.ID_USER%type DEFAULT NULL,-- Id. dell'utente a nome di cui si lavora. Se non valorizzato è l'utente connesso
+1055        			IdUDIn   					IN    	DMT_UNITA_DOC.ID_UD%type, 			-- (obblig.) Identificativo dell'unità documentaria di cui le variazioni dei dati presenti nel registro
+1056        			ListaVariazioniOut			OUT		NOCOPY CLOB,						-- Lista delle variazioni dei dati compresi nel registro (XML conforme a schema LISTA_STD.xsd)
+1057        																					-- Ogni variazione è un tag "Riga" che contiene le seguenti colonne:
+1058        																					-- 1: Data e ora della variazione (nel formato dato dal parametro di config. FMT_STD_TIMESTAMP)
+1059        																					-- 2: Timestamp della variazione nel formato fisso GG/MM/AAAA HH24:MI:SS (comprensivo di secondi)
+1060        																					-- 3: Id. dell'utente che ha effettuato la variazione
+1061        																					-- 4: Decodifica dell'utente che ha effettuato la variazione
+1062        																					-- 5: Motivi a corredo della variazione
+1063        																					-- 6: Indicazione di quali dati e file sono stati variati
+1064        			ErrContextOut				OUT		VARCHAR2,							-- Contesto (ovvero package e/o funzione/procedura) in cui si è verificato l'errore
+1065        			ErrCodeOut					OUT		PLS_INTEGER,						-- N.ro errore di uscita
+1066        			ErrMsgOut					OUT 	VARCHAR2)							-- Messaggio d'errore
+1067        			return PLS_INTEGER;														-- 1 in caso di successo, 0 in caso di errore
+1068        
+1069        	----- funzione per ottenere i log delle operazioni più rilevanti avvenute (o anche solo tentate) su un'unità documentaria o su un fascicolo del modulo protocollo 
+1070        	function GetLogUDFascXGUIModProt(
+1071        			CodIdConnectionTokenIn		IN		DMT_CONNECTION_TOKEN.CI_CONNECTION_TOKEN%type,
+1072        																					-- (obblig). Codice identificativo del token di connessione
+1073        			IdUserLavoroIn				IN		DMT_USERS.ID_USER%type DEFAULT NULL,-- Id. dell'utente a nome di cui si lavora. Se non valorizzato è l'utente connesso
+1074        			FlgFascUDIn					IN		VARCHAR2,							-- (obblig., valori F/U) Tipo di oggetto di cui estrarre i log: F = Fascicolo, U = Unità documentaria 
+1075        			IdObjLoggedIn				IN		INTEGER,							-- (obblig.) Identificativo (ID_FOLDER o ID_UD) del fascicolo o unità documentaria di cui estarre i log
+1076        			ListaLogOut					OUT		NOCOPY CLOB,						-- Lista con i log delle operazioni avvenute sul fascicolo / unità documentaria (XML conforme a schema LISTA_STD.xsd)
+1077        																					-- Ogni variazione è un tag "Riga" che contiene le seguenti colonne:
+1078        																					-- 1: Timestamp dell'operazione (nel formato dato dal parametro di config. FMT_STD_TIMESTAMP)
+1079        																					-- 2: Progressivo operazione per ordinamento cronologico
+1080        																					-- 3: Id. dell'utente che ha effettuato l'operazione
+1081        																					-- 4: Decodifica dell'utente che ha effettuato l'operazione
+1082        																					-- 5: Id. dell'utente a nome di cui stava lavorando chi ha effettuato l'operazione
+1083        																					-- 6: Decodifica dell'utente a nome di cui stava lavorando chi ha effettuato l'operazione
+1084        																					-- 7: Codice del tipo di operazione
+1085        																					-- 8: Decodifica del tipo di operazione
+1086        																					-- 9: Descrizione/dettagli dell'operazione
+1087        																					-- 10:Esito dell'operazione (valori: successo; fallita)
+1088        																					-- 11:Messaggio di errore (nel caso di operazione fallita)
+1089        			FlgIncludiOpFalliteIn		IN		PLS_INTEGER DEFAULT NULL,			-- (valori 1/0/NULL) Se 1 nel log vengono inserite anche le operazioni tentate ma NON andate a buon fine, altrimenti sono estratte solo le operazioni andate a buon fine
+1090        			ErrContextOut				OUT		VARCHAR2,							-- Contesto (ovvero package e/o funzione/procedura) in cui si è verificato l'errore
+1091        			ErrCodeOut					OUT		PLS_INTEGER,						-- N.ro errore di uscita
+1092        			ErrMsgOut					OUT 	VARCHAR2)							-- Messaggio d'errore
+1093        			return PLS_INTEGER;														-- 1 in caso di successo, 0 in caso di errore
+1094        			
+1095        	----- funzione per ottenere informazioni da pgweb tramite identificativo di protocollo
+1096            function GetProtDaPGWEB(
+1097                     CodIdConnectionTokenIn		IN		DMT_CONNECTION_TOKEN.CI_CONNECTION_TOKEN%type,
+1098        																							-- (obblig). Codice identificativo del token di connessione
+1099                    IdUserLavoroIn				IN		DMT_USERS.ID_USER%type DEFAULT NULL,		-- Id. dell'utente a nome di cui si lavora. Se non valorizzato è l'utente connesso
+1100                    SiglaProtIn                 IN		VARCHAR2,                           		-- (obblig., sigla del protocollo con cui ricercare i dati
+1101        																							-- se PG è u protocollo Generale, altrimenti un protocollo di settore
+1102                    AnnoProtIn                	IN		INTEGER,                            		-- (obblig.) anno del protocollo con cui ricercare i dati
+1103                    NumProtIn                	IN      INTEGER,                            		-- (obblig.) numero del protocollo con cui ricercare i dati
+1104                    SubProtIn                 	IN      INTEGER,                            		-- sub protocollo per i protocollo di settore
+1105                    ListaOut                    OUT    	NOCOPY CLOB,                        		-- Lista con le vie del protocollo (XML conforme a schema LISTA_STD.xsd)
+1106        			ErrContextOut               OUT    	VARCHAR2,                           		-- Contesto (ovvero package e/o funzione/procedura) in cui si è verificato l'errore
+1107                    ErrCodeOut                  OUT     PLS_INTEGER,                        		-- N.ro errore di uscita
+1108                    ErrMsgOut                   OUT     VARCHAR2)                            		-- Messaggio d'errore
+1109        			return PLS_INTEGER;                                                  			-- 1 in caso di successo, 0 in caso di errore
+1110        
+1111        	----- funzione per ottenere i dati di un contribuente da ACSOR tramite codice ACSOR
+1112            function GetDatiDaACSOR(
+1113                    CodIdConnectionTokenIn        IN        DMT_CONNECTION_TOKEN.CI_CONNECTION_TOKEN%type,
+1114                                                                                                     -- (obblig). Codice identificativo del token di connessione
+1115                    IdUserLavoroIn                IN        DMT_USERS.ID_USER%type DEFAULT NULL,     -- Id. dell'utente a nome di cui si lavora. Se non valorizzato è l'utente connesso
+1116                    CodACSORIn                 IN        VARCHAR2,                                   -- (obblig.) codice ACSOR
+1117                    ListaOut                    OUT        NOCOPY CLOB,                              -- Lista i dati (XML conforme a schema LISTA_STD.xsd)
+1118                    
+1119                    ErrContextOut               OUT        VARCHAR2,                                -- Contesto (ovvero package e/o funzione/procedura) in cui si è verificato l'errore
+1120                    ErrCodeOut                  OUT     PLS_INTEGER,                                -- N.ro errore di uscita
+1121                    ErrMsgOut                   OUT     VARCHAR2)                                   -- Messaggio d'errore
+1122                    return PLS_INTEGER;                                                            	-- 1 in caso di successo, 0 in caso di errore
+1123            
+1124        	---------- funzione per ottenere gli ID delle unità documentarie collegate - anche indirettamente - ad una adata UD in input
+1125        	---------- valide, e visibili all'utente di lavoro in input
+1126        	function GetIdUDCatenaUDCollegate(
+1127        			FlgTpDominioAutIn			IN			INTEGER,								 -- (obblig.) Tipo di dominio (2 o 3)
+1128        			IdDominioAutIn				IN			DMT_SOGGETTI_PROD_AOO.ID_SP_AOO%type,	 -- (obblig.) Id. del dominio di lavoro (ID_SP_AOO)
+1129        			IdUserLavoroIn              IN        	DMT_USERS.ID_USER%type DEFAULT NULL,     -- (obblig)Id. dell'utente di lavoro
+1130        			IdUDIn						IN			DMT_UNITA_DOC.ID_UD%type)				 -- (obblig). Id. dell'unita documentaria di cui trovare le UD collegate (anche indirettamente) visibili all'utente di lavoro
+1131        			return DMTO_ID;																	 -- restituisce la lista degli ID_UD delle UD collegate									
+1132        
+1133        	---------- funzione per ottenere i soggetti contenuti in un gruppo destinatario/assegnatario di un'UD	
+1134        	---------- serve anche per ottenere in generale i componenti - come soggetti di rubrica - di un gruppo di sogggetti rubrica usato/che si sta impostando come destinatario/assegnatario/dest. di invio in conoscenza
+1135        	function GetCompGruppoAssDestUD(
+1136        			CodIdConnectionTokenIn      IN        	DMT_CONNECTION_TOKEN.CI_CONNECTION_TOKEN%type,
+1137                                                                                                    -- (obblig). Codice identificativo del token di connessione
+1138                    IdUserLavoroIn              IN        	DMT_USERS.ID_USER%type DEFAULT NULL,    -- Id. dell'utente a nome di cui si lavora. Se non valorizzato è l'utente connesso
+1139                    IdUDIn						IN			DMT_UNITA_DOC.ID_UD%type,				-- Id. dell'unità documentaria
+1140        																							-- può essere lasciato vuoto se si vuole la composizione attuale di un gruppo
+1141        			FlgAssDestIn				IN			VARCHAR2,								-- (valori A/D/C) Indica se il gruppo da esplodere è un destinatario (=D) o assegnatario dell'UD (=A) o destinatario di invio in conoscenza (=C)
+1142        																							-- si può lasciare vuoto nel caso di gruppo destinatario di invio per conoscenza (NULL viene inteso come C)
+1143        			IdGruppoSoggEstIn			IN			DMT_GRUPPI_SOGG_EST.ID_GRUPPO%type,		-- (obblig).Id. del gruppo destinatario/assegnatario da esplodere
+1144        			------------- inizio argomenti standard di tutte le funzioni che devono restituire una lista di risultati--------------
+1145        			ColOrderByIO				IN OUT	VARCHAR2,									-- Indica il/i numeri della/e colonna dell'XML (CLOB ListaXMLOut) di output per cui ordinare i record nell'XML stesso. Se l'ordinamento è per più colonne queste vanno separate con "," (es: 2; 2,3)
+1146        																							-- in output può essere diverso che in input solo se in input è NULL: in tal caso significa che esiste sul tipo di ordinamento una qualche preimpostazione di sistema/utente ecc.
+1147        																							-- se non valorizzato (neppure in output) la lista di record restituita non è ordinata
+1148        			FlgDescOrderByIO  			IN OUT	VARCHAR2,									-- E' una stringa di 1 o 0/NULL, tanti quanti le colonne di ordinamento, separati da ",": 1 significa che l'ordinamento per la data colonna deve essere discendente anzichè ascendente (es: 1; 1,0; 1, )
+1149        																							-- in output può essere diverso che in input solo se in input è NULL: in tal caso significa che esiste sul verso di ordinamento una qualche preimpostazione di sistema/utente ecc.			
+1150        			FlgSenzaPaginazioneIn 		IN 		PLS_INTEGER DEFAULT NULL,            		-- (valori 1/0/NULL) Se 1 l'estrazione non è paginata, altrimenti sì
+1151        			NroPaginaIO      			IN OUT	PLS_INTEGER,                  				-- E' il numero della pagina da estrarre; se NULL e l'estrazione è paginata viene estratta la prima pagina
+1152           			BachSizeIO					IN OUT	PLS_INTEGER,								-- Indica il massimo n.ro di record da estrarre se l'estrazione non è paginata (FlgSenzaPaginazioneIn=1)  
+1153        																							-- Indica la dimensione (n.ro di record) della pagina se l'estrazione è paginata (FlgSenzaPaginazioneIn 0 o NULL) e in tal caso se non è valorizzato la dimensione della pagina è quella settata per l'utente di lavoro o è pari al valore del parametro STD_PAGE_NUM_ROW del dominio di lavoro				
+1154        			OverFlowLimitIn				IN		PLS_INTEGER DEFAULT NULL,					-- E' il n.ro di record soddisfacenti la ricerca superato il quale la funzione deve restituire errore di overflow
+1155        			FlgSenzaTotIn				IN		PLS_INTEGER DEFAULT NULL,					-- (valori 1/0/NULL) Se 1 significa che non è richiesto come output il totale dei record soddisfacenti la ricerca (se la ricerca è paginata per la prima pagina il totale viene calcolato comunque, per le successive no)
+1156        			NroTotRecOut				OUT		PLS_INTEGER,								-- E' il n.ro di record complessivi trovati (valorizzato solo se FlgSenzaTotIn è 0 o NULL o se si estrae la prima pagina)
+1157             		NroRecInPaginaOut 			OUT   	PLS_INTEGER,                     			-- E' il numero di record nella pagina (valorizzato solo se l'estrazione è paginata, ovvero se FlgSenzaPaginazioneIn 0 o NULL)
+1158        			------------- fine argomenti standard di tutte le funzioni che devono restituire una lista di risultati--------------
+1159        			ListaXMLOut					OUT NOCOPY CLOB,									-- Lista xml (conforme a schema ListaStd.xsd) con i componenti del gruppo assegnatario/destinatario
+1160        																							-- Ogni tag riga è un soggetto destinatario ed è composta dalle colonne
+1161        																							-- 1: Id. in rubrica soggetti
+1162        																							-- 2: Tipo di soggetto: #APA=Altra PA, #IAMM= Altra AOO/UO dell'Amministrazione (esterna all'AOO), #AF = Altro (Pers. fisica), #AG=Altro (Pers. giuridica), UO;UOI= U.O./Ufficio interno, UP=Unità di persoanle
+1163        																							-- 3: Denominazione / Cognome e Nome
+1164        																							-- 4: Cognome
+1165        																							-- 5: Nome
+1166        																							-- 6: Codice rapido/parlante
+1167        																							-- 7: Codice fiscale/partita IVA
+1168        																							-- 8: Indirizzo (solo per i destinatari)
+1169        																							-- 9: ID_UO o ID_SCRIVANIA o ID_UTENTE corrispondente al destinatario/assegnatario preceduto dal prefisso UO, UT, SV
+1170        			ErrContextOut               OUT        	VARCHAR2,                               -- Contesto (ovvero package e/o funzione/procedura) in cui si è verificato l'errore
+1171                    ErrCodeOut                  OUT     	PLS_INTEGER,                            -- N.ro errore di uscita
+1172                    ErrMsgOut                   OUT     	VARCHAR2)                               -- Messaggio d'errore
+1173                    return PLS_INTEGER;                                                            	-- 1 in caso di successo, 0 in caso di errore
+1174        
+1175        	/******** restituisce i dati da proporre per la registrazione di una risposta di una precedente registrazione in entrata  	*********/
+1176        	/*******  i dati sono restituiti come XML secondo schema SezioneCache.xsd.													*********/ 
+1177        	/*******  restituisce nell'xml le stesse variabili della LoadDettUDXGUIModProt												*********/
+1178        	function GetDatiUDRisposta(
+1179        			CodIdConnectionTokenIn		IN		DMT_CONNECTION_TOKEN.CI_CONNECTION_TOKEN%type,
+1180        																					-- (obblig). Codice identificativo del token di connessione
+1181        			IdUserLavoroIn				IN		DMT_USERS.ID_USER%type DEFAULT NULL,-- Id. dell'utente a nome di cui si lavora. Se non valorizzato è l'utente connesso
+1182        			IdUDIn   					IN    	DMT_UNITA_DOC.ID_UD%type, 			-- (obblig.) Identificativo dell'unità documentaria in entrata da cui ricavare i dati dell'unità documentaria di risposta
+1183        			DatiUDXMLOut				OUT		NOCOPY CLOB,						-- Dati della registrazione (XML conforme a schema SezioneCache.xsd), con l'eccezione degli attributi custom che sono restituiti nell'argomento AttributiAddOut
+1184        																					-- Dati da preimpostare nell'UD di risposta. XML SezioneCache
+1185        																					-- Le variabili presenti sono le stesse dell'omonimo output della funzione LoadDettUD
+1186        			ErrContextOut				OUT		VARCHAR2,							-- Contesto (ovvero package e/o funzione/procedura) in cui si è verificato l'errore
+1187        			ErrCodeOut					OUT		PLS_INTEGER,						-- N.ro errore di uscita
+1188        			ErrMsgOut					OUT 	VARCHAR2							-- Messaggio d'errore
+1189        			) return PLS_INTEGER;													-- 1 in caso di successo, 0 in caso di errore
+1190        
+1191        	
+1192        	----- funzione per ottenere i dati degli emendamenti (ed eventuali sub) collegati ad una proposta di atto o emendamento
+1193        	function GetListaEmendamenti(
+1194        			CodIdConnectionTokenIn		IN		DMT_CONNECTION_TOKEN.CI_CONNECTION_TOKEN%type,
+1195        																					-- (obblig). Codice identificativo del token di connessione
+1196        			IdUserLavoroIn				IN		DMT_USERS.ID_USER%type DEFAULT NULL,-- Id. dell'utente a nome di cui si lavora. Se non valorizzato è l'utente connesso
+1197        			IdUDIn   					IN    	DMT_UNITA_DOC.ID_UD%type, 			-- (obblig.) ID_UD della delibera/mozione ecc cui si riferiscono gli emendamenti da caricare.
+1198        																					-- Può essere l'ID_UD di un emendamento (nel qual caso la lista carica i sub-emendamenti)
+1199        			FlgInclSubIn				IN		PLS_INTEGER DEFAULT 1,				-- Se 1 qualora IdUDIn sia l'ID_UD di una proposta vengono mostrati anche i sub-emendamenti, altrimenti solo gli emendamenti																	
+1200        			EmendamentiOut				OUT		NOCOPY CLOB,						-- Lista degli emendamenti  (XML conforme a LISTA_STD.xsd)
+1201        																					-- Ogni riga rappresente un emendamento o sub e contiene le colonne:
+1202        																					-- 1: ID_UD
+1203        																					-- 2: N.ro emendamento
+1204        																					-- 3: N.ro sub-emendamento
+1205        																					-- 4: Data e ora di caricamento (nel formato FMT_STD_TIMESTAMP)
+1206        																					-- 5: Struttura proponente
+1207        																					-- 6: CdC struttura proponente
+1208        																					-- 7: Firmatario/i
+1209        																					-- 8: Data e ora di perfezionamento (nel formato FMT_STD_TIMESTAMP)
+1210        																					-- 9: Indica se l'emendamento è sul testo principale o su allegato
+1211        																					-- 10: N.ro di allegato cui è relativo l'emendamento
+1212        																					-- 11: Pagina cui è relativo l'emendamento
+1213        																					-- 12: N.ro riga da cui deve agire l'emendamento
+1214        																					-- 13: Effetto dell'emendamento: indicazione se sostituisce (S), aggiunge (A) o elimina (E)
+1215        																					-- 14: (valori 1/0) Flag "emendamento integrale": se 1 e se emendamento su allegato indica che l'emendamento sostituisce integralmente l'allegato
+1216        																					-- 15: Testo html dell'emendamento (CKEDITOR)
+1217        																					-- 16: URI del file dell'emendamento
+1218        																					-- 17: Nome del file dell'emendamento
+1219        																					-- 18: (valori 1/0) Flag di emendamento firmato digitamente
+1220        																					-- 19: Mimetype del file dell'emendamento
+1221        																					-- 20: (valori 1/0) Flag di file pdf o pdfizzabile
+1222        																					-- 21: Pareri espressi: data e autore
+1223        																					-- 22: File dei pareri: NomeFile1|*|URI1||FlgFirmato1|*|DataPerfezionamento1|*|NomeFile2|*|URI2|*|FlgFirmato2|*|DataPerfezionamento2....
+1224        																					--	   I file dei pareri sono tutti pdf
+1225        																					-- 23: Id del processo di lavorazione dell'emendamento (se presente)
+1226        																					-- 24: Dimensione del file (in bytes)
+1227        																					-- 25: N° identificativo univoco (quello nel registro EM)
+1228        			NroEmendamentiOut			OUT		PLS_INTEGER,						-- Nro totale di emendamenti e sub mostrati in lista
+1229        			NroSubEmendamentiOut		OUT		PLS_INTEGER,						-- N.ro di sub-emendamenti in lista
+1230        			FlgBloccoRiordAutoOut		OUT		PLS_INTEGER,						-- Se 1 indica che è diasttivato il riordino automatico degli emendamenti p
+1231        			ErrContextOut				OUT		VARCHAR2,							-- Contesto (ovvero package e/o funzione/procedura) in cui si è verificato l'errore
+1232        			ErrCodeOut					OUT		PLS_INTEGER,						-- N.ro errore di uscita
+1233        			ErrMsgOut					OUT 	VARCHAR2							-- Messaggio d'errore
+1234        			) return PLS_INTEGER;													-- 1 in caso di successo, 0 in caso di errore
+1235        																	
+1236        END DMPK_REPOSITORY_GUI;
