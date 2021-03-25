@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FileUDToExtract>
+  <EstremiXIdentificazioneUD>
+			<!--  <IdUD>622</IdUD>-->
+			<EstremiRegNum>
+				<SiglaReg>N.I.</SiglaReg>
+				<AnnoReg>2016</AnnoReg>
+				<NumReg>347</NumReg>
+			</EstremiRegNum>	
+  </EstremiXIdentificazioneUD>
+  
+  <EstremixIdentificazioneFileUD>
+    <FlagPrimario />
+    <NroVersione>1</NroVersione>
+  </EstremixIdentificazioneFileUD>
+</FileUDToExtract>
