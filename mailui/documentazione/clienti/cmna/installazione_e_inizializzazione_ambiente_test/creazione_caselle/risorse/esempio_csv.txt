@@ -1,4 +1,0 @@
-XOO1,xoo1@pec.comune.napoli.it,10154,01/01/2016,password1
-XOO2,xoo2@pec.comune.napoli.it,,02/01/2016,password2
-XOO3,xoo3@pec.comune.napoli.it,10153,03/01/2016,password3
-XOO4,xoo4@pec.comune.napoli.it,,04/01/2016,password4

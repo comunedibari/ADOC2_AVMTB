@@ -1,2 +1,0 @@
-INSERT INTO "PUBLIC"."STORAGES" (ID_STORAGE,FLG_DISATTIVO,TIPO_STORAGE,XML_CONFIG) VALUES ('TESTPEI',0,'FS','<?xml version="1.0" encoding="UTF-8" standalone="yes"?><fileSystemStorageConfig><baseFolderPath>C:/docprot/protinfo/email/TESTPEI</baseFolderPath><repositoryLocations>C:/docprot/protinfo/email/TESTPEI</repositoryLocations><tempRepositoryBasePath>C:/docprot/protinfo/email/temp</tempRepositoryBasePath></fileSystemStorageConfig>');
-INSERT INTO "PUBLIC"."UTILIZZATORI_STORAGE" (ID_UTILIZZATORE,ID_STORAGE) VALUES ('MailConnect.TESTPEI','TESTPEI');
