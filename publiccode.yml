@@ -14,7 +14,7 @@ description:
      Generazione automatica di set di dati adatti alla pubblicazione come open data	
      In  particolare ogni lista visualizzabile da web GUI risulta esportabile nei formati interoperabili xml, xls, csv, oltre che nel formato PDF più idoneo alla stampa
      Modello di deployment on-premises, in cloud e ibrido 
-     Capacità di operare in modalità multi-tenant	Sì	Esempio significativo è l’installazione di AURIGA per il Ministero della Giustizia: sulla stessa installazione vengono gestite circa 500 diverse Aree Organizzative Omogenee degli uffici giudiziari e dei giudici di Pace
+     Capacità di operare in modalità multi-tenant
      Supportata integrazione con registri esterni di autenticazione e profilatura
      Ad esempio MS Active Directory e LDAP
      Supporto completo a scenari di federazione secondo il protocollo SAML 2.0 
