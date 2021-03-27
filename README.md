@@ -2,7 +2,7 @@ La piattaforma di ECM proposta è AURIGA, prodotto realizzato per offrire strume
 contenuti ed in generale informazioni di interesse per l’organizzazione, nel pieno rispetto delle normative vigenti e al tempo stesso usufruendo delle tecnologie più recenti ed efficienti.
 AURIGA è una piattaforma che 
 
-•	costituisce l’asset realizzato per le organizzazioni pubbliche e private. La piattaforma fornisce un’infrastruttura tecnologicamente avanzata basata su un’architettura di integrazione SOA e su componenti open-source collaudati e di comprovata affidabilità (Activiti BPM, Lucene, Open Office per citare alcuni esempi). Tale piattaforma è la sintesi di successive fasi di sviluppo e di integrazione attuate dal Centro di Competenza ECM e dalla Direzione Ricerca e Innovazione del Gruppo Engineering al fine di garantire un costante aggiornamento normativo e tecnologico e al tempo stesso recepire e mettere a frutto le esigenze emerse dall’esperienza sul campo con i molteplici clienti;
+•	costituisce l’asset realizzato per le organizzazioni pubbliche e private. La piattaforma fornisce un’infrastruttura tecnologicamente avanzata basata su un’architettura di integrazione SOA e su componenti open-source collaudati e di comprovata affidabilità (Activiti BPM, Lucene, Open Office per citare alcuni esempi).
 
 
 •	a partire dalle componenti applicative disponibili, consente di realizzare in modo semplice ed efficace nuovi servizi applicativi, improntati ai principi del Business Process Management;
