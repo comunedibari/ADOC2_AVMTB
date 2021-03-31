@@ -8,8 +8,9 @@ categories:
 description:
   it:
     features:
-     Soluzione di gestione documentale e protocollo informatico AURIGA
+     - Soluzione di gestione documentale e protocollo informatico AURIGA
     genericName: AURIGA
+    shortDescription: Generazione automatica di set di dati adatti alla pubblicazione come open data
     longDescription: >
      Generazione automatica di set di dati adatti alla pubblicazione come open data	
      In  particolare ogni lista visualizzabile da web GUI risulta esportabile nei formati interoperabili xml, xls, csv, oltre che nel formato PDF più idoneo alla stampa
