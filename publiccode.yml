@@ -57,7 +57,8 @@ legal:
   license: EUPL-1.2
 localisation:
   availableLanguages:
-    - it,en
+    - it
+    - en
   localisationReady: false
 maintenance:
   type: none
