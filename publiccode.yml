@@ -52,7 +52,6 @@ it:
   piattaforme:
     anpr: false
     cie: false
-    pagopa: true
     spid: false
 legal:
   license: EUPL-1.2
