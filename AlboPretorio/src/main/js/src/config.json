@@ -1,9 +1,0 @@
-{
-    "ente" : "Città Metropolitana di Torino",
-    "logo" : "css/cmto.png",
-    "treeSideNavbar": true,
-    "pathToBusiness": "http://localhost:9090/AurigaBusiness/rest/alboPretorio/",
-    "enableTreeOnStorico": "false",
-    "username": "admin",
-    "password": "admin" 
-}
