@@ -43,8 +43,8 @@ Detentori di copyright
 Software rilasciato da Engineering spa per l’amministrazione comunale di Bari con possibilità di riuso per la pubblica amministrazione.
 
 Nomi dei soggetti incaricati del mantenimento del progetto
-… (gdl Bari)
+
 Indirizzo e-mail a cui inviare segnalazioni di sicurezza
 
-… (gdl Bari)
+
 
