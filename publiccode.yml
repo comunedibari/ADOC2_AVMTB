@@ -8,36 +8,22 @@ categories:
 description:
   it:
     features:
-     - Soluzione di gestione documentale e protocollo informatico AURIGA
-    genericName: AURIGA
-    shortDescription: Generazione automatica di set di dati adatti alla pubblicazione come open data
-    longDescription: >
-     Generazione automatica di set di dati adatti alla pubblicazione come open data	
-     In  particolare ogni lista visualizzabile da web GUI risulta esportabile nei formati interoperabili xml, xls, csv, oltre che nel formato PDF più idoneo alla stampa
-     Modello di deployment on-premises, in cloud e ibrido 
-     Capacità di operare in modalità multi-tenant
-     Supportata integrazione con registri esterni di autenticazione e profilatura
-     Ad esempio MS Active Directory e LDAP
-     Supporto completo a scenari di federazione secondo il protocollo SAML 2.0 
-     Autenticazione in Single Sign On 
-     Possibilità di configurazione di deployment scalabile e ridondata
-     Possibilità di installazione su hardware virtualizzato	 
-     Supporto alle due versioni più recenti dei browser Microsoft Internet Explorer/Edge, Mozilla Firefox, Google Chrome e Safari.
-     Fruizione da dispositivi mobili delle maschere generate senza effort aggiuntivo (supporto per le piattaforme più diffuse: iOS, Android, Windows Phone) 
-     Gestione dei log per tutte le attività eseguite dagli utenti su tutti i moduli della piattaforma	Sì	In particolare le operazioni svolte sulle entità fondamentali gestite – documenti, fascicoli, processi e e-mail – sono tracciate e consultabili anche da web GUI nella cronologia dell’entità impattata
-     Generazione di ID e url univoco per ogni oggetto (es. documento, step del procedimento, ecc.) esposto da tutti i moduli della piattaforma 
-     Supporto ad almeno i seguenti formati: ODF, OOXML, PDF, EML, RTF, DOC, XLS, PPT, DWG	Sì	Ad oggi tra i formati che la piattaforma è in grado di riconoscere e analizzare vi sono: PDF e PDF/A; RTF; tutti i formati della suite MS Office (inclusi Power Point, Visio e Project); tutti i formati della suite Open/Libre Office; formati immagine tiff, bmp, jpeg e jpeg2000, png, gif, ico, pdf immagine; xml, html, xhtml, ascii (txt, csv, ecc); formati audio e video quali wave, mp3, flac, aiff; formati della suite AutoCAD (dwf, dwg, dxf); gli archivi compressi zip, tar.gz, gzip, rar; buste S/MIME quali eml e msg
-     Registro dei servizi web esposti o consumati dai moduli della piattaforma 
-     Supporto UTF-8 di ogni dato alfanumerico gestito
-     Supporto per TLS/SSL nelle maschere esposte all'utenza e nelle API esposte via HTTP		 
-     Motore di ricerca per l’indicizzazione dei contenuti e possibilità di sostituirlo con motori esterni
-     Il motore attualmente integrato è Lucene (Apache); può essere agevolmente sostituito con altro motore con funzionalità equivalenti o superiori dal momento che il suo utilizzo è circoscritto a pochi specifici componenti della piattaforma AURIGA.
-     Modulo per la generazione di report e stampe PDF		
-     In particolare qualsiasi lista visualizzata da web GUI può essere esportata in pdf stampabile; il meccanismo previsto consente di esportare anche molti considerevoli di dati, in pdf e non solo, attivando l’esportazione in modalità asincrona e differita rispetto alla richiesta dell’utente e fornendogli il risultato, una volta pronto, in apposita sezione della sua scrivania virtuale
-     Supporto  ad architetture orientate ai servizi (SOA)	 
-     Integrazione con sistemi esterni tramite web services SOAP secondo le specifiche WS-* (in particolare WS-Security con Kerberos token e SAML token)	
-     Integrazione con sistemi esterni tramite web services REST	 
-     Esposizione delle proprie API come web services SOAP e/o REST	 
+     - Soluzione di gestione documentale e protocollo informatico JDOC
+    genericName: ADOC2 -AVMTB
+    shortDescription: ADOC2 -AVMTB – Piattaforma documentale, Protocollo Informatico e Gestione Atti
+    longDescription: 
+     La piattaforma di ECM proposta è ADOC2 -AVMTB, prodotto realizzato per offrire strumenti e servizi attraverso cui implementare qualsiasi processo che tratti documenti,
+contenuti ed in generale informazioni di interesse per l’organizzazione, nel pieno rispetto delle normative vigenti e al tempo stesso usufruendo delle tecnologie più recenti ed efficienti.
+ADOC2 -AVMTB è una piattaforma che 
+
+•	costituisce l’asset realizzato per le organizzazioni pubbliche e private. La piattaforma fornisce un’infrastruttura tecnologicamente avanzata basata su un’architettura di integrazione SOA e su componenti open-source collaudati e di comprovata affidabilità (Activiti BPM, Lucene, Open Office per citare alcuni esempi).
+
+
+•	a partire dalle componenti applicative disponibili, consente di realizzare in modo semplice ed efficace nuovi servizi applicativi, improntati ai principi del Business Process Management;
+
+
+•	grazie alla solida architettura SOA che la contraddistingue si integra agevolmente sia con i sistemi trasversali cooperanti – ad esempio di autenticazione e profilatura, di posta elettronica, di firma e timbro digitale, di archiviazione e conservazione della documentazione digitale/digitalizzata - che con gli applicativi e sistemi verticali, da un lato integrando i connettori verso i sistemi più diffusi (sistemi di firma remota, storage e DMS di mercato, sistemi di conservazione accreditati da AgID ecc), dall’altro offrendo per ogni funzionalità erogata servizi SOAP e/o REST da richiamare nonché strumenti per importazione ed esportazione massiva di dati e documenti.
+ 
 
 developmentStatus: stable
 it:
@@ -61,8 +47,12 @@ localisation:
     - en
   localisationReady: false
 maintenance:
-  type: none
-name: Auriga
+  contractors:
+    - name: Engineering Spa
+      until: '2021-12-31'
+      website: 'https://www.eng.it/'
+  type: contract
+name: JDOC
 platforms:
   - web
 releaseDate: '2021-03-01'
