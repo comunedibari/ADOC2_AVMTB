@@ -1,4 +1,4 @@
-﻿Progetto
+﻿Progetto:
 AVB – Piattaforma documentale, Protocollo Informatico e Gestione Atti
 Licenza
 Il software è rilasciato con licenza di riuso ai sensi dell'art. 69 comma 1 del Codice dell’Amministrazione Digitale con una licenza EUPL-1.2
