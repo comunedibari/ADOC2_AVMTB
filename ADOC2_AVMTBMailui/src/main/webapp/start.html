@@ -1,0 +1,57 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!-- AppName goes here -->
+<html ng-app="AngularUI">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>Hello AngularJS - Single Page Application (SPA) Example</title>
+<link rel="stylesheet"
+	href="css/bootstrap.min.css">
+<script
+	src="script/angular.min.js"></script>
+<script src="script/angular-route.min.js"></script>
+<script src="script/ui-bootstrap-tpls-0.12.0.min.js"></script>
+<script
+	src="script/angular-route.js"></script>
+<script
+	src="script/angular-resource.js"></script>
+
+<script src="script/ng-context-menu.js"></script>
+<script src="script/ng-table.js"></script>
+<script src="script/jquery-1.11.1.min.js"></script>
+<script src="script/jquery.dataTables.min.js"></script>
+
+<script src="script/dataTables.bootstrap.js"></script>
+<script src="script/bootbox.js"></script>
+<script type="text/javascript"
+	src="script/ng-grid.debug.js"></script>
+<link rel="stylesheet" type="text/css"
+	href="css/ng-grid.css" />
+<script src="script/restful.js"></script>
+<script src="script/menu.js"></script>
+<script src="script/jquery-ui.min.js"></script>
+<script src="script/jquery.ui-contextmenu.min.js"></script>
+
+<link rel="stylesheet" type="text/css" href="css/style.css" />
+<link href="css/jquery-ui.css" rel="stylesheet">
+</head>
+<iframe height="0" width= "0" frameborder="0" name="downloadTarget"></iframe>
+<!-- Controller name goes here -->
+<body ng-controller="PrincipalFunction">
+	<div ng-include="'page/modalView.html'"></div>
+	<div ng-include="'page/navbar.html'"></div>
+	<div ng-include="'page/previewFile.js'"></div>
+	<div class="container">
+		<table style="width: 100%; height 100%" >
+			<tr>
+				<td style="width: 100%; height 100%; vertical-align: top;">
+					<div ng-view></div>
+					<div></div>
+				</td>
+			</tr>
+		</table>
+
+	</div>
+</body>
+</html>
