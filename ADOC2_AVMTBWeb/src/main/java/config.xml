@@ -145,11 +145,11 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 					<util:list value-type="it.eng.utility.ui.module.layout.shared.bean.AppletParameterBean">
 						<bean class="it.eng.utility.ui.module.layout.shared.bean.AppletParameterBean">
 							<property name="name" value="fileOperation.wsEndpoint"></property>
-							<property name="value" value="http://172.27.1.139:8088/FileopWar/business/soap/fileop"></property>
+							<property name="value" value="http://127.0.0.1:8080/FileopWar/business/soap/fileop"></property>
 						</bean>
 						<bean class="it.eng.utility.ui.module.layout.shared.bean.AppletParameterBean">
 							<property name="name" value="verifyCert.wsEndpoint"></property>
-							<property name="value" value="http://172.27.1.139:8088/FileopWar/business/soap/crypto?wsdl"></property>
+							<property name="value" value="http://127.0.0.1:8080/FileopWar/business/soap/crypto?wsdl"></property>
 						</bean>
 						<bean class="it.eng.utility.ui.module.layout.shared.bean.AppletParameterBean">
 							<property name="name" value="externalSaveAs"></property>
@@ -161,11 +161,11 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 					<util:list value-type="it.eng.utility.ui.module.layout.shared.bean.AppletParameterBean">
 						<bean class="it.eng.utility.ui.module.layout.shared.bean.AppletParameterBean">
 							<property name="name" value="fileOperation.wsEndpoint"></property>
-							<property name="value" value="http://172.27.1.139:8088/FileopWar/business/soap/fileop"></property>
+							<property name="value" value="http://127.0.0.1:8080/FileopWar/business/soap/fileop"></property>
 						</bean>
 						<bean class="it.eng.utility.ui.module.layout.shared.bean.AppletParameterBean">
 							<property name="name" value="verifyCert.wsEndpoint"></property>
-							<property name="value" value="http://172.27.1.139:8088/FileopWar/business/soap/crypto?wsdl"></property>
+							<property name="value" value="http://127.0.0.1:8080/FileopWar/business/soap/crypto?wsdl"></property>
 						</bean>
 					</util:list>
 				</entry>
@@ -173,11 +173,11 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 					<util:list value-type="it.eng.utility.ui.module.layout.shared.bean.AppletParameterBean">
 						<bean class="it.eng.utility.ui.module.layout.shared.bean.AppletParameterBean">
 							<property name="name" value="fileOperation.wsEndpoint"></property>
-							<property name="value" value="http://172.27.1.139:8088/FileopWar/business/soap/fileop"></property>
+							<property name="value" value="http://127.0.0.1:8080/FileopWar/business/soap/fileop"></property>
 						</bean>
 						<bean class="it.eng.utility.ui.module.layout.shared.bean.AppletParameterBean">
 							<property name="name" value="verifyCert.wsEndpoint"></property>
-							<property name="value" value="http://172.27.1.139:8088/FileopWar/business/soap/crypto?wsdl"></property>
+							<property name="value" value="http://127.0.0.1:8080/FileopWar/business/soap/crypto?wsdl"></property>
 						</bean>
 					</util:list>
 				</entry>
@@ -197,11 +197,7 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 		<property name="businesstype" value="REST"></property>
 	</bean>
 
-	<bean id="MailConfigurator" class="it.eng.config.AurigaMailBusinessClientConfig"
-		factory-method="getInstance">
-		<property name="url" value="http://172.27.1.139:8085/AurigaMail"></property>
-	</bean>
-	
+
 	<bean id="WSEndpointConfigurator"
 		class="it.eng.auriga.ui.module.layout.shared.bean.WSEndpointConfigBean">
 		<property name="endpoints">
@@ -1001,12 +997,6 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 		</property>
 	</bean>
 
-	<bean id="aurigaProxySetter" class="it.eng.utility.proxy.ProxySetter">
-		<property name="host" value="proxy.eng.it" />
-		<property name="port" value="3128" />
-		<property name="user" value="mravagna" />
-		<property name="password" value="silh7519" />
-	</bean>
 
 	<bean id="aurigaProxyManager" class="it.eng.utility.proxy.ProxyManager">
 		<property name="needProxy" value="true"></property>
@@ -1049,12 +1039,6 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 	</bean>
 	
 	<bean id="TemplateStorageImpl" class="it.eng.auriga.compiler.impl.TemplateStorageAurigaWebImpl">
-	</bean>
-	
-	<bean id="SUEClientConfig" class="it.eng.sue.client.config.SUEClientConfig">
-		<property name="endpoint" value="https://api.comune.milano.it:443/ImpresaInUnGiornoScrivaniaServizi/1.0/" />
-		<property name="proxyConfig" ref="ProxySUEClientConfig" />
-		<property name="tokenAuthentication" value="b7998a07-d941-3feb-91e7-1995e165f50e" />
 	</bean>
 	
 	<bean id="ProxySUEClientConfig" class="it.eng.sue.client.config.ProxyConfig">
