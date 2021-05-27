@@ -12,6 +12,7 @@ description:
     genericName: ADOC2_AVMTB
     shortDescription: ADOC2_AVMTB – Piattaforma documentale, Protocollo Informatico e Gestione Atti
     longDescription: 
+
      La piattaforma di ECM proposta è ADOC2_AVMTB, prodotto realizzato per offrire strumenti e servizi attraverso cui implementare qualsiasi processo che tratti documenti,
      contenuti ed in generale informazioni di interesse per l’organizzazione, nel pieno rispetto delle normative vigenti e al tempo stesso usufruendo delle tecnologie più recenti ed efficienti.
      ADOC2 -AVMTB è una piattaforma che 
@@ -23,6 +24,7 @@ description:
 
 
      •	grazie alla solida architettura SOA che la contraddistingue si integra agevolmente sia con i sistemi trasversali cooperanti – ad esempio di autenticazione e profilatura, di posta elettronica, di firma e timbro digitale, di archiviazione e conservazione della documentazione digitale/digitalizzata - che con gli applicativi e sistemi verticali, da un lato integrando i connettori verso i sistemi più diffusi (sistemi di firma remota, storage e DMS di mercato, sistemi di conservazione accreditati da AgID ecc), dall’altro offrendo per ogni funzionalità erogata servizi SOAP e/o REST da richiamare nonché strumenti per importazione ed esportazione massiva di dati e documenti.
+
  
 
 developmentStatus: stable
