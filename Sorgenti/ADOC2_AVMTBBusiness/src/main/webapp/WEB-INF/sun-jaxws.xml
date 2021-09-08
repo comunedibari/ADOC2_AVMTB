@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<endpoints version="2.0" xmlns="http://java.sun.com/xml/ns/jax-ws/ri/runtime">
+	<endpoint implementation=" it.eng.core.service.server.SoapService" name="PostecomServiceSoap" url-pattern="/soap/AurigaServiceSoap" />
+	
+	<endpoint name="WSLogin"          		implementation="it.eng.auriga.repository2.jaxws.webservices.login.WSLogin"                 		    	url-pattern="/soap/WSLogin" enable-mtom="true">
+		<handler-chains xmlns="http://java.sun.com/xml/ns/javaee"> <handler-chain><handler><handler-name>it.eng.auriga.repository2.generic.NullMessageHandler</handler-name><handler-class>it.eng.auriga.repository2.generic.NullMessageHandler</handler-class></handler></handler-chain></handler-chains>
+	</endpoint>
+	
+	<endpoint name="WSAddTipoFolder"  		implementation="it.eng.auriga.repository2.jaxws.webservices.addtipofolder.WSAddTipoFolder" 		    	url-pattern="/soap/WSAddTipoFolder"     enable-mtom="true">
+		<handler-chains xmlns="http://java.sun.com/xml/ns/javaee"> <handler-chain><handler><handler-name>it.eng.auriga.repository2.generic.NullMessageHandler</handler-name><handler-class>it.eng.auriga.repository2.generic.NullMessageHandler</handler-class></handler></handler-chain></handler-chains>
+	</endpoint>
+	
+	<endpoint name="WSUpdTipoFolder"  		implementation="it.eng.auriga.repository2.jaxws.webservices.updtipofolder.WSUpdTipoFolder"		    	url-pattern="/soap/WSUpdTipoFolder" >
+		<handler-chains xmlns="http://java.sun.com/xml/ns/javaee"> <handler-chain><handler><handler-name>it.eng.auriga.repository2.generic.NullMessageHandler</handler-name><handler-class>it.eng.auriga.repository2.generic.NullMessageHandler</handler-class></handler></handler-chain></handler-chains>
+	</endpoint>
+	
+	<endpoint name="WSDeleteTipoFolder"  	implementation="it.eng.auriga.repository2.jaxws.webservices.deletetipofolder.WSDeleteTipoFolder"		url-pattern="/soap/WSDeleteTipoFolder"     enable-mtom="true">
+		<handler-chains xmlns="http://java.sun.com/xml/ns/javaee"> <handler-chain><handler><handler-name>it.eng.auriga.repository2.generic.NullMessageHandler</handler-name><handler-class>it.eng.auriga.repository2.generic.NullMessageHandler</handler-class></handler></handler-chain></handler-chains>    	
+	</endpoint>
+	
+	<endpoint name="WSAddFolder"      		implementation="it.eng.auriga.repository2.jaxws.webservices.addfolder.WSAddFolder"         		    	url-pattern="/soap/WSAddFolder"     enable-mtom="true">
+		<handler-chains xmlns="http://java.sun.com/xml/ns/javaee"> <handler-chain><handler><handler-name>it.eng.auriga.repository2.generic.NullMessageHandler</handler-name><handler-class>it.eng.auriga.repository2.generic.NullMessageHandler</handler-class></handler></handler-chain></handler-chains>    	
+	</endpoint>
+			
+	<endpoint name="WSDeleteFolder"   		implementation="it.eng.auriga.repository2.jaxws.webservices.deletefolder.WSDeleteFolder"   		    	url-pattern="/soap/WSDeleteFolder"     enable-mtom="true">
+		<handler-chains xmlns="http://java.sun.com/xml/ns/javaee"> <handler-chain><handler><handler-name>it.eng.auriga.repository2.generic.NullMessageHandler</handler-name><handler-class>it.eng.auriga.repository2.generic.NullMessageHandler</handler-class></handler></handler-chain></handler-chains>    	
+	</endpoint>
+					
+	<endpoint name="WSUpdFolder"      		implementation="it.eng.auriga.repository2.jaxws.webservices.updfolder.WSUpdFolder"         		    	url-pattern="/soap/WSUpdFolder"     enable-mtom="true">
+		<handler-chains xmlns="http://java.sun.com/xml/ns/javaee"> <handler-chain><handler><handler-name>it.eng.auriga.repository2.generic.NullMessageHandler</handler-name><handler-class>it.eng.auriga.repository2.generic.NullMessageHandler</handler-class></handler></handler-chain></handler-chains>    	
+	</endpoint>
+	
+	<endpoint name="WSDeleteDoc"      		implementation="it.eng.auriga.repository2.jaxws.webservices.deletedoc.WSDeleteDoc"         		    	url-pattern="/soap/WSDeleteDoc"     enable-mtom="true">
+		<handler-chains xmlns="http://java.sun.com/xml/ns/javaee"> <handler-chain><handler><handler-name>it.eng.auriga.repository2.generic.NullMessageHandler</handler-name><handler-class>it.eng.auriga.repository2.generic.NullMessageHandler</handler-class></handler></handler-chain></handler-chains>    	
+	</endpoint>
+	
+	<endpoint name="WSDeleteVersion"  		implementation="it.eng.auriga.repository2.jaxws.webservices.deleteversion.WSDeleteVersion" 		    	url-pattern="/soap/WSDeleteVersion"     enable-mtom="true">
+		<handler-chains xmlns="http://java.sun.com/xml/ns/javaee"> <handler-chain><handler><handler-name>it.eng.auriga.repository2.generic.NullMessageHandler</handler-name><handler-class>it.eng.auriga.repository2.generic.NullMessageHandler</handler-class></handler></handler-chain></handler-chains>	    	
+	</endpoint>
+	
+	<endpoint name="WSAddUd"          		implementation="it.eng.auriga.repository2.jaxws.webservices.addunitadoc.WSAddUd"           		    	url-pattern="/soap/WSAddUd"     enable-mtom="true">
+		<handler-chains xmlns="http://java.sun.com/xml/ns/javaee"> <handler-chain><handler><handler-name>it.eng.auriga.repository2.generic.NullMessageHandler</handler-name><handler-class>it.eng.auriga.repository2.generic.NullMessageHandler</handler-class></handler></handler-chain></handler-chains>	    	
+	</endpoint>
+
+	<endpoint name="WSAddUdMime"          		implementation="it.eng.auriga.repository2.jaxws.webservices.addunitadocmime.WSAddUdMime"           		    	url-pattern="/soap/WSAddUdMime"     enable-mtom="true">
+		<handler-chains xmlns="http://java.sun.com/xml/ns/javaee"> <handler-chain><handler><handler-name>it.eng.auriga.repository2.generic.NullMessageHandler</handler-name><handler-class>it.eng.auriga.repository2.generic.NullMessageHandler</handler-class></handler></handler-chain></handler-chains>	    	
+	</endpoint>
+	
+	<endpoint name="WSUpdUd"          		implementation="it.eng.auriga.repository2.jaxws.webservices.updunitadoc.WSUpdUd"           	    		url-pattern="/soap/WSUpdUd"     enable-mtom="true">
+		<handler-chains xmlns="http://java.sun.com/xml/ns/javaee"> <handler-chain><handler><handler-name>it.eng.auriga.repository2.generic.NullMessageHandler</handler-name><handler-class>it.eng.auriga.repository2.generic.NullMessageHandler</handler-class></handler></handler-chain></handler-chains>    	
+	</endpoint>
+	
+	<endpoint name="WSDelUd"          		implementation="it.eng.auriga.repository2.jaxws.webservices.delunitadoc.WSDelUd"           	        	url-pattern="/soap/WSDelUd"     enable-mtom="true">
+		<handler-chains xmlns="http://java.sun.com/xml/ns/javaee"> <handler-chain><handler><handler-name>it.eng.auriga.repository2.generic.NullMessageHandler</handler-name><handler-class>it.eng.auriga.repository2.generic.NullMessageHandler</handler-class></handler></handler-chain></handler-chains>	    	
+	</endpoint>
+	
+	<endpoint name="WSExtractOne"     		implementation="it.eng.auriga.repository2.jaxws.webservices.extractone.WSExtractOne"           	    	url-pattern="/soap/WSExtractOne"     enable-mtom="true">
+		<handler-chains xmlns="http://java.sun.com/xml/ns/javaee"> <handler-chain><handler><handler-name>it.eng.auriga.repository2.generic.NullMessageHandler</handler-name><handler-class>it.eng.auriga.repository2.generic.NullMessageHandler</handler-class></handler></handler-chain></handler-chains>
+	</endpoint>
+	
+	<endpoint name="WSNewAttrCustom"  		implementation="it.eng.auriga.repository2.jaxws.webservices.newattrcustom.WSNewAttrCustom"      		url-pattern="/soap/WSNewAttrCustom"     enable-mtom="true">
+		<handler-chains xmlns="http://java.sun.com/xml/ns/javaee"> <handler-chain><handler><handler-name>it.eng.auriga.repository2.generic.NullMessageHandler</handler-name><handler-class>it.eng.auriga.repository2.generic.NullMessageHandler</handler-class></handler></handler-chain></handler-chains>    	
+	</endpoint>
+	
+	<endpoint name="WSDeleteAttrCustom"  	implementation="it.eng.auriga.repository2.jaxws.webservices.deleteattrcustom.WSDeleteAttrCustom"    	url-pattern="/soap/WSDeleteAttrCustom"     enable-mtom="true">
+		<handler-chains xmlns="http://java.sun.com/xml/ns/javaee"> <handler-chain><handler><handler-name>it.eng.auriga.repository2.generic.NullMessageHandler</handler-name><handler-class>it.eng.auriga.repository2.generic.NullMessageHandler</handler-class></handler></handler-chain></handler-chains>    	
+	</endpoint>
+	
+	<endpoint name="WSModifyAttrCustom"  	implementation="it.eng.auriga.repository2.jaxws.webservices.modifyattrcustom.WSModifyAttrCustom"    	url-pattern="/soap/WSModifyAttrCustom"     enable-mtom="true">
+		<handler-chains xmlns="http://java.sun.com/xml/ns/javaee"> <handler-chain><handler><handler-name>it.eng.auriga.repository2.generic.NullMessageHandler</handler-name><handler-class>it.eng.auriga.repository2.generic.NullMessageHandler</handler-class></handler></handler-chain></handler-chains>    	
+	</endpoint>
+	
+	<endpoint name="WSUpdTipoDoc"  		    implementation="it.eng.auriga.repository2.jaxws.webservices.updtipodoc.WSUpdTipoDoc"		        	url-pattern="/soap/WSUpdTipoDoc"     enable-mtom="true">
+		<handler-chains xmlns="http://java.sun.com/xml/ns/javaee"> <handler-chain><handler><handler-name>it.eng.auriga.repository2.generic.NullMessageHandler</handler-name><handler-class>it.eng.auriga.repository2.generic.NullMessageHandler</handler-class></handler></handler-chain></handler-chains>    	
+	</endpoint>
+	
+	<endpoint name="WSAddTipoDoc"  		    implementation="it.eng.auriga.repository2.jaxws.webservices.addtipodoc.WSAddTipoDoc"		        	url-pattern="/soap/WSAddTipoDoc"     enable-mtom="true">
+		<handler-chains xmlns="http://java.sun.com/xml/ns/javaee"> <handler-chain><handler><handler-name>it.eng.auriga.repository2.generic.NullMessageHandler</handler-name><handler-class>it.eng.auriga.repository2.generic.NullMessageHandler</handler-class></handler></handler-chain></handler-chains>    	
+	</endpoint>
+
+	<endpoint name="WSDeleteTipoDoc"  		implementation="it.eng.auriga.repository2.jaxws.webservices.deletetipodoc.WSDeleteTipoDoc"		    	url-pattern="/soap/WSDeleteTipoDoc"     enable-mtom="true">
+		<handler-chains xmlns="http://java.sun.com/xml/ns/javaee"> <handler-chain><handler><handler-name>it.eng.auriga.repository2.generic.NullMessageHandler</handler-name><handler-class>it.eng.auriga.repository2.generic.NullMessageHandler</handler-class></handler></handler-chain></handler-chains>	    	
+	</endpoint>
+	
+	<endpoint name="WSTrovaTipiDocumento"  	implementation="it.eng.auriga.repository2.jaxws.webservices.trovatipidocumento.WSTrovaTipiDocumento"	url-pattern="/soap/WSTrovaTipiDocumento"  enable-mtom="true">
+		<handler-chains xmlns="http://java.sun.com/xml/ns/javaee"> <handler-chain><handler><handler-name>it.eng.auriga.repository2.generic.NullMessageHandler</handler-name><handler-class>it.eng.auriga.repository2.generic.NullMessageHandler</handler-class></handler></handler-chain></handler-chains>
+	</endpoint>
+	
+	<endpoint name="WSTrovaTipiFolder"  	implementation="it.eng.auriga.repository2.jaxws.webservices.trovatipifolder.WSTrovaTipiFolder"    	    url-pattern="/soap/WSTrovaTipiFolder"     enable-mtom="true">
+		<handler-chains xmlns="http://java.sun.com/xml/ns/javaee"> <handler-chain><handler><handler-name>it.eng.auriga.repository2.generic.NullMessageHandler</handler-name><handler-class>it.eng.auriga.repository2.generic.NullMessageHandler</handler-class></handler></handler-chain></handler-chains>
+	</endpoint>
+	
+	<endpoint name="WSTrovaDocFolder"  	implementation="it.eng.auriga.repository2.jaxws.webservices.trovadocfolder.WSTrovaDocFolder"    	        url-pattern="/soap/WSTrovaDocFolder"     enable-mtom="true">
+		<handler-chains xmlns="http://java.sun.com/xml/ns/javaee"> <handler-chain><handler><handler-name>it.eng.auriga.repository2.generic.NullMessageHandler</handler-name><handler-class>it.eng.auriga.repository2.generic.NullMessageHandler</handler-class></handler></handler-chain></handler-chains>
+	</endpoint>
+	
+	<endpoint name="WSCheckIn"  	implementation="it.eng.auriga.repository2.jaxws.webservices.checkin.WSCheckIn"    	        url-pattern="/soap/WSCheckIn"     enable-mtom="true">
+		<handler-chains xmlns="http://java.sun.com/xml/ns/javaee"> <handler-chain><handler><handler-name>it.eng.auriga.repository2.generic.NullMessageHandler</handler-name><handler-class>it.eng.auriga.repository2.generic.NullMessageHandler</handler-class></handler></handler-chain></handler-chains>
+	</endpoint>
+
+	<endpoint name="WSCheckOut"  	implementation="it.eng.auriga.repository2.jaxws.webservices.checkout.WSCheckOut"    	        url-pattern="/soap/WSCheckOut"     enable-mtom="true">
+		<handler-chains xmlns="http://java.sun.com/xml/ns/javaee"> <handler-chain><handler><handler-name>it.eng.auriga.repository2.generic.NullMessageHandler</handler-name><handler-class>it.eng.auriga.repository2.generic.NullMessageHandler</handler-class></handler></handler-chain></handler-chains>
+	</endpoint>
+	
+	<endpoint name="WSUnlock"  	implementation="it.eng.auriga.repository2.jaxws.webservices.unlock.WSUnlock"    	        url-pattern="/soap/WSUnlock"     enable-mtom="true">
+		<handler-chains xmlns="http://java.sun.com/xml/ns/javaee"> <handler-chain><handler><handler-name>it.eng.auriga.repository2.generic.NullMessageHandler</handler-name><handler-class>it.eng.auriga.repository2.generic.NullMessageHandler</handler-class></handler></handler-chain></handler-chains>
+	</endpoint>
+
+	<endpoint name="WSLock"  	implementation="it.eng.auriga.repository2.jaxws.webservices.lock.WSLock"    	        url-pattern="/soap/WSLock"     enable-mtom="true">
+		<handler-chains xmlns="http://java.sun.com/xml/ns/javaee"> <handler-chain><handler><handler-name>it.eng.auriga.repository2.generic.NullMessageHandler</handler-name><handler-class>it.eng.auriga.repository2.generic.NullMessageHandler</handler-class></handler></handler-chain></handler-chains>
+	</endpoint>
+	
+	<endpoint name="WSLockUd"  	implementation="it.eng.auriga.repository2.jaxws.webservices.lockud.WSLockUd"    	        url-pattern="/soap/WSLockUd"     enable-mtom="true">
+		<handler-chains xmlns="http://java.sun.com/xml/ns/javaee"> <handler-chain><handler><handler-name>it.eng.auriga.repository2.generic.NullMessageHandler</handler-name><handler-class>it.eng.auriga.repository2.generic.NullMessageHandler</handler-class></handler></handler-chain></handler-chains>
+	</endpoint>
+	
+	<endpoint name="WSUnlockUd"  	implementation="it.eng.auriga.repository2.jaxws.webservices.unlockud.WSUnlockUd"    	        url-pattern="/soap/WSUnlockUd"     enable-mtom="true">
+		<handler-chains xmlns="http://java.sun.com/xml/ns/javaee"> <handler-chain><handler><handler-name>it.eng.auriga.repository2.generic.NullMessageHandler</handler-name><handler-class>it.eng.auriga.repository2.generic.NullMessageHandler</handler-class></handler></handler-chain></handler-chains>
+	</endpoint>
+
+	<endpoint name="WSLockFolder"  	implementation="it.eng.auriga.repository2.jaxws.webservices.lockfolder.WSLockFolder"    	        url-pattern="/soap/WSLockFolder"     enable-mtom="true">
+		<handler-chains xmlns="http://java.sun.com/xml/ns/javaee"> <handler-chain><handler><handler-name>it.eng.auriga.repository2.generic.NullMessageHandler</handler-name><handler-class>it.eng.auriga.repository2.generic.NullMessageHandler</handler-class></handler></handler-chain></handler-chains>
+	</endpoint>
+	
+	<endpoint name="WSUnlockFolder"  	implementation="it.eng.auriga.repository2.jaxws.webservices.unlockfolder.WSUnlockFolder"    	        url-pattern="/soap/WSUnlockFolder"     enable-mtom="true">
+		<handler-chains xmlns="http://java.sun.com/xml/ns/javaee"> <handler-chain><handler><handler-name>it.eng.auriga.repository2.generic.NullMessageHandler</handler-name><handler-class>it.eng.auriga.repository2.generic.NullMessageHandler</handler-class></handler></handler-chain></handler-chains>
+	</endpoint>
+
+	<endpoint name="WSGetMetadataUd"  	implementation="it.eng.auriga.repository2.jaxws.webservices.getmetadataud.WSGetMetadataUd"    	        url-pattern="/soap/WSGetMetadataUd"     enable-mtom="true">
+		<handler-chains xmlns="http://java.sun.com/xml/ns/javaee"> <handler-chain><handler><handler-name>it.eng.auriga.repository2.generic.NullMessageHandler</handler-name><handler-class>it.eng.auriga.repository2.generic.NullMessageHandler</handler-class></handler></handler-chain></handler-chains>
+	</endpoint>
+	
+	<endpoint name="WSGetMetadataFolder"  	implementation="it.eng.auriga.repository2.jaxws.webservices.getmetadatafolder.WSGetMetadataFolder"    	        url-pattern="/soap/WSGetMetadataFolder"     enable-mtom="true">
+		<handler-chains xmlns="http://java.sun.com/xml/ns/javaee"> <handler-chain><handler><handler-name>it.eng.auriga.repository2.generic.NullMessageHandler</handler-name><handler-class>it.eng.auriga.repository2.generic.NullMessageHandler</handler-class></handler></handler-chain></handler-chains>
+	</endpoint>
+
+	<endpoint name="WSGetListaVersioniDoc"  	implementation="it.eng.auriga.repository2.jaxws.webservices.getlistaversionidoc.WSGetListaVersioniDoc"    	        url-pattern="/soap/WSGetListaVersioniDoc"     enable-mtom="true">
+		<handler-chains xmlns="http://java.sun.com/xml/ns/javaee"> <handler-chain><handler><handler-name>it.eng.auriga.repository2.generic.NullMessageHandler</handler-name><handler-class>it.eng.auriga.repository2.generic.NullMessageHandler</handler-class></handler></handler-chain></handler-chains>
+	</endpoint>
+	
+	<endpoint name="WSGetListaVersioniDatiUd"  	implementation="it.eng.auriga.repository2.jaxws.webservices.getlistaversionidatiud.WSGetListaVersioniDatiUd"    	        url-pattern="/soap/WSGetListaVersioniDatiUd"     enable-mtom="true">
+		<handler-chains xmlns="http://java.sun.com/xml/ns/javaee"> <handler-chain><handler><handler-name>it.eng.auriga.repository2.generic.NullMessageHandler</handler-name><handler-class>it.eng.auriga.repository2.generic.NullMessageHandler</handler-class></handler></handler-chain></handler-chains>
+	</endpoint>
+
+	<endpoint name="WSGetListaNotificheUd"  	implementation="it.eng.auriga.repository2.jaxws.webservices.getlistanotificheud.WSGetListaNotificheUd"    	        url-pattern="/soap/WSGetListaNotificheUd"     enable-mtom="true">
+		<handler-chains xmlns="http://java.sun.com/xml/ns/javaee"> <handler-chain><handler><handler-name>it.eng.auriga.repository2.generic.NullMessageHandler</handler-name><handler-class>it.eng.auriga.repository2.generic.NullMessageHandler</handler-class></handler></handler-chain></handler-chains>
+	</endpoint>
+	
+	<endpoint name="WSIstanzaApplicazioneEsterna"  	implementation="it.eng.auriga.repository2.jaxws.webservices.istanzaapplicazioneesterna.WSIstanzaApplicazioneEsterna"    	        url-pattern="/soap/WSIstanzaApplicazioneEsterna"     enable-mtom="true">
+		<handler-chains xmlns="http://java.sun.com/xml/ns/javaee"> <handler-chain><handler><handler-name>it.eng.auriga.repository2.generic.NullMessageHandler</handler-name><handler-class>it.eng.auriga.repository2.generic.NullMessageHandler</handler-class></handler></handler-chain></handler-chains>
+	</endpoint>
+	
+	<endpoint name="WSDeleteIstanzaApplEsterna"  	implementation="it.eng.auriga.repository2.jaxws.webservices.deleteistanzaapplesterna.WSDeleteIstanzaApplEsterna"    	        url-pattern="/soap/WSDeleteIstanzaApplEsterna"     enable-mtom="true">
+		<handler-chains xmlns="http://java.sun.com/xml/ns/javaee"> <handler-chain><handler><handler-name>it.eng.auriga.repository2.generic.NullMessageHandler</handler-name><handler-class>it.eng.auriga.repository2.generic.NullMessageHandler</handler-class></handler></handler-chain></handler-chains>
+	</endpoint>
+	
+	<endpoint name="WSTrovaIstanzeApplEsterne"  	implementation="it.eng.auriga.repository2.jaxws.webservices.trovaistanzeapplesterne.WSTrovaIstanzeApplEsterne"    	        url-pattern="/soap/WSTrovaIstanzeApplEsterne"     enable-mtom="true">
+		<handler-chains xmlns="http://java.sun.com/xml/ns/javaee"> <handler-chain><handler><handler-name>it.eng.auriga.repository2.generic.NullMessageHandler</handler-name><handler-class>it.eng.auriga.repository2.generic.NullMessageHandler</handler-class></handler></handler-chain></handler-chains>
+	</endpoint>
+	
+	<endpoint name="WSEstremiIstanzaApplEsterna"  	implementation="it.eng.auriga.repository2.jaxws.webservices.estremiistanzaapplesterna.WSEstremiIstanzaApplEsterna"    	        url-pattern="/soap/WSEstremiIstanzaApplEsterna"     enable-mtom="true">
+		<handler-chains xmlns="http://java.sun.com/xml/ns/javaee"> <handler-chain><handler><handler-name>it.eng.auriga.repository2.generic.NullMessageHandler</handler-name><handler-class>it.eng.auriga.repository2.generic.NullMessageHandler</handler-class></handler></handler-chain></handler-chains>
+	</endpoint>
+
+	<endpoint name="WSTrovaUtenti"  	implementation="it.eng.auriga.repository2.jaxws.webservices.trovautenti.WSTrovaUtenti"    	        url-pattern="/soap/WSTrovaUtenti"     enable-mtom="true">
+		<handler-chains xmlns="http://java.sun.com/xml/ns/javaee"> <handler-chain><handler><handler-name>it.eng.auriga.repository2.generic.NullMessageHandler</handler-name><handler-class>it.eng.auriga.repository2.generic.NullMessageHandler</handler-class></handler></handler-chain></handler-chains>
+	</endpoint>
+
+	<endpoint name="WSTrovaGruppi"  	implementation="it.eng.auriga.repository2.jaxws.webservices.trovagruppi.WSTrovaGruppi"    	        url-pattern="/soap/WSTrovaGruppi"     enable-mtom="true">
+		<handler-chains xmlns="http://java.sun.com/xml/ns/javaee"> <handler-chain><handler><handler-name>it.eng.auriga.repository2.generic.NullMessageHandler</handler-name><handler-class>it.eng.auriga.repository2.generic.NullMessageHandler</handler-class></handler></handler-chain></handler-chains>
+	</endpoint>
+
+	<endpoint name="WSAddUdToFavourite"  	implementation="it.eng.auriga.repository2.jaxws.webservices.addudtofavourite.WSAddUdToFavourite"    	url-pattern="/soap/WSAddUdToFavourite"     enable-mtom="true">
+		<handler-chains xmlns="http://java.sun.com/xml/ns/javaee"> <handler-chain><handler><handler-name>it.eng.auriga.repository2.generic.NullMessageHandler</handler-name><handler-class>it.eng.auriga.repository2.generic.NullMessageHandler</handler-class></handler></handler-chain></handler-chains>
+	</endpoint>
+
+	<endpoint name="WSRemoveUdFromFavourite"  	implementation="it.eng.auriga.repository2.jaxws.webservices.removeudfromfavourite.WSRemoveUdFromFavourite"    	url-pattern="/soap/WSRemoveUdFromFavourite"     enable-mtom="true">
+		<handler-chains xmlns="http://java.sun.com/xml/ns/javaee"> <handler-chain><handler><handler-name>it.eng.auriga.repository2.generic.NullMessageHandler</handler-name><handler-class>it.eng.auriga.repository2.generic.NullMessageHandler</handler-class></handler></handler-chain></handler-chains>
+	</endpoint>
+
+
+	<endpoint name="WSAddFolderToFavourite"  	implementation="it.eng.auriga.repository2.jaxws.webservices.addfoldertofavourite.WSAddFolderToFavourite"    	url-pattern="/soap/WSAddFolderToFavourite"     enable-mtom="true">
+		<handler-chains xmlns="http://java.sun.com/xml/ns/javaee"> <handler-chain><handler><handler-name>it.eng.auriga.repository2.generic.NullMessageHandler</handler-name><handler-class>it.eng.auriga.repository2.generic.NullMessageHandler</handler-class></handler></handler-chain></handler-chains>
+	</endpoint>
+
+	<endpoint name="WSRemoveFolderFromFavourite"  	implementation="it.eng.auriga.repository2.jaxws.webservices.removefolderfromfavourite.WSRemoveFolderFromFavourite"    	url-pattern="/soap/WSRemoveFolderFromFavourite"     enable-mtom="true">
+		<handler-chains xmlns="http://java.sun.com/xml/ns/javaee"> <handler-chain><handler><handler-name>it.eng.auriga.repository2.generic.NullMessageHandler</handler-name><handler-class>it.eng.auriga.repository2.generic.NullMessageHandler</handler-class></handler></handler-chain></handler-chains>
+	</endpoint>
+
+	<endpoint name="WSAddUser"  	implementation="it.eng.auriga.repository2.jaxws.webservices.adduser.WSAddUser"    	url-pattern="/soap/WSAddUser"     enable-mtom="true">
+		<handler-chains xmlns="http://java.sun.com/xml/ns/javaee"> <handler-chain><handler><handler-name>it.eng.auriga.repository2.generic.NullMessageHandler</handler-name><handler-class>it.eng.auriga.repository2.generic.NullMessageHandler</handler-class></handler></handler-chain></handler-chains>
+	</endpoint>
+
+	<endpoint name="WSDelUser"  	implementation="it.eng.auriga.repository2.jaxws.webservices.deluser.WSDelUser"    	url-pattern="/soap/WSDelUser"     enable-mtom="true">
+		<handler-chains xmlns="http://java.sun.com/xml/ns/javaee"> <handler-chain><handler><handler-name>it.eng.auriga.repository2.generic.NullMessageHandler</handler-name><handler-class>it.eng.auriga.repository2.generic.NullMessageHandler</handler-class></handler></handler-chain></handler-chains>
+	</endpoint>
+	
+	<endpoint name="WSModUser"  	implementation="it.eng.auriga.repository2.jaxws.webservices.moduser.WSModUser"    	url-pattern="/soap/WSModUser"     enable-mtom="true">
+		<handler-chains xmlns="http://java.sun.com/xml/ns/javaee"> <handler-chain><handler><handler-name>it.eng.auriga.repository2.generic.NullMessageHandler</handler-name><handler-class>it.eng.auriga.repository2.generic.NullMessageHandler</handler-class></handler></handler-chain></handler-chains>
+	</endpoint>
+
+	<endpoint name="WSNotificaDocFolder"  	implementation="it.eng.auriga.repository2.jaxws.webservices.notificadocfolder.WSNotificaDocFolder"    	url-pattern="/soap/WSNotificaDocFolder"     enable-mtom="true">
+		<handler-chains xmlns="http://java.sun.com/xml/ns/javaee"> <handler-chain><handler><handler-name>it.eng.auriga.repository2.generic.NullMessageHandler</handler-name><handler-class>it.eng.auriga.repository2.generic.NullMessageHandler</handler-class></handler></handler-chain></handler-chains>
+	</endpoint>
+
+	<endpoint name="WSAddModPrivilegi"  	implementation="it.eng.auriga.repository2.jaxws.webservices.addmodprivilegi.WSAddModPrivilegi"    	url-pattern="/soap/WSAddModPrivilegi"     enable-mtom="true">
+		<handler-chains xmlns="http://java.sun.com/xml/ns/javaee"> <handler-chain><handler><handler-name>it.eng.auriga.repository2.generic.NullMessageHandler</handler-name><handler-class>it.eng.auriga.repository2.generic.NullMessageHandler</handler-class></handler></handler-chain></handler-chains>
+	</endpoint>
+	
+	<endpoint name="WSSAVAGetPing"  	implementation="it.eng.auriga.repository2.jaxws.webservices.savagetping.WSSAVAGetPing"    	url-pattern="/soap/WSSAVAGetPing"     enable-mtom="true">
+		<handler-chains xmlns="http://java.sun.com/xml/ns/javaee"> <handler-chain><handler><handler-name>it.eng.auriga.repository2.generic.NullMessageHandler</handler-name><handler-class>it.eng.auriga.repository2.generic.NullMessageHandler</handler-class></handler></handler-chain></handler-chains>
+	</endpoint>
+	
+	<endpoint name="WSExtractMulti"     		implementation="it.eng.auriga.repository2.jaxws.webservices.extractmulti.WSExtractMulti"           	    	url-pattern="/soap/WSExtractMulti"     enable-mtom="true">
+		<handler-chains xmlns="http://java.sun.com/xml/ns/javaee"> <handler-chain><handler><handler-name>it.eng.auriga.repository2.generic.NullMessageHandler</handler-name><handler-class>it.eng.auriga.repository2.generic.NullMessageHandler</handler-class></handler></handler-chain></handler-chains>
+	</endpoint>
+	
+	<endpoint name="WSTrovaInOrganigramma"  	implementation="it.eng.auriga.repository2.jaxws.webservices.trovainorganigramma.WSTrovaInOrganigramma"    	        url-pattern="/soap/WSTrovaInOrganigramma"     enable-mtom="true">
+		<handler-chains xmlns="http://java.sun.com/xml/ns/javaee"> <handler-chain><handler><handler-name>it.eng.auriga.repository2.generic.NullMessageHandler</handler-name><handler-class>it.eng.auriga.repository2.generic.NullMessageHandler</handler-class></handler></handler-chain></handler-chains>
+	</endpoint>
+		
+	<endpoint name="WSTrovaClassifTitolario"  	implementation="it.eng.auriga.repository2.jaxws.webservices.trovaclassiftitolario.WSTrovaClassifTitolario"    	        url-pattern="/soap/WSTrovaClassifTitolario"     enable-mtom="true">
+		<handler-chains xmlns="http://java.sun.com/xml/ns/javaee"> <handler-chain><handler><handler-name>it.eng.auriga.repository2.generic.NullMessageHandler</handler-name><handler-class>it.eng.auriga.repository2.generic.NullMessageHandler</handler-class></handler></handler-chain></handler-chains>
+	</endpoint>
+	
+	<endpoint name="WSFillModelWithValues"  	implementation="it.eng.auriga.repository2.jaxws.webservices.fillmodelwithvalues.WSFillModelWithValues"    	        url-pattern="/soap/WSFillModelWithValues"     enable-mtom="true">
+		<handler-chains xmlns="http://java.sun.com/xml/ns/javaee"> <handler-chain><handler><handler-name>it.eng.auriga.repository2.generic.NullMessageHandler</handler-name><handler-class>it.eng.auriga.repository2.generic.NullMessageHandler</handler-class></handler></handler-chain></handler-chains>
+	</endpoint>
+	
+	<!-- Web service di Prenotazione appuntamenti specifico per Milano. A differenza degli altri ws qui scambiamo direttamente le informazioni senza passare da file allegati. Inoltre si imposta un wsdl statico nella cartella WEB-INF/wsdl per evitare che ne venga generato uno in fase di deploy e venga sovrascritto lo schema del wsdl e dei tipi di dati  -->
+	<endpoint name="WSPrenotaAppuntamento"  	implementation="it.eng.auriga.repository2.jaxws.webservices.prenotaappuntamento.WSPrenotaAppuntamento"  url-pattern="/soap/WSPrenotaAppuntamento"     enable-mtom="true" wsdl="WEB-INF/wsdl/PrenotaAppuntamento.wsdl"  service="{http://prenotaappuntamento.webservices.repository2.auriga.eng.it}WSPrenotaAppuntamento"
+        port="{http://prenotaappuntamento.webservices.repository2.auriga.eng.it}WSPrenotaAppuntamentoSoap">
+	</endpoint>
+	
+	<!-- Web service di Aggiornamento Tipi Doc da Classi/Sottoclassi specifico per BNL. A differenza degli altri ws qui scambiamo direttamente le informazioni senza passare da file allegati. Inoltre si imposta un wsdl statico nella cartella WEB-INF/wsdl per evitare che ne venga generato uno in fase di deploy e venga sovrascritto lo schema del wsdl e dei tipi di dati  -->
+	<endpoint name="WSAggiornaAnagrafeClassiDoc"  	implementation="it.eng.auriga.repository2.jaxws.webservices.aggiornaanagrafeclassidoc.WSAggiornaAnagrafeClassiDoc"  url-pattern="/soap/WSAggiornaAnagrafeClassiDoc"     enable-mtom="true" wsdl="WEB-INF/wsdl/AggAnagrafeClassiDoc.wsdl"  service="{http://aggiornaanagrafeclassidoc.webservices.repository2.auriga.eng.it}WSAggiornaAnagrafeClassiDoc"
+        port="{http://aggiornaanagrafeclassidoc.webservices.repository2.auriga.eng.it}AggiornaAnagrafeClassiDocPort">
+        <handler-chains xmlns="http://java.sun.com/xml/ns/javaee"> <handler-chain><handler><handler-name>it.eng.auriga.repository2.generic.NullMessageHandler</handler-name><handler-class>it.eng.auriga.repository2.generic.NullMessageHandler</handler-class></handler></handler-chain></handler-chains>
+	</endpoint>
+	
+	<!-- Web service di Aggiornamento Tipi Doc da Classi/Sottoclassi specifico per BNL Clientela. A differenza degli altri ws qui scambiamo direttamente le informazioni senza passare da file allegati. Inoltre si imposta un wsdl statico nella cartella WEB-INF/wsdl per evitare che ne venga generato uno in fase di deploy e venga sovrascritto lo schema del wsdl e dei tipi di dati  -->
+	<endpoint name="WSAggiornaAnagrafeClassiDocClientela"  	implementation="it.eng.auriga.repository2.jaxws.webservices.aggiornaanagrafeclassidocclientela.WSAggiornaAnagrafeClassiDocClientela"  url-pattern="/soap/WSAggiornaAnagrafeClassiDocClientela"     enable-mtom="true" wsdl="WEB-INF/wsdl/AggAnagrafeClassiDocClientela.wsdl"  service="{http://aggiornaanagrafeclassidocclientela.webservices.repository2.auriga.eng.it}WSAggiornaAnagrafeClassiDocClientela"
+        port="{http://aggiornaanagrafeclassidocclientela.webservices.repository2.auriga.eng.it}AggiornaAnagrafeClassiDocClientelaPort">
+        <handler-chains xmlns="http://java.sun.com/xml/ns/javaee"> <handler-chain><handler><handler-name>it.eng.auriga.repository2.generic.NullMessageHandler</handler-name><handler-class>it.eng.auriga.repository2.generic.NullMessageHandler</handler-class></handler></handler-chain></handler-chains>
+	</endpoint>
+	
+	<!-- Web service di elaborazione del lotto di documenti. A differenza degli altri ws qui scambiamo direttamente le informazioni senza passare da file allegati. Inoltre si imposta un wsdl statico nella cartella WEB-INF/wsdl per evitare che ne venga generato uno in fase di deploy e venga sovrascritto lo schema del wsdl e dei tipi di dati  -->
+	<endpoint name="WSOperazioniAurigaLottiDoc"  	implementation="it.eng.auriga.repository2.jaxws.webservices.operazioniaurigalottidoc.WSOperazioniAurigaLottiDoc"  url-pattern="/soap/WSOperazioniAurigaLottiDoc"  enable-mtom="true" wsdl="WEB-INF/wsdl/OperazioniAurigaLottiDoc.wsdl"  service="{http://operazioniaurigalottidoc.webservices.repository2.auriga.eng.it}WSOperazioniAurigaLottiDoc"
+        port="{http://operazioniaurigalottidoc.webservices.repository2.auriga.eng.it}OperazioniAurigaLottiDocPort">
+        <handler-chains xmlns="http://java.sun.com/xml/ns/javaee"> <handler-chain><handler><handler-name>it.eng.auriga.repository2.generic.NullMessageHandler</handler-name><handler-class>it.eng.auriga.repository2.generic.NullMessageHandler</handler-class></handler></handler-chain></handler-chains>
+	</endpoint>
+	
+	<endpoint name="WSFeedbackOperazioniAurigaLottiDoc"  	
+	implementation="it.eng.auriga.repository2.jaxws.webservices.operazioniaurigaFeedbackElabDocs.WSFeedbackOperazioniAurigaLottiDoc"  
+url-pattern="/soap/WSFeedbackOperazioniAurigaLottiDoc"  
+enable-mtom="true" 
+wsdl="WEB-INF/wsdl/FeedbackOperazioniAurigaLottiDoc.wsdl"
+ service="{http://operazioniaurigaFeedbackElabDocs.webservices.repository2.auriga.eng.it}WSFeedbackOperazioniAurigaLottiDoc"
+        port="{http://operazioniaurigaFeedbackElabDocs.webservices.repository2.auriga.eng.it}FeedbackOperazioniAurigaLottiDocPortType">
+        <handler-chains xmlns="http://java.sun.com/xml/ns/javaee"> 
+        <handler-chain>
+        <handler>
+        <handler-name>it.eng.auriga.repository2.generic.NullMessageHandler</handler-name>
+        <handler-class>it.eng.auriga.repository2.generic.NullMessageHandler</handler-class>
+        </handler>
+        </handler-chain>
+        </handler-chains>
+	</endpoint>
+</endpoints>

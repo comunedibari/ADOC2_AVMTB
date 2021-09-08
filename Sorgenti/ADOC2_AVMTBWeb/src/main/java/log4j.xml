@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<log4j:configuration>
+	<appender name="stdout" class="org.apache.log4j.ConsoleAppender">
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d{dd/MM/yyyy HH:mm:ss,SSS} %5p (%F:%L) - %m%n" />
+		</layout>
+	</appender>
+	<appender name="R" class="org.apache.log4j.RollingFileAppender">
+		<param name="File" value="/appserv/jboss/ajb720/logs/darcweb.log" />
+		<param name="Append" value="false" />
+		<param name="Encoding" value="UTF-8" />
+		<param name="MaxFileSize" value="4096KB" />
+		<param name="MaxBackupIndex" value="4" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d{dd/MM/yyyy HH:mm:ss,SSS} %5p (%F:%L) - %m%n" />
+		</layout>
+	</appender>
+	<appender name="PerformanceLoggerFile" class="org.apache.log4j.RollingFileAppender">
+        <param name="File" value="/appserv/jboss/ajb720/logs/darcwebPerf.log" />
+        <param name="Append" value="false" />
+		<param name="Encoding" value="UTF-8" />
+		<param name="MaxFileSize" value="4096KB" />
+		<param name="MaxBackupIndex" value="4" />
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="[%d{dd/MM/yyyy HH:mm:ss}] %m%n"/>
+        </layout>
+    </appender>	
+    <appender name="StoragePerformanceLoggerFile" class="org.apache.log4j.RollingFileAppender">
+        <param name="File" value="/appserv/jboss/ajb720/logs/StoragedarcwebPerf.log" />
+        <param name="Append" value="false" />
+		<param name="Encoding" value="UTF-8" />
+		<param name="MaxFileSize" value="4096KB" />
+		<param name="MaxBackupIndex" value="4" />
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="[%d{dd/MM/yyyy HH:mm:ss}] %m%n"/>
+        </layout>
+    </appender>	
+    <logger name="it.eng.core.performance">
+        <level value="ALL" />
+        <appender-ref ref="PerformanceLoggerFile" />
+    </logger>
+    <logger name="it.eng.utility.storageutil.performance">
+        <level value="ALL" />
+        <appender-ref ref="StoragePerformanceLoggerFile" />
+    </logger>
+	<root>
+		<level value="ALL" />
+		<appender-ref ref="R" />
+	</root>
+	<logger name="it.eng.auriga.ui.module.layout.server.menu">
+        	<level value="ALL" />
+        	<appender-ref ref="R" />
+    	</logger>
+
+</log4j:configuration>
