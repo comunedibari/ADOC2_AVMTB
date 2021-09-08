@@ -20,19 +20,19 @@ Struttura del repository
 Il repository è così strutturato:
 
 - ADOC2_AVMTBWeb
-  Modulo per la componente web
+   Modulo per la componente web
 - ADOC2_AVMTBBusiness
-  Modulo per le funzionalità della logica di business
+   Modulo per le funzionalità della logica di business
 - ADOC2_AVMTBFileOperationWar
-  Modulo per la gestione e verifica dei file
+   Modulo per la gestione e verifica dei file
 - ADOC2_AVMTBMail
-  Modulo per l'invio delle mail
+   Modulo per l'invio delle mail
 - ADOC2_AVMTBMailui
-  Modulo per lo scarico delle mail
+   Modulo per lo scarico delle mail
 - ADOC2_AVMTBLib
-  Modulo con le lib terze parti
+   Modulo con le lib terze parti
 - ADOC2_AVMTBDB
-  Modulo DB
+   Modulo DB
 
 All’interno di ogni cartella è presente la cartella src con i relativi sorgenti
 Elenco dettagliato prerequisiti e dipendenze
