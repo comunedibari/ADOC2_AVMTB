@@ -22,21 +22,29 @@ Il repository è così strutturato:
 - ADOC2_AVMTBWeb
    
    Modulo per la componente web
+   
+   ![alt text](https://github.com/comunedibari/ADOC2_AVMTB/blob/master/readme-img/web.png)
 - ADOC2_AVMTBBusiness
    
    Modulo per le funzionalità della logica di business
 - ADOC2_AVMTBFileOperationWar
    
    Modulo per la gestione e verifica dei file
+   
+   ![alt text](https://github.com/comunedibari/ADOC2_AVMTB/blob/master/readme-img/fileop.png)
 - ADOC2_AVMTBMail
    
    Modulo per l'invio delle mail
+   
+   ![alt text](https://github.com/comunedibari/ADOC2_AVMTB/blob/master/readme-img/mail2.png)
 - ADOC2_AVMTBMailui
    
    Modulo per lo scarico delle mail
 - ADOC2_AVMTBLib
    
    Modulo con le lib terze parti
+   
+   ![alt text](https://github.com/comunedibari/ADOC2_AVMTB/blob/master/readme-img/mail.png)
 - ADOC2_AVMTBDB
    
    Modulo DB
