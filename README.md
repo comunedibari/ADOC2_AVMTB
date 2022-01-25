@@ -48,7 +48,7 @@ Il repository è così strutturato:
 - ADOC2_AVMTBDB
    
    Modulo DB
-
+   
 All’interno di ogni cartella è presente la cartella src con i relativi sorgenti
 Elenco dettagliato prerequisiti e dipendenze
 J2EE container:	Tomcat 8  o JBOSS EAP 7.2.0
@@ -64,6 +64,9 @@ Istruzioni per l’installazione
 - Importare lo schema dati (modulo DB)
 - Configurare file di properties
 - Compilare e deployare i pacchetti software sull’application server di riferimento
+
+É disponibile un manuale contenente la descrizione dei casi d'utilizzo più frequenti: 
+https://github.com/comunedibari/ADOC2_AVMTB/blob/master/Documentazione%20tecnica/Manualistica/Manuale%20Operativo_Casi_Uso.pdf
 
 Status del progetto:
 Versione stabile
