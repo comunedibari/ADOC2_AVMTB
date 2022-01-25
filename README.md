@@ -57,15 +57,17 @@ Istruzioni per l’installazione
 - Configurare file di properties
 - Compilare e deployare i pacchetti software sull’application server di riferimento
 
-Status del progetto
+Status del progetto:
 Versione stabile
 
-Detentori di copyright
+Detentori di copyright: 
 Software rilasciato da Engineering spa per l’amministrazione comunale di Bari con possibilità di riuso per la pubblica amministrazione.
 
-Nomi dei soggetti incaricati del mantenimento del progetto
+Nomi dei soggetti incaricati del mantenimento del progetto:
+Engineering SPA
 
-Indirizzo e-mail a cui inviare segnalazioni di sicurezza
+Per segnalazioni di sicurezza:
+[Segnalazioni AVMTB](mailto:avb.protocollo@eslabs.eng.it?subject=[ADOC2]%20Sengalazione%20di%20Sicurezza)
 
 
 
